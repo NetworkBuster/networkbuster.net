@@ -64,7 +64,11 @@
     "cloud:status": "node cloud-storage-manager.js status",
     "admin:setup": "powershell -ExecutionPolicy Bypass -File setup-admin.ps1",
     "admin:verify": "powershell -ExecutionPolicy Bypass -File verify-admin.ps1",
-    "admin:elevated": "powershell -ExecutionPolicy Bypass -File run-elevated.ps1"
+    "admin:elevated": "powershell -ExecutionPolicy Bypass -File run-elevated.ps1",
+    "flash:service": "node flash-upgrade-service.js",
+    "flash:compose": "docker-compose -f docker-compose-flash.yml up",
+    "flash:build": "docker-compose -f docker-compose-flash.yml build",
+    "flash:down": "docker-compose -f docker-compose-flash.yml down"
   },
   "engines": {
     "node": "24.x",
