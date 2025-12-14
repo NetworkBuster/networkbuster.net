@@ -104,6 +104,199 @@ app.post('/api/restart', (req, res) => {
   });
 });
 
+// ============================================
+// COMPREHENSIVE DASHBOARD API ENDPOINTS
+// ============================================
+
+// Get dashboard metrics
+app.get('/api/dashboard/metrics', (req, res) => {
+  const memUsage = process.memoryUsage();
+  res.json({
+    activeUsers: Math.floor(Math.random() * 2000) + 500,
+    totalRequests: appState.requestCount,
+    avgResponseTime: Math.floor(Math.random() * 100) + 20,
+    errorRate: (Math.random() * 0.5).toFixed(2),
+    uptime: appState.uptime,
+    cpuUsage: Math.floor(Math.random() * 80),
+    memoryUsage: Math.round(memUsage.heapUsed / 1024 / 1024),
+    totalMemory: Math.round(memUsage.heapTotal / 1024 / 1024),
+    networkBandwidth: Math.floor(Math.random() * 1000) + 100,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Get dashboard charts data
+app.get('/api/dashboard/charts', (req, res) => {
+  const chartData = {
+    requestVolume: [
+      { time: '12:00', requests: Math.floor(Math.random() * 500) + 100 },
+      { time: '12:15', requests: Math.floor(Math.random() * 500) + 150 },
+      { time: '12:30', requests: Math.floor(Math.random() * 500) + 200 },
+      { time: '12:45', requests: Math.floor(Math.random() * 500) + 250 },
+      { time: '13:00', requests: Math.floor(Math.random() * 500) + 300 }
+    ],
+    latencyTrend: [
+      { time: '12:00', latency: 45 },
+      { time: '12:15', latency: 42 },
+      { time: '12:30', latency: 38 },
+      { time: '12:45', latency: 41 },
+      { time: '13:00', latency: 39 }
+    ],
+    cpuUsage: [
+      { component: 'API Server', usage: 35 },
+      { component: 'Database', usage: 28 },
+      { component: 'Cache', usage: 15 },
+      { component: 'Workers', usage: 22 }
+    ]
+  };
+  res.json(chartData);
+});
+
+// Get service status
+app.get('/api/dashboard/services', (req, res) => {
+  const services = [
+    { name: 'API Server', status: 'healthy', uptime: '99.99%', responseTime: '45ms' },
+    { name: 'Database', status: 'healthy', uptime: '99.95%', responseTime: '12ms' },
+    { name: 'Cache (Redis)', status: 'healthy', uptime: '100%', responseTime: '2ms' },
+    { name: 'Message Queue', status: 'healthy', uptime: '99.98%', responseTime: '8ms' },
+    { name: 'Search Engine', status: 'healthy', uptime: '99.90%', responseTime: '78ms' },
+    { name: 'Background Jobs', status: 'warning', uptime: '99.85%', responseTime: '234ms' }
+  ];
+  res.json(services);
+});
+
+// Get dashboard activity feed
+app.get('/api/dashboard/activity', (req, res) => {
+  const activity = [
+    { time: new Date(Date.now() - 60000).toISOString(), event: 'User login detected', severity: 'info' },
+    { time: new Date(Date.now() - 120000).toISOString(), event: 'Database backup completed', severity: 'success' },
+    { time: new Date(Date.now() - 180000).toISOString(), event: 'API rate limit warning', severity: 'warning' },
+    { time: new Date(Date.now() - 240000).toISOString(), event: 'Cache invalidation triggered', severity: 'info' }
+  ];
+  res.json(activity);
+});
+
+// ============================================
+// COMPREHENSIVE SECRETS MANAGEMENT ENDPOINTS
+// ============================================
+
+// In-memory secrets storage
+const secretsStore = [
+  { id: '1', name: 'github_token', environment: 'production', status: 'active', created: new Date(Date.now() - 86400000), expires: null, masked: '****...e3k9' },
+  { id: '2', name: 'api_key_stripe', environment: 'production', status: 'active', created: new Date(Date.now() - 172800000), expires: new Date(Date.now() + 30*86400000), masked: '****...x8p2' },
+  { id: '3', name: 'db_password', environment: 'production', status: 'active', created: new Date(Date.now() - 259200000), expires: null, masked: '****...q9l1' },
+  { id: '4', name: 'auth_secret', environment: 'staging', status: 'active', created: new Date(Date.now() - 7*86400000), expires: new Date(Date.now() - 86400000), masked: '****...m6v4' },
+  { id: '5', name: 'api_key_aws', environment: 'production', status: 'expiring', created: new Date(Date.now() - 340*86400000), expires: new Date(Date.now() + 5*86400000), masked: '****...f2j7' },
+  { id: '6', name: 'backup_key', environment: 'dev', status: 'active', created: new Date(Date.now() - 14*86400000), expires: null, masked: '****...z1o3' }
+];
+
+// Get all secrets (masked)
+app.get('/api/secrets', (req, res) => {
+  const secrets = secretsStore.map(s => ({
+    id: s.id,
+    name: s.name,
+    environment: s.environment,
+    status: s.status,
+    created: s.created,
+    expires: s.expires,
+    masked: s.masked,
+    daysToExpire: s.expires ? Math.ceil((s.expires - Date.now()) / 86400000) : null
+  }));
+  res.json({ secrets, count: secrets.length });
+});
+
+// Get secret by ID (masked)
+app.get('/api/secrets/:id', (req, res) => {
+  const secret = secretsStore.find(s => s.id === req.params.id);
+  if (!secret) return res.status(404).json({ error: 'Secret not found' });
+  res.json({
+    id: secret.id,
+    name: secret.name,
+    environment: secret.environment,
+    status: secret.status,
+    created: secret.created,
+    expires: secret.expires,
+    masked: secret.masked
+  });
+});
+
+// Create new secret
+app.post('/api/secrets', (req, res) => {
+  const { name, environment, expiresInDays } = req.body;
+  if (!name || !environment) {
+    return res.status(400).json({ error: 'Name and environment required' });
+  }
+  
+  const newSecret = {
+    id: Date.now().toString(),
+    name,
+    environment,
+    status: 'active',
+    created: new Date(),
+    expires: expiresInDays ? new Date(Date.now() + expiresInDays * 86400000) : null,
+    masked: '****...' + Math.random().toString(36).substr(2, 4).toLowerCase()
+  };
+  
+  secretsStore.push(newSecret);
+  appState.lastAction = `Secret created: ${name}`;
+  addLog('Secret created', name);
+  
+  res.status(201).json({
+    id: newSecret.id,
+    name: newSecret.name,
+    message: 'Secret created successfully',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Update secret status
+app.patch('/api/secrets/:id', (req, res) => {
+  const secret = secretsStore.find(s => s.id === req.params.id);
+  if (!secret) return res.status(404).json({ error: 'Secret not found' });
+  
+  const { status } = req.body;
+  if (status) secret.status = status;
+  
+  appState.lastAction = `Secret updated: ${secret.name}`;
+  addLog('Secret updated', secret.name);
+  
+  res.json({ message: 'Secret updated', id: secret.id, status: secret.status });
+});
+
+// Delete secret
+app.delete('/api/secrets/:id', (req, res) => {
+  const index = secretsStore.findIndex(s => s.id === req.params.id);
+  if (index === -1) return res.status(404).json({ error: 'Secret not found' });
+  
+  const deleted = secretsStore.splice(index, 1)[0];
+  appState.lastAction = `Secret deleted: ${deleted.name}`;
+  addLog('Secret deleted', deleted.name);
+  
+  res.json({ message: 'Secret deleted', id: deleted.id, name: deleted.name });
+});
+
+// Get secrets by environment
+app.get('/api/secrets/filter/:environment', (req, res) => {
+  const { environment } = req.params;
+  const filtered = secretsStore.filter(s => s.environment === environment);
+  res.json({ secrets: filtered, count: filtered.length, environment });
+});
+
+// Validate secret expiration
+app.get('/api/secrets/validate/expiring', (req, res) => {
+  const expiring = secretsStore.filter(s => {
+    if (!s.expires) return false;
+    const daysLeft = (s.expires - Date.now()) / 86400000;
+    return daysLeft <= 30 && daysLeft > 0;
+  });
+  
+  res.json({
+    expiringCount: expiring.count,
+    expiringSoon: expiring,
+    expired: secretsStore.filter(s => s.expires && s.expires < Date.now()).length
+  });
+});
+
 // Get component status
 app.get('/api/components', (req, res) => {
   res.json({
