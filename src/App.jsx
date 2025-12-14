@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import './App.css'
 import TeamMembers from './TeamMembers'
+import Overlay from './Overlay'
+import Dashboard from './Dashboard'
 
 function App() {
   const [count, setCount] = useState(0)
-  const [currentPage, setCurrentPage] = useState('home')
+  const [currentPage, setCurrentPage] = useState('overlay')
 
   const handleNavigation = (e, page) => {
     e.preventDefault()
@@ -15,57 +17,22 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>🚀 NetworkBuster - Unified Dev Environment</h1>
-        <p>Express Backend + Vite React Frontend</p>
+        <h1>🚀 NetworkBuster - Real-Time Overlay & Dashboard</h1>
+        <p>Vite React Frontend on Port 5173</p>
       </header>
 
       <nav className="app-nav">
         <ul>
-          <li><a href="/" onClick={(e) => handleNavigation(e, 'home')}>Home</a></li>
+          <li><a href="/overlay" onClick={(e) => handleNavigation(e, 'overlay')}>Overlay</a></li>
+          <li><a href="/dashboard" onClick={(e) => handleNavigation(e, 'dashboard')}>Dashboard</a></li>
           <li><a href="/team" onClick={(e) => handleNavigation(e, 'team')}>Team</a></li>
-          <li><a href="/ai-world" onClick={(e) => handleNavigation(e, 'ai-world')}>AI World</a></li>
-          <li><a href="/control-panel" onClick={(e) => handleNavigation(e, 'control-panel')}>Control Panel</a></li>
+          <li><a href="http://localhost:3001/home" target="_blank">Backend Home</a></li>
         </ul>
       </nav>
 
       <main className="app-main">
-        {currentPage === 'home' && (
-          <>
-            <section className="welcome-section">
-              <h2>Welcome to NetworkBuster</h2>
-              <p>This is a React frontend powered by Vite, integrated with an Express.js backend.</p>
-              
-              <div className="button-group">
-                <button onClick={() => setCount(count + 1)} className="primary-btn">
-                  Counter: {count}
-                </button>
-                <button onClick={() => setCount(0)} className="secondary-btn">
-                  Reset
-                </button>
-              </div>
-            </section>
-
-            <section className="features-section">
-              <h3>Features</h3>
-              <ul className="features-list">
-                <li>⚡ Vite fast development server with HMR</li>
-                <li>🔗 API proxy to Express backend</li>
-                <li>🎨 React with modern tooling</li>
-                <li>📊 Unified full-stack development</li>
-                <li>🚀 Production-ready build system</li>
-              </ul>
-            </section>
-
-            <section className="servers-section">
-              <h3>Running Servers</h3>
-              <ul className="servers-list">
-                <li>Frontend: <strong>http://localhost:5173</strong></li>
-                <li>Backend: <strong>http://localhost:3000</strong></li>
-              </ul>
-            </section>
-          </>
-        )}
-        
+        {currentPage === 'overlay' && <Overlay />}
+        {currentPage === 'dashboard' && <Dashboard />}
         {currentPage === 'team' && <TeamMembers />}
       </main>
 
