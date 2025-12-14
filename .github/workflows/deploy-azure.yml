@@ -1,4 +1,4 @@
-name: Deploy to Azure Container Apps
+name: Deploy to Azure Container Apps (Optional)
 
 on:
   push:
@@ -8,14 +8,31 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY_LOGIN_SERVER: ${{ secrets.AZURE_REGISTRY_LOGIN_SERVER }}
-  REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
-  REGISTRY_PASSWORD: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+  REGISTRY_LOGIN_SERVER: ${{ secrets.AZURE_REGISTRY_LOGIN_SERVER || 'skipped' }}
+  REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME || 'skipped' }}
+  REGISTRY_PASSWORD: ${{ secrets.AZURE_REGISTRY_PASSWORD || 'skipped' }}
   RESOURCE_GROUP: networkbuster-rg
   CONTAINER_APP_ENV: networkbuster-env
 
 jobs:
+  check-secrets:
+    runs-on: ubuntu-latest
+    outputs:
+      has-secrets: ${{ steps.check.outputs.has-secrets }}
+    steps:
+      - name: Check if secrets are configured
+        id: check
+        run: |
+          if [ -z "${{ secrets.AZURE_REGISTRY_LOGIN_SERVER }}" ]; then
+            echo "has-secrets=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Azure secrets not configured - skipping deployment"
+          else
+            echo "has-secrets=true" >> $GITHUB_OUTPUT
+          fi
+  
   build-and-deploy:
+    needs: check-secrets
+    if: needs.check-secrets.outputs.has-secrets == 'true'
     runs-on: ubuntu-latest
     
     steps:
