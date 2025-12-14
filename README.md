@@ -8,8 +8,10 @@
 
 **NetworkBuster** is the competition-winning advanced networking technology platform for space exploration and lunar operations. Featuring cutting-edge real-time visualization, interactive dashboards, and enterprise-grade automation.
 
-### 🎯 Live Demo
+### 🎯 Live Demo & Video
 **Visit Now:** https://networkbuster-mez5d7bmv-networkbuster.vercel.app
+
+**📺 Watch on YouTube:** https://www.youtube.com/channel/daypirate1/networkbuster
 
 ## 🥇 Why NetworkBuster Wins
 
