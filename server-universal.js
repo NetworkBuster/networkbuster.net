@@ -185,20 +185,24 @@ staticPaths.forEach(({ prefix, dir }) => {
 });
 
 // SPA fallbacks (safe)
-const spaFallbacks = [
-  { path: '/dashboard*', file: 'dashboard/dist/index.html' },
-  { path: '/overlay*', file: 'challengerepo/real-time-overlay/dist/index.html' }
-];
+const dashboardPath = path.join(__dirname, 'dashboard/dist/index.html');
+const overlayPath = path.join(__dirname, 'challengerepo/real-time-overlay/dist/index.html');
 
-spaFallbacks.forEach(({ path: route, file }) => {
-  const fullPath = path.join(__dirname, file);
-  app.get(route, (req, res) => {
-    res.set('Cache-Control', 'public, max-age=3600');
-    res.sendFile(fullPath, (err) => {
-      if (err) {
-        res.status(404).json({ error: 'File not found', file });
-      }
-    });
+app.get('/dashboard/*', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.sendFile(dashboardPath, (err) => {
+    if (err) {
+      res.status(404).json({ error: 'Dashboard not found' });
+    }
+  });
+});
+
+app.get('/overlay/*', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.sendFile(overlayPath, (err) => {
+    if (err) {
+      res.status(404).json({ error: 'Overlay not found' });
+    }
   });
 });
 
