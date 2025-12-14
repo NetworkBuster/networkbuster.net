@@ -6,6 +6,7 @@ import os from 'os';
 // Optional performance packages with fallbacks
 let compression = null;
 let helmet = null;
+let cors = null;
 
 try {
   compression = (await import('compression')).default;
@@ -19,17 +20,78 @@ try {
   console.warn('⚠️  helmet module not found - continuing without security headers');
 }
 
+try {
+  cors = (await import('cors')).default;
+} catch {
+  console.warn('⚠️  cors module not found - continuing without CORS middleware');
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
+
+// Trust Azure/ingress proxy and hide stack info
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
 
 // Performance: Apply optional middleware safely
 if (compression) app.use(compression());
 if (helmet) app.use(helmet());
 
+// HSTS (only if not explicitly disabled)
+if (process.env.ENABLE_HSTS !== 'false') {
+  app.use((req, res, next) => {
+    res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+    next();
+  });
+}
+
+// Basic CORS allowlist without dependency fallbacks
+const allowedOrigins = (process.env.CORS_ORIGINS || 'https://networkbuster.net,http://localhost:3000').split(',').map(o => o.trim());
+const applyCors = (req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+};
+
+if (cors) {
+  app.use(cors({ origin: allowedOrigins, credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] }));
+} else {
+  app.use(applyCors);
+}
+
 // Middleware (always required)
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// In-memory rate limiting (simple sliding window)
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX || 300);
+const rateLimitStore = new Map();
+
+app.use((req, res, next) => {
+  const now = Date.now();
+  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+  const entry = rateLimitStore.get(ip) || { count: 0, start: now };
+  if (now - entry.start > RATE_LIMIT_WINDOW_MS) {
+    entry.count = 0;
+    entry.start = now;
+  }
+  entry.count += 1;
+  rateLimitStore.set(ip, entry);
+  if (entry.count > RATE_LIMIT_MAX) {
+    return res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
+  }
+  next();
+});
 
 // Application state
 const appState = {
@@ -50,6 +112,14 @@ function addLog(action, details = '') {
     appState.logs.shift();
   }
   console.log(logEntry);
+}
+
+// Minimal bearer protection for privileged actions
+function requireAdmin(req, res, next) {
+  if (!ADMIN_TOKEN) return res.status(403).json({ error: 'Admin token not configured' });
+  const auth = req.headers.authorization || '';
+  if (auth === `Bearer ${ADMIN_TOKEN}`) return next();
+  return res.status(401).json({ error: 'Unauthorized' });
 }
 
 // Update uptime
@@ -114,7 +184,7 @@ app.get('/api/logs', (req, res) => {
 });
 
 // Clear logs
-app.post('/api/logs/clear', (req, res) => {
+app.post('/api/logs/clear', requireAdmin, (req, res) => {
   appState.logs = [];
   appState.lastAction = 'Logs cleared';
   addLog('Cleared logs');
@@ -122,7 +192,7 @@ app.post('/api/logs/clear', (req, res) => {
 });
 
 // Restart application indicator
-app.post('/api/restart', (req, res) => {
+app.post('/api/restart', requireAdmin, (req, res) => {
   appState.lastAction = 'Restart initiated';
   addLog('Restart requested');
   res.json({
@@ -148,7 +218,7 @@ app.get('/api/components', (req, res) => {
 });
 
 // Toggle feature endpoint
-app.post('/api/toggle/:feature', (req, res) => {
+app.post('/api/toggle/:feature', requireAdmin, (req, res) => {
   const { feature } = req.params;
   const isEnabled = req.body?.enabled !== false;
   appState.lastAction = `Feature ${feature} toggled: ${isEnabled}`;
@@ -188,6 +258,52 @@ staticPaths.forEach(({ prefix, dir }) => {
 const dashboardPath = path.join(__dirname, 'dashboard/dist/index.html');
 const overlayPath = path.join(__dirname, 'web-app/overlay.html');
 const challengeOverlayPath = path.join(__dirname, 'challengerepo/real-time-overlay/dist/index.html');
+
+// AI Robot endpoint using Azure OpenAI (set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_KEY, AZURE_OPENAI_DEPLOYMENT)
+app.post('/api/robot', async (req, res) => {
+  const { prompt = 'Analyze lunar recycling and space materials. Summarize risks and opportunities.' } = req.body || {};
+  const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+  const apiKey = process.env.AZURE_OPENAI_KEY;
+  const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
+
+  if (!endpoint || !apiKey || !deployment) {
+    return res.status(500).json({
+      error: 'Azure OpenAI not configured. Set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_KEY, AZURE_OPENAI_DEPLOYMENT.'
+    });
+  }
+
+  const url = `${endpoint}/openai/deployments/${deployment}/chat/completions?api-version=2024-02-15-preview`;
+  const body = {
+    messages: [
+      { role: 'system', content: 'You are NetBot, an expert in recycling, lunar regolith processing, and space materials.' },
+      { role: 'user', content: prompt }
+    ],
+    max_tokens: 512,
+    temperature: 0.2
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'api-key': apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      return res.status(response.status).json({ error: 'OpenAI request failed', details: text });
+    }
+
+    const data = await response.json();
+    const message = data?.choices?.[0]?.message?.content || 'No response generated.';
+    res.json({ message, usage: data?.usage });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to call Azure OpenAI', details: err.message });
+  }
+});
 
 app.get(/^\/dashboard(.*)$/, (req, res) => {
   res.set('Cache-Control', 'public, max-age=3600');

@@ -68,7 +68,9 @@
     "flash:service": "node flash-upgrade-service.js",
     "flash:compose": "docker-compose -f docker-compose-flash.yml up",
     "flash:build": "docker-compose -f docker-compose-flash.yml build",
-    "flash:down": "docker-compose -f docker-compose-flash.yml down"
+    "flash:down": "docker-compose -f docker-compose-flash.yml down",
+    "chatbot": "node chatbot-server.js",
+    "chatbot:dev": "node --watch chatbot-server.js"
   },
   "engines": {
     "node": "24.x",
