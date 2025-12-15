@@ -34,39 +34,39 @@ Write-Host "🐳 Checking Docker..." -ForegroundColor Yellow
 try {
     docker version | Out-Null
     Write-Host "✓ Docker is running" -ForegroundColor Green
-    
+
     # Login to ACR
     Write-Host "📋 Logging into Azure Container Registry..." -ForegroundColor Yellow
     az acr login --name $RegistryName
-    
+
     # Build Main Server image
     Write-Host "🔨 Building Main Server image..." -ForegroundColor Yellow
     docker build -t "$registryUrl/networkbuster-server:latest" -f Dockerfile .
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ Main Server image built successfully" -ForegroundColor Green
-        
+
         # Push Main Server image
         Write-Host "📤 Pushing Main Server image..." -ForegroundColor Yellow
         docker push "$registryUrl/networkbuster-server:latest"
         Write-Host "✓ Main Server image pushed" -ForegroundColor Green
     }
-    
+
     # Build Overlay UI image
     Write-Host "🔨 Building Overlay UI image..." -ForegroundColor Yellow
     docker build -t "$registryUrl/networkbuster-overlay:latest" -f challengerepo\real-time-overlay\Dockerfile .\challengerepo\real-time-overlay
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ Overlay UI image built successfully" -ForegroundColor Green
-        
+
         # Push Overlay UI image
         Write-Host "📤 Pushing Overlay UI image..." -ForegroundColor Yellow
         docker push "$registryUrl/networkbuster-overlay:latest"
         Write-Host "✓ Overlay UI image pushed" -ForegroundColor Green
     }
-    
+
     Write-Host ""
     Write-Host "✅ Docker images built and pushed successfully" -ForegroundColor Green
-    
-} catch {
+}
+catch {
     Write-Host "⚠️  Docker is not running or not installed" -ForegroundColor Yellow
     Write-Host "📝 Skip local Docker builds" -ForegroundColor Yellow
     Write-Host "   Images can be pushed later when Docker is available" -ForegroundColor Yellow
