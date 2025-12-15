@@ -33,6 +33,17 @@ function App() {
           </div>
         ))}
       </div>
+      {/* Net Bot Chat Widget */}
+      <div className="netbot-chat-widget">
+        <div className="netbot-chat-header">Net Bot Chat</div>
+        <div className="netbot-chat-body">
+          <div className="netbot-message netbot-message-bot">Hi! I am Net Bot. How can I help you today?</div>
+        </div>
+        <form className="netbot-chat-input" onSubmit={e => e.preventDefault()}>
+          <input type="text" placeholder="Type your message..." disabled />
+          <button type="submit" disabled>Send</button>
+        </form>
+      </div>
     </div>
   );
 }
