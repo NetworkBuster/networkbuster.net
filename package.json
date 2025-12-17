@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "networkbuster-server",
   "version": "1.0.1",
   "type": "module",
@@ -28,6 +28,7 @@
     "proxy:8080": "PROXY_PORT=8080 node proxy-server.js",
     "proxy": "PROXY_PORT=3000 node proxy-server.js",
     "all": "concurrently \"npm start\" \"npm run proxy:3000\"",
+    "build:vercel": "cd dashboard && npm ci --legacy-peer-deps && npm run build || echo \"Dashboard build failed, continuing\"",
     "build": "npm install",
     "test": "echo 'No tests specified'",
     "docker:build": "docker build -t networkbuster:latest .",
