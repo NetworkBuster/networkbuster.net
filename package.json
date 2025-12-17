@@ -30,7 +30,7 @@
     "all": "concurrently \"npm start\" \"npm run proxy:3000\"",
     "build:vercel": "cd dashboard && npm ci --legacy-peer-deps && npm run build || echo \"Dashboard build failed, continuing\"",
     "build": "npm install",
-    "test": "echo 'No tests specified',"
+    "test": "echo 'No tests specified'",
     "docker:build": "docker build -t networkbuster:latest .",
     "docker:run": "docker run -p 3000:3000 networkbuster:latest",
     "docker:compose:up": "docker-compose up -d",
