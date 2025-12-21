@@ -91,16 +91,32 @@ if (-not $nodeOK) {
 
   $dest = Join-Path $tools ('node-'+$ver)
   if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
-  Write-Output "Extracting to $dest"
+  Write-Output "Extracting to $tools"
   Expand-Archive -Path $tmp -DestinationPath $tools -Force
-  if (Test-Path (Join-Path $tools ('node-v'+$ver))) { Rename-Item -Path (Join-Path $tools ('node-v'+$ver)) -NewName ('node-'+$ver) -Force }
-  if (-not (Test-Path $dest)) { Fail 'Node extraction failed' }
+
+  # Detect the extracted folder (handles names like node-v24.12.0 or node-v24.12.0-win-x64)
+  $candidates = Get-ChildItem -Path $tools -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "node-v$ver*" }
+  if ($candidates.Count -ge 1) {
+    $extracted = $candidates[0].FullName
+    try {
+      # Move/rename to stable folder name
+      if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
+      Move-Item -Path $extracted -Destination $dest -Force
+      Write-Output "Renamed $extracted -> $dest"
+    } catch {
+      Write-Warning "Could not rename extracted folder: $($_.Exception.Message)"
+    }
+  } else {
+    Write-Warning "No extracted node folder matching node-v$ver* found under $tools"
+  }
+
+  if (-not (Test-Path $dest)) { Fail 'Node extraction failed (destination missing after extraction/rename)' }
   $nodeBin = Join-Path $dest 'node.exe'
   if (-not (Test-Path $nodeBin)) { Fail 'node.exe not found after extraction' }
 
   # Use node from extracted tools for this session
   $env:PATH = (Split-Path $nodeBin) + ';' + $env:PATH
-  Write-Output "Using portable node: $(node --version)"
+  Write-Output "Using portable node: $(& $nodeBin --version)"
 }
 
 # Wait-for-download stability: ensure file size stabilizes before continuing
