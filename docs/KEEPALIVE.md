@@ -4,8 +4,9 @@ Goal: run NetworkBuster as a native Windows service with automatic restart and r
 
 Steps (high level):
 1. Download NSSM (https://nssm.cc) and place `nssm.exe` in a fixed path (e.g., `C:\tools\nssm\nssm.exe`).
-2. Install service:
-   - nssm install NetworkBuster "C:\Program Files\nodejs\node.exe" "S:\NetworkBuster_Production\start-servers.js"
+3. Install service (example using NSSM):
+   - Install script included: `scripts/install-service-nssm.ps1` (run as Administrator)
+   - Example manual command: `nssm install NetworkBuster "powershell.exe" "-NoProfile -ExecutionPolicy Bypass -File \"S:\NetworkBuster_Production\scripts\watchdog.ps1\" -AppExe \"C:\Program Files\nodejs\node.exe\" -AppArgs \"start-servers.js\" -WorkingDir \"S:\NetworkBuster_Production\" -LogDir \"S:\NetworkBuster_Production\logs\" -HealthUrl \"http://localhost:3001/api/health\"`
    - Configure Startup directory: `S:\NetworkBuster_Production`
 3. Configure service settings via NSSM (or nssm set commands):
    - Log output to `S:\NetworkBuster_Production\logs\service.out.log` and `service.err.log`.
