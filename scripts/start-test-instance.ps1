@@ -10,14 +10,14 @@ param(
   [string]$Name = "test-$(Get-Date -Format 'yyyyMMdd-HHmmss')",
   [int]$Port = 3002,
   [double]$AutoAcceptSeconds = 0.001,
-  [bool]$StartProcess = $true,
+  [object]$StartProcess = $true,
   [string]$InstancesDir = 'S:\NetworkBuster_Production\instances'
 )
 
 function Resolve-InstancesDir {
   param($d)
   if (Test-Path $d) { return $d }
-  $repo = (Split-Path -Parent $PSScriptRoot)
+  $repo = (Split-Path -Parent $PSScriptROOT)
   $fallback = Join-Path $repo 'instances'
   if (-not (Test-Path $fallback)) { New-Item -ItemType Directory -Path $fallback -Force | Out-Null }
   return $fallback
@@ -25,6 +25,14 @@ function Resolve-InstancesDir {
 
 $InstancesDir = Resolve-InstancesDir -d $InstancesDir
 if (-not (Test-Path $InstancesDir)) { New-Item -ItemType Directory -Path $InstancesDir -Force | Out-Null }
+
+# Normalize StartProcess to boolean (tolerate strings/numbers when invoked non-interactively)
+if ($StartProcess -is [string]) {
+  $sp = $StartProcess.Trim()
+  if ($sp -match '^(1|true|True|TRUE|yes|Yes|YES)$') { $StartProcess = $true } else { $StartProcess = $false }
+} else {
+  try { $StartProcess = [bool]$StartProcess } catch { $StartProcess = $false }
+}
 
 $instanceFile = Join-Path $InstancesDir "$Name.json"
 $record = [ordered]@{
