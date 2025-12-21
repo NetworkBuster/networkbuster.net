@@ -13,3 +13,6 @@ build/
 # Android: google-services and local.properties
 android/antigravity/app/google-services.json
 android/antigravity/local.properties
+
+# Ignore local tool bundles
+tools/
