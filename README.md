@@ -86,6 +86,7 @@ A small Kotlin Android module skeleton has been added at `android/antigravity/`.
 Scripts added under `scripts/`:
 - `scripts/setup-gcloud-sdk.ps1` — download and (optionally) install Google Cloud SDK on Windows, and initialize it interactively.
 - `scripts/gcloud-auth.ps1` — authenticate with a service account JSON and set a project non-interactively.
+- `scripts/gcloud-startup.ps1` — interactive helper to sign in as `daypirate2@NETWORKBUSTER.NET`, set project, and enable common APIs (or run non-interactive service-account auth).
 
 
 
