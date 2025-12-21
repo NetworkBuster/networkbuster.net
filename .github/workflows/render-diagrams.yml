@@ -2,6 +2,9 @@ name: Render diagrams to PNG 🖼️
 
 on:
   workflow_dispatch: {}
+  push:
+    branches:
+      - bigtree
 
 jobs:
   render:
