@@ -16,3 +16,6 @@ android/antigravity/local.properties
 
 # Ignore local tool bundles
 tools/
+
+# LFS build artifacts
+os/lfs/output/
