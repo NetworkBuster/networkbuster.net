@@ -39,6 +39,15 @@ if (-not (Test-Path $nssmExe)) {
     $url = 'https://nssm.cc/release/nssm-2.24.zip'
     Write-Output "Downloading NSSM from $url"
     Invoke-WebRequest -Uri $url -OutFile $tmpZip -UseBasicParsing -ErrorAction Stop
+    # Ensure file fully written and non-empty
+    $tries = 0
+    while ($tries -lt 5) {
+      if ((Test-Path $tmpZip) -and ((Get-Item $tmpZip).Length -gt 10240)) { break }
+      Start-Sleep -Seconds 1
+      $tries++
+    }
+    if (-not (Test-Path $tmpZip)) { Write-Error "Download failed: $tmpZip not found"; exit 1 }
+    if ((Get-Item $tmpZip).Length -le 10240) { Write-Error "Downloaded file is too small (${(Get-Item $tmpZip).Length} bytes); aborting."; exit 1 }
     Expand-Archive -Path $tmpZip -DestinationPath $env:TEMP -Force
     # copy win64 nssm.exe if present
     $candidate = Get-ChildItem -Path (Join-Path $env:TEMP 'nssm-*') -Recurse -Filter 'nssm.exe' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -match 'win64' } | Select-Object -First 1

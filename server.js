@@ -58,6 +58,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Recycle API (AI-powered recommendations)
+import recycleRouter from './api/recycle.js';
+app.use('/api/recycle', recycleRouter);
+
 // Get system status
 app.get('/api/status', (req, res) => {
   res.json({
