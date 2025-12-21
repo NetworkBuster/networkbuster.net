@@ -1,0 +1,15 @@
+sequenceDiagram
+  participant Admin as Admin
+  participant Installer as install-nbapp-service.ps1
+  participant Git as GitHub Repo
+  participant NSSM as NSSM Installer
+  participant Windows as Windows Service Manager
+
+  Admin->>Installer: run install-nbapp-service.ps1 -InstallService
+  Installer->>Git: clone/pull repo (nbapp)
+  Installer->>Installer: npm install (if package.json)
+  Installer->>NSSM: call install-service-nssm.ps1 (elevate)
+  NSSM->>Windows: create service 'nbapp'
+  Windows-->>NSSM: service registered
+  NSSM-->>Installer: success
+  Installer-->>Admin: installation complete, service started

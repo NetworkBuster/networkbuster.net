@@ -1,0 +1,20 @@
+classDiagram
+  class AIClient {
+    +getRecommendations(items, context, prefs)
+    -callOpenAI(prompt)
+    -heuristicRecommendations(items)
+  }
+
+  class ProfileStore {
+    +getProfile(userId)
+    +saveProfile(userId, profile)
+    +appendFeedback(feedback)
+  }
+
+  class RecycleAPI {
+    +POST /api/recycle/recommend
+    +POST /api/recycle/feedback
+  }
+
+  AIClient --> RecycleAPI : used by
+  RecycleAPI --> ProfileStore : reads/writes

@@ -1,0 +1,17 @@
+graph LR
+  subgraph Server
+    API[/API Server\n(server.js)]
+    AI[AI Client]
+    PS[Profile Store]
+  end
+  UI --> API
+  API --> AI
+  API --> PS
+  AI -->|calls| LLM((LLM Provider))
+  PS --> DB[(data/ profiles & feedback files)]
+  subgraph Ops
+    WD[Watchdog]
+    NSSM[NSSM Service]
+  end
+  WD --> API
+  NSSM --> WD
