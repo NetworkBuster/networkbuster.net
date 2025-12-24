@@ -24,6 +24,8 @@ param(
   [switch]$UseRoot,
   [switch]$RegisterScheduledTask,
   [string]$ScheduleTime = '03:00',  # HH:mm (24h) local time
+  [switch]$SkipWSLUpdate,
+  [string]$WslPath,
   [string]$LogDir
 ) # $LogDir: optional path to write logs (e.g., 'G:\cadil\logs')
 
@@ -93,7 +95,11 @@ function Register-UpdateScheduledTask {
   }
 
   Register-ScheduledTask -TaskName $TaskName -Trigger $trigger -Action $action -RunLevel Highest -Force
-  Write-Host "Scheduled task '$TaskName' created to run daily at $RunTime (script: $scriptPath)$($UseRoot ? ' (runs updates as root)' : '')$($LogDir ? "; logs -> $LogDir" : '')" -ForegroundColor Green
+  $runAsRootText = ''
+  if ($UseRoot) { $runAsRootText = ' (runs updates as root)' }
+  $logText = ''
+  if ($LogDir) { $logText = "; logs -> $LogDir" }
+  Write-Host "Scheduled task '$TaskName' created to run daily at $RunTime (script: $scriptPath)$runAsRootText$logText" -ForegroundColor Green
 } 
 
 function Run-UpdateInDistro {
@@ -103,29 +109,104 @@ function Run-UpdateInDistro {
   $execUser = ''
   if ($UseRoot) { $execUser = '-u root' }
 
-  if ($DryRun) {
-    Write-Host "Dry-run: wsl -d $name $execUser -- bash -lc 'sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y'"
+  # Detect package manager inside the distro
+  $detectScript = 'if command -v apt >/dev/null 2>&1; then echo apt; elif command -v dnf >/dev/null 2>&1; then echo dnf; elif command -v pacman >/dev/null 2>&1; then echo pacman; elif command -v zypper >/dev/null 2>&1; then echo zypper; elif command -v apk >/dev/null 2>&1; then echo apk; else echo unknown; fi'
+  try {
+    $pkgmgr = & $wslCommand -d $name $execUser -- bash -lc "$detectScript" 2>$null
+    $pkgmgr = ($pkgmgr -join "`n").Trim()
+  } catch {
+    Write-Host "Could not detect package manager for $($name): $($_)" -ForegroundColor Yellow
     return
   }
 
-  $cmd = "sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y"
+  switch ($pkgmgr) {
+    'apt' { $updateCmd = 'apt update && apt full-upgrade -y && apt autoremove -y' }
+    'dnf' { $updateCmd = 'dnf check-update || true; dnf upgrade -y; dnf autoremove -y' }
+    'pacman' { $updateCmd = 'pacman -Syu --noconfirm' }
+    'zypper' { $updateCmd = 'zypper refresh && zypper update -y' }
+    'apk' { $updateCmd = 'apk update && apk upgrade' }
+    default { $updateCmd = $null }
+  }
+
+  if (-not $updateCmd) {
+    Write-Host "Could not detect a supported package manager in $name; skipping." -ForegroundColor Yellow
+    return
+  }
+
+  # If not running as root inside the distro, prefix with sudo
+  if (-not $UseRoot) { $updateCmd = "sudo $updateCmd" }
+
+  if ($DryRun) {
+    $wslDisplay = if ($wslCommand) { $wslCommand } else { 'wsl' }
+    Write-Host "Dry-run: $wslDisplay -d $name $execUser -- bash -lc '$updateCmd'"
+    return
+  }
+
+  $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+  if ($script:LogFile) {
+    $distroLog = Join-Path (Split-Path $script:LogFile -Parent) "$($name)-$timestamp.log"
+  } elseif ($LogDir) {
+    if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Path $LogDir -Force | Out-Null }
+    $distroLog = Join-Path $LogDir "$($name)-$timestamp.log"
+  } else {
+    $distroLog = $null
+  }
+
   try {
     if ($UseRoot) {
-      wsl -d $name -u root -- bash -lc "$cmd"
+      $output = & $wslCommand -d $name -u root -- bash -lc "$updateCmd" 2>&1
     } else {
-      wsl -d $name -- bash -lc "$cmd"
+      $output = & $wslCommand -d $name -- bash -lc "$updateCmd" 2>&1
     }
+
+    if ($distroLog) {
+      $output | Out-File -FilePath $distroLog -Encoding utf8
+      Write-Host "Log saved to: $distroLog" -ForegroundColor Cyan
+    } else {
+      Write-Host $output
+    }
+
     Write-Host "Finished update for $name" -ForegroundColor Green
   } catch {
-    Write-Host "Update failed for $name: $_" -ForegroundColor Red
+    Write-Host "Update failed for $($name): $($_)" -ForegroundColor Red
+    if ($distroLog -and $output) { $output | Out-File -FilePath $distroLog -Append -Encoding utf8 }
   }
 }
 
-# Ensure wsl is available
-if (-not (Get-Command wsl -ErrorAction SilentlyContinue)) {
-  Write-Error "WSL is not available on this system. Install WSL or run updates inside your distro directly."
+# Resolve wsl executable (honor -WslPath if provided)
+$wslCommand = $null
+if ($WslPath) {
+  if (Test-Path $WslPath) {
+    $wslCommand = $WslPath
+  } else {
+    Write-Warning "Provided WslPath '$WslPath' not found."
+  }
+}
+
+if (-not $wslCommand) {
+  $cmd = Get-Command wsl -ErrorAction SilentlyContinue
+  if ($cmd) { $wslCommand = $cmd.Path }
+}
+
+if (-not $wslCommand) {
+  $possible = @(
+    "$env:SystemRoot\System32\wsl.exe",
+    "$env:SystemRoot\Sysnative\wsl.exe",
+    "$env:SystemRoot\SysWOW64\wsl.exe",
+    "R:\\Windows\\System32\\wsl.exe",
+    "R:\\Windows\\Sysnative\\wsl.exe"
+  )
+  foreach ($p in $possible) {
+    if (Test-Path $p) { $wslCommand = $p; break }
+  }
+}
+
+if (-not $wslCommand) {
+  Write-Error "WSL executable not found. If WSL is installed in a non-standard location, provide its path with -WslPath. Example: -WslPath 'C:\\Windows\\System32\\wsl.exe'"
   exit 1
 }
+
+Write-Host "Using WSL executable: $wslCommand" -ForegroundColor Cyan
 
 # If requested, register a scheduled task to run this script daily and exit
 if ($RegisterScheduledTask) {
@@ -133,18 +214,41 @@ if ($RegisterScheduledTask) {
   exit 0
 } 
 
+# Run WSL kernel/component update (unless explicitly skipped)
+Write-Host "Checking WSL update status..." -ForegroundColor Cyan
+if ($DryRun) {
+  Write-Host "Dry-run: $wslCommand --status"
+  if (-not $SkipWSLUpdate) { Write-Host "Dry-run: $wslCommand --update" }
+} else {
+  try {
+    & $wslCommand --status
+  } catch {
+    Write-Warning "$wslCommand --status is not available or failed: $($_)"
+  }
+  if (-not $SkipWSLUpdate) {
+    try {
+      & $wslCommand --update
+      Write-Host "WSL components updated (if updates were available)." -ForegroundColor Green
+    } catch {
+      Write-Warning "$wslCommand --update failed or is not supported on this system: $($_)"
+    }
+  } else {
+    Write-Host "Skipping 'wsl --update' as requested." -ForegroundColor Yellow
+  }
+} 
+
 if ($Distro) {
   # Update single distro
   Run-UpdateInDistro -name $Distro
   exit 0
-}
+} 
 
 # Get list of distros
-$distroList = wsl -l -q 2>$null | Where-Object { $_ -ne '' }
+$distroList = & $wslCommand -l -q 2>$null | Where-Object { $_ -ne '' }
 if (-not $distroList) {
   Write-Host "No WSL distros found." -ForegroundColor Yellow
   exit 0
-}
+} 
 
 Write-Host "Found distros: $($distroList -join ', ')" -ForegroundColor Cyan
 foreach ($d in $distroList) {

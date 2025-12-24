@@ -264,6 +264,43 @@ c:/Users/daypi/.gemini/antigravity/playground/iridescent-planetary/
 
 ---
 
+## New Project Goal: Device Registration → Neural Network (Priority)
+- **Goal for builders:** Implement reliable new-device registration that captures device identity and telemetry, validates and sanitizes the payload, stores it, and forwards it into the training / inference pipeline (neural network) in a secure, auditable, and testable way.
+- **Why:** Enables automated model training, device-aware decisions, remote provisioning, and closed-loop improvement based on real device data.
+- **High-level acceptance criteria:**
+  - A stable API exists to register new devices and receive a canonical device id.
+  - Device metadata + initial telemetry is persisted in a schema documented in `DEVICE_REGISTRATION_GOAL.md`.
+  - A secure forwarding mechanism (message queue, data pipeline) reliably delivers registration events to the neural network ingestion endpoint (with retries and observability).
+  - Model pipeline acknowledges receipt and publishes processing status; registration shows 'registered', 'queued', 'processed', or 'failed'.
+  - End-to-end test exists covering registration -> pipeline ingestion -> acknowledgement.
+
+> This is a top-level goal for all builders — see `DEVICE_REGISTRATION_GOAL.md` for full spec, wire diagrams, API examples, and implementation notes.
+
+### Quick dev notes (M1 implemented, M2 in progress)
+- POST `/api/devices/register` (prototype) implemented in `api/devices.js`.
+- Persistence: local files stored in `data/devices/` (use `lib/deviceStore.js`).
+- Queue: `device-registrations.v1` stored under `data/queue/device-registrations.v1/` using `lib/messageQueue.js`.
+- Worker: `workers/ingestWorker.js` provided as a simple polling consumer. Run with `node workers/ingestWorker.js`.
+- Test: `node tests/test-device-registration.js` will POST a sample registration (assumes server is running on port 3001).
+
+### M2: Queue publish + consumer (completed)
+- Azure Service Bus integration: Added to `deploy-azure.ps1` with `-SetupServiceBus` flag.
+- Updated `lib/messageQueue.js` to use Azure Service Bus SDK (falls back to files if no connection string).
+- New consumer: `workers/deviceConsumer.js` polls queue and forwards to ingestion endpoint.
+- Mock ingestion: Added `POST /api/ingestion/mock` to server for testing.
+- Run consumer: `npm run worker:device-consumer` (set `INGESTION_ENDPOINT` env var).
+- Deploy consumer: As Container App or Function App after Service Bus setup.
+
+### M3: Ingestion acknowledgement + status transitions (completed)
+- Status transitions: Added `transitionStatus()` with validation (registered → queued → processing → acknowledged/failed).
+- Mock ingestion: Updated to return acknowledgements with confidence scores, simulate failures (10%), and processing delays.
+- Consumer retries: Added exponential backoff retry logic (up to 3 attempts) for failed ingestions.
+- E2E test: Updated to wait for 'acknowledged' status and handle failures.
+- API: Uses validated status transitions in registration endpoint.
+
+
+---
+
 ## Technical Highlights
 
 ### System Performance

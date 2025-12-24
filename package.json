@@ -30,8 +30,13 @@
     "all": "concurrently \"npm start\" \"npm run proxy:3000\"",
     "build": "npm install",
     "apply:network-boost": "powershell -ExecutionPolicy Bypass -File scripts/network-boost.ps1 -Apply -Confirm:$false",
-    "show:network-boost": "powershell -ExecutionPolicy Bypass -File scripts/network-boost.ps1"
-    "test": "echo 'No tests specified'",
+    "show:network-boost": "powershell -ExecutionPolicy Bypass -File scripts/network-boost.ps1",
+    "test": "echo 'No tests specified'",",
+    "test:devices": "node tests/test-device-registration.js",
+    "test:integration:devices": "node tests/integration/test-e2e-device-registration.js",
+    "test:unit:devices": "node tests/unit/test-device-status-transitions.js",
+    "worker:device-consumer": "node workers/deviceConsumer.js",
+    "docker:build": "docker build -t networkbuster:latest .",
     "docker:build": "docker build -t networkbuster:latest .",
     "docker:run": "docker run -p 3000:3000 networkbuster:latest",
     "docker:compose:up": "docker-compose up -d",
@@ -81,6 +86,7 @@
     "npm": ">=10.0.0"
   },
   "dependencies": {
+    "@azure/service-bus": "^7.9.3",
     "express": "^5.2.1",
     "http-proxy": "^1.18.1",
     "react": "^19.2.3",

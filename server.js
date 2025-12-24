@@ -62,6 +62,43 @@ app.get('/api/health', (req, res) => {
 import recycleRouter from './api/recycle.js';
 app.use('/api/recycle', recycleRouter);
 
+// Device registration API (Device -> ingestion pipeline)
+import devicesRouter from './api/devices.js';
+app.use('/api/devices', devicesRouter);
+
+// Mock ingestion endpoint for testing (simulates neural network ingestion)
+app.post('/api/ingestion/mock', (req, res) => {
+  const payload = req.body;
+  console.log('Mock ingestion received:', payload);
+  
+  // Simulate processing delay (neural network inference time)
+  setTimeout(() => {
+    // Simulate occasional failures for testing
+    const shouldFail = Math.random() < 0.1; // 10% failure rate
+    
+    if (shouldFail) {
+      console.log('Mock ingestion failed for device:', payload.deviceId);
+      res.status(500).json({
+        status: 'failed',
+        deviceId: payload.deviceId,
+        error: 'Neural network processing failed',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.log('Mock ingestion processed device:', payload.deviceId);
+      res.json({
+        status: 'acknowledged',
+        deviceId: payload.deviceId,
+        modelVersion: 'v1.0.0',
+        confidence: Math.random() * 0.3 + 0.7, // 0.7-1.0
+        processingTimeMs: Math.floor(Math.random() * 500) + 100,
+        timestamp: new Date().toISOString(),
+        message: 'Device registration ingested into neural network pipeline'
+      });
+    }
+  }, Math.floor(Math.random() * 1000) + 500); // 500-1500ms delay
+});
+
 // Get system status
 app.get('/api/status', (req, res) => {
   res.json({
