@@ -154,7 +154,7 @@ https://networkbuster-mez5d7bmv-networkbuster.vercel.app
 
 ### Support & Community
 - 🐙 **GitHub:** https://github.com/NetworkBuster/networkbuster.net
-- 📧 **Email:** contact@networkbuster.net
+- 📧 **Email:** contact@networkbuster.net, ceanskiier27@networkbuster.net
 - 📚 **Docs:** /documentation.html
 - 🤝 **Contribute:** Check GitHub Issues
 

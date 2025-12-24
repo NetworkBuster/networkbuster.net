@@ -6,14 +6,14 @@
   "branches": [
     {
       "name": "main",
-      "deploymentName": "networkbuster-prod",
+      "deploymentName": "NETWORKBUSTERSETUP-prod",
       "environment": "production",
       "autoSync": true,
       "syncWith": "bigtree"
     },
     {
       "name": "bigtree",
-      "deploymentName": "networkbuster-staging",
+      "deploymentName": "NETWORKBUSTERSETUP-staging",
       "environment": "staging",
       "autoSync": true,
       "syncWith": "main"

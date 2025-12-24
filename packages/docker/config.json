@@ -1,8 +1,8 @@
 {
-  "name": "networkbuster",
+  "name": "NETWORKBUSTERSETUP",
   "description": "NetworkBuster Server - High-performance network server built with Node.js and Express",
-  "namespace": "docker.io/networkbuster",
-  "repository": "docker.io/networkbuster/server",
+  "namespace": "docker.io/NETWORKBUSTERSETUP",
+  "repository": "docker.io/NETWORKBUSTERSETUP/server",
   "version": "1.0.1",
   "tags": [
     "latest",
@@ -24,14 +24,14 @@
     "license": "MIT"
   },
   "labels": {
-    "org.opencontainers.image.title": "NetworkBuster Server",
-    "org.opencontainers.image.description": "High-performance network server built with Node.js and Express",
+    "org.opencontainers.image.title": "NETWORKBUSTERSETUP Server",
+    "org.opencontainers.image.description": "High-performance network server built with Node.js and Express (NETWORKBUSTERSETUP)",
     "org.opencontainers.image.version": "1.0.1",
-    "org.opencontainers.image.source": "https://github.com/NetworkBuster/networkbuster.net",
-    "org.opencontainers.image.url": "https://networkbuster.net",
-    "org.opencontainers.image.vendor": "NetworkBuster",
+    "org.opencontainers.image.source": "https://github.com/NETWORKBUSTERSETUP/networkbuster.net",
+    "org.opencontainers.image.url": "https://NETWORKBUSTERSETUP.net",
+    "org.opencontainers.image.vendor": "NETWORKBUSTERSETUP",
     "org.opencontainers.image.licenses": "MIT",
-    "org.opencontainers.image.documentation": "https://docs.networkbuster.net"
+    "org.opencontainers.image.documentation": "https://docs.NETWORKBUSTERSETUP.net"
   },
   "registries": [
     {

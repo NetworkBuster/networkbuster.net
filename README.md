@@ -15,7 +15,7 @@
 ### 🎯 Live Demo & Video
 **Visit Now:** https://networkbuster-mez5d7bmv-networkbuster.vercel.app
 
-**📺 Watch on YouTube:** https://www.youtube.com/channel/daypirate1/networkbuster
+**📺 Watch on YouTube:** https://www.youtube.com/networkbuster
 
 ## 🥇 Why NetworkBuster Wins
 

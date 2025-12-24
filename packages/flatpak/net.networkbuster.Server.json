@@ -2,14 +2,14 @@
 # Flatpak build manifest for NetworkBuster
 
 {
-  "app-id": "net.networkbuster.Server",
+  "app-id": "net.NETWORKBUSTERSETUP.Server",
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "23.08",
   "sdk": "org.freedesktop.Sdk",
   "sdk-extensions": [
     "org.freedesktop.Sdk.Extension.node18"
   ],
-  "command": "networkbuster",
+  "command": "NETWORKBUSTERSETUP",
   "finish-args": [
     "--socket=network",
     "--socket=network-service",
@@ -22,29 +22,29 @@
   ],
   "modules": [
     {
-      "name": "networkbuster",
+      "name": "NETWORKBUSTERSETUP",
       "buildsystem": "simple",
       "build-commands": [
         "npm install --production",
         "mkdir -p /app/bin",
-        "cp server.js /app/bin/networkbuster",
-        "cp -r . /app/lib/networkbuster"
+        "cp server.js /app/bin/NETWORKBUSTERSETUP",
+        "cp -r . /app/lib/NETWORKBUSTERSETUP"
       ],
       "sources": [
         {
           "type": "git",
-          "url": "https://github.com/NetworkBuster/networkbuster.net.git",
+          "url": "https://github.com/NETWORKBUSTERSETUP/networkbuster.net.git",
           "tag": "v1.0.1"
         }
       ]
     },
     {
-      "name": "networkbuster-wrapper",
+      "name": "NETWORKBUSTERSETUP-wrapper",
       "buildsystem": "simple",
       "build-commands": [
         "mkdir -p /app/bin",
-        "cat > /app/bin/networkbuster-wrapper << 'EOF'\n#!/bin/bash\ncd /app/lib/networkbuster\nexec node server.js \"$@\"\nEOF",
-        "chmod +x /app/bin/networkbuster-wrapper"
+        "cat > /app/bin/NETWORKBUSTERSETUP-wrapper << 'EOF'\n#!/bin/bash\ncd /app/lib/NETWORKBUSTERSETUP\nexec node server.js \"$@\"\nEOF",
+        "chmod +x /app/bin/NETWORKBUSTERSETUP-wrapper"
       ],
       "sources": []
     }

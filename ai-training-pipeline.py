@@ -20,7 +20,7 @@ class AITrainingPipelineConfig:
     """Configuration for NetworkBuster AI Training Pipeline"""
     
     # Azure Storage Configuration
-    STORAGE_ACCOUNT_NAME = os.getenv('AZURE_STORAGE_ACCOUNT_NAME', 'networkbuster-storage')
+    STORAGE_ACCOUNT_NAME = os.getenv('AZURE_STORAGE_ACCOUNT_NAME', 'NETWORKBUSTERSETUP-storage')
     STORAGE_ACCOUNT_KEY = os.getenv('AZURE_STORAGE_ACCOUNT_KEY', '')
     CONNECTION_STRING = os.getenv('AZURE_STORAGE_CONNECTION_STRING', '')
     
@@ -69,7 +69,7 @@ class AITrainingPipelineConfig:
         'python_version': '3.11',
         'created_date': datetime.now().isoformat(),
         'environment': 'production',
-        'organization': 'NetworkBuster'
+        'organization': 'NETWORKBUSTERSETUP'
     }
 
 
