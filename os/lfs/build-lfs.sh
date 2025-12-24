@@ -83,12 +83,32 @@ fi
 # Build Linux kernel (optional)
 KERNEL_VERSION="${KERNEL_VERSION:-6.8.13}"
 SKIP_KERNEL="${SKIP_KERNEL:-false}"
+KERNEL_CACHE_DIR="${KERNEL_CACHE_DIR:-/workspace/kernel-cache}"
+mkdir -p "$KERNEL_CACHE_DIR"
+
+# If kernel tarball exists in cache, prefer it
+KERNEL_TAR_CACHE="$KERNEL_CACHE_DIR/linux-$KERNEL_VERSION.tar.xz"
+KERNEL_BZIMAGE_CACHE="$KERNEL_CACHE_DIR/vmlinuz-$KERNEL_VERSION"
+
 if [ "$SKIP_KERNEL" != "true" ]; then
   echo "==> Building Linux kernel $KERNEL_VERSION (this may take a while)"
   cd "$BUILD_DIR"
+
+  # Prefer cached tarball
+  if [ -f "$KERNEL_TAR_CACHE" ]; then
+    echo "Using cached kernel tarball: $KERNEL_TAR_CACHE"
+    cp "$KERNEL_TAR_CACHE" .
+  fi
+
   if [ ! -f "linux-$KERNEL_VERSION.tar.xz" ]; then
     wget -q "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$KERNEL_VERSION.tar.xz"
   fi
+
+  # Save tarball to cache for future runs
+  if [ -f "linux-$KERNEL_VERSION.tar.xz" ]; then
+    cp "linux-$KERNEL_VERSION.tar.xz" "$KERNEL_TAR_CACHE" || true
+  fi
+
   rm -rf linux-$KERNEL_VERSION
   tar xf linux-$KERNEL_VERSION.tar.xz
   cd linux-$KERNEL_VERSION
@@ -110,6 +130,8 @@ if [ "$SKIP_KERNEL" != "true" ]; then
   if [ -f "arch/x86/boot/bzImage" ]; then
     cp "arch/x86/boot/bzImage" "$OUTDIR/vmlinuz-$KERNEL_VERSION"
     echo "Kernel built: $OUTDIR/vmlinuz-$KERNEL_VERSION"
+    # also copy to cache so subsequent runs reuse built kernel
+    cp "$OUTDIR/vmlinuz-$KERNEL_VERSION" "$KERNEL_BZIMAGE_CACHE" || true
   else
     echo "Kernel build failed: no bzImage found" >&2
   fi
@@ -121,6 +143,9 @@ fi
 if command -v qemu-system-x86_64 >/dev/null 2>&1; then
   if [ -f "$OUTDIR/vmlinuz-$KERNEL_VERSION" ]; then
     KERNEL="$OUTDIR/vmlinuz-$KERNEL_VERSION"
+  elif [ -f "$KERNEL_BZIMAGE_CACHE" ]; then
+    echo "Using cached built kernel: $KERNEL_BZIMAGE_CACHE"
+    KERNEL="$KERNEL_BZIMAGE_CACHE"
   elif ls /boot/vmlinuz-* 2>/dev/null | head -n1 >/dev/null 2>&1; then
     KERNEL="$(ls -1 /boot/vmlinuz-* | tail -n1)"
   else

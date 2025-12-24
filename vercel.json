@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "buildCommand": "npm run build:all || npm run build || true",
+  "buildCommand": "npm run build || true",
   "devCommand": "npm start",
   "installCommand": "npm ci --legacy-peer-deps || npm install",
   "env": {
     "NODE_ENV": "production",
-    "VERCEL_ENV": "production"
+    "VERCEL_ENV": "production",
+    "AUTH_ENABLED": "false"
   },
   "headers": [
     {

@@ -27,6 +27,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /workspace
 
+# Prepare a host-mounted cache directory for kernel builds (mounted by CI run)
+RUN mkdir -p /workspace/kernel-cache && chown root:root /workspace/kernel-cache
+
 COPY build-lfs.sh /workspace/build-lfs.sh
 RUN chmod +x /workspace/build-lfs.sh
 

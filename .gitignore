@@ -19,3 +19,7 @@ tools/
 
 # LFS build artifacts
 os/lfs/output/
+
+# Local sensitive scripts (do not commit)
+scripts/dummy-sa.json
+scripts/gcloud-startup.ps1

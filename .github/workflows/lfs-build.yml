@@ -36,6 +36,12 @@ jobs:
             echo "Kernel build disabled (default)"
           fi
 
+      - name: Restore kernel cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/linux-${{ env.KERNEL_VERSION }}
+          key: linux-kernel-${{ env.KERNEL_VERSION }}-${{ runner.os }}-v1
+
       - name: Build container image
         run: |
           docker build -t lfs-build -f os/lfs/Dockerfile .
@@ -46,7 +52,8 @@ jobs:
           KERNEL_VERSION: ${{ env.KERNEL_VERSION }}
         run: |
           mkdir -p os/lfs/output
-          docker run --rm -e SKIP_KERNEL="$SKIP_KERNEL" -e KERNEL_VERSION="$KERNEL_VERSION" -v "$PWD/os/lfs/output:/workspace/output" lfs-build || true
+          mkdir -p .cache/linux-${{ env.KERNEL_VERSION }}
+          docker run --rm -e SKIP_KERNEL="$SKIP_KERNEL" -e KERNEL_VERSION="$KERNEL_VERSION" -e KERNEL_CACHE_DIR="/workspace/kernel-cache" -v "$PWD/.cache/linux-${{ env.KERNEL_VERSION }}:/workspace/kernel-cache" -v "$PWD/os/lfs/output:/workspace/output" lfs-build || true
 
       - name: Upload rootfs artifact
         uses: actions/upload-artifact@v4

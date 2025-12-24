@@ -22,6 +22,8 @@ Quick local usage
 
 CI
 - The workflow supports manual dispatch with kernel build enabled. To trigger a kernel build from the GitHub UI go to **Actions → Build LFS rootfs (PoC)** → **Run workflow**, then set `build_kernel=true` and optionally specify `kernel_version` (default: `6.8.13`).
+- The workflow caches kernel sources and built kernels using the runner cache keyed by kernel version. When you run a manual build with kernel enabled, the job restores `./.cache/linux-<kernel_version>` and mounts it into the build container at `/workspace/kernel-cache` so repeated runs will reuse the downloaded tarball and any previously built `vmlinuz-<kernel_version>`.
+- A separate manual workflow `Validate LFS kernel cache` (`.github/workflows/lfs-cache-validate.yml`) is provided to validate caching behavior: it runs a kernel build to populate the cache and a dependent verification job that restores the cache and confirms the kernel is reused.
 - For ordinary pushes the CI will skip kernel building to avoid long jobs; artifacts are still produced and uploaded.
 
 Contributing
