@@ -158,6 +158,11 @@ https://networkbuster-mez5d7bmv-networkbuster.vercel.app
 - 📚 **Docs:** /documentation.html
 - 🤝 **Contribute:** Check GitHub Issues
 
+**Commit message template:** Use Conventional Commits. To enable locally run:
+```bash
+git config commit.template .gitmessage
+```
+
 ### Why Join Us?
 - Access to cutting-edge technology
 - Transparent open-source development

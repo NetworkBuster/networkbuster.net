@@ -1,0 +1,25 @@
+# Commit message template - NetworkBuster
+# Use Conventional Commits style. Lines beginning with '#' are ignored.
+
+# <type>(<scope>): <short summary>
+#
+# body (optional): describe what and why, wrap at 72 characters
+#
+# footer (optional): references to issues, breaking changes, etc.
+#
+# Types: feat, fix, docs, style, refactor, perf, test, chore, build, ci
+# Example:
+# feat(api): add health-check endpoint
+#
+# Breaking change example:
+# BREAKING CHANGE: description of the breaking change
+
+# Short summary (max 50 chars):
+
+
+# Detailed description (wrap at 72 chars):
+
+
+# Footer (issues, breaking changes):
+
+
