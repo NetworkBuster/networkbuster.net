@@ -30,6 +30,8 @@
     "all": "concurrently \"npm start\" \"npm run proxy:3000\"",
     "build:vercel": "cd dashboard && npm ci --legacy-peer-deps && npm run build || echo \"Dashboard build failed, continuing\"",
     "build": "npm install",
+    "apply:network-boost": "powershell -ExecutionPolicy Bypass -File scripts/network-boost.ps1 -Apply -Confirm:$false",
+    "show:network-boost": "powershell -ExecutionPolicy Bypass -File scripts/network-boost.ps1"
     "test": "echo 'No tests specified'",
     "docker:build": "docker build -t networkbuster:latest .",
     "docker:run": "docker run -p 3000:3000 networkbuster:latest",
@@ -69,7 +71,11 @@
     "bios:boot:bat": "boot-to-bios.bat",
     "start:all": "concurrently \"npm run start\" \"npm run security\" \"npm run timeline\"",
     "build:overlay": "cd challengerepo/real-time-overlay && npm install && npm run build",
-    "build:all": "npm run build:overlay"
+    "build:all": "npm run build:overlay",
+    "dist:zip": "node scripts/make-release.js",
+    "dist:nsis": "powershell -ExecutionPolicy Bypass -File scripts/build-nsis.ps1",
+    "release:create-shortcut": "powershell -ExecutionPolicy Bypass -File scripts/create-shortcut.ps1",
+    "start:desktop": "start start-desktop.bat"
   },
   "engines": {
     "node": "24.x",

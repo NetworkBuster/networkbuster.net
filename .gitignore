@@ -1,5 +1,7 @@
 node_modules/
 .env
+# Local env file (contains secrets)
+.env
 .env.local
 .env.*.local
 dist/
@@ -7,3 +9,13 @@ build/
 *.log
 .DS_Store
 .vercel
+
+# Android: google-services and local.properties
+android/antigravity/app/google-services.json
+android/antigravity/local.properties
+
+# Ignore local tool bundles
+tools/
+
+# LFS build artifacts
+os/lfs/output/

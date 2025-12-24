@@ -1,0 +1,81 @@
+name: Build LFS rootfs (PoC)
+
+on:
+  push:
+    paths:
+      - 'os/lfs/**'
+  workflow_dispatch:
+    inputs:
+      build_kernel:
+        description: 'Build kernel during job? ("true" or "false")'
+        required: false
+        default: 'false'
+      kernel_version:
+        description: 'Kernel version to build (e.g., 6.8.13)'
+        required: false
+        default: '6.8.13'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set kernel build flags
+        run: |
+          echo "event_name=${{ github.event_name }}"
+          # If manually dispatched and build_kernel==true, enable kernel build
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.build_kernel }}" = "true" ]; then
+            echo "SKIP_KERNEL=false" >> $GITHUB_ENV
+            echo "KERNEL_VERSION=${{ github.event.inputs.kernel_version }}" >> $GITHUB_ENV
+            echo "Kernel build enabled: $KERNEL_VERSION"
+          else
+            echo "SKIP_KERNEL=true" >> $GITHUB_ENV
+            echo "KERNEL_VERSION=${{ github.event.inputs.kernel_version }}" >> $GITHUB_ENV
+            echo "Kernel build disabled (default)"
+          fi
+
+      - name: Build container image
+        run: |
+          docker build -t lfs-build -f os/lfs/Dockerfile .
+
+      - name: Run build in container
+        env:
+          SKIP_KERNEL: ${{ env.SKIP_KERNEL }}
+          KERNEL_VERSION: ${{ env.KERNEL_VERSION }}
+        run: |
+          mkdir -p os/lfs/output
+          docker run --rm -e SKIP_KERNEL="$SKIP_KERNEL" -e KERNEL_VERSION="$KERNEL_VERSION" -v "$PWD/os/lfs/output:/workspace/output" lfs-build || true
+
+      - name: Upload rootfs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lfs-rootfs
+          path: os/lfs/output/rootfs.tar.gz
+
+      - name: Attempt QEMU smoke boot (best-effort)
+        if: always()
+        run: |
+          # install QEMU on runner
+          sudo apt-get update && sudo apt-get install -y qemu-system-x86
+
+          # choose kernel: prefer built artifact
+          if [ -f os/lfs/output/vmlinuz-${{ env.KERNEL_VERSION }} ]; then
+            KERNEL=$(pwd)/os/lfs/output/vmlinuz-${{ env.KERNEL_VERSION }}
+            echo "Using built kernel: $KERNEL"
+          elif ls /boot/vmlinuz-* 1>/dev/null 2>&1 && [ -f os/lfs/output/rootfs.cpio.gz ]; then
+            KERNEL=$(ls -1 /boot/vmlinuz-* | tail -n1)
+            echo "Using host kernel: $KERNEL"
+          else
+            KERNEL=""
+          fi
+
+          if [ -n "$KERNEL" ] && [ -f os/lfs/output/rootfs.cpio.gz ]; then
+            timeout 30s qemu-system-x86_64 -kernel "$KERNEL" -initrd os/lfs/output/rootfs.cpio.gz -nographic -append "console=ttyS0 root=/dev/ram0 rw init=/init" -m 512 -no-reboot || true
+          else
+            echo "No kernel + initramfs available on runner — skipping QEMU boot test"
+          fi
+
+      - name: List artifacts
+        run: ls -lh os/lfs/output || true

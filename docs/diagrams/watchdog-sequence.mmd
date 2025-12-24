@@ -1,0 +1,17 @@
+sequenceDiagram
+  participant Watchdog
+  participant App as Application
+  participant Health as /api/health
+  participant Log as Logs
+
+  Watchdog->>App: Start process
+  App-->>Watchdog: PID
+  loop monitor
+    Watchdog->>Health: GET /api/health
+    alt healthy
+      Health-->>Watchdog: 200 OK
+    else unhealthy
+      Watchdog->>App: Kill/Restart
+      App-->>Log: crash info
+    end
+  end
