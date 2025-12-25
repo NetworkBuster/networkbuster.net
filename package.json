@@ -85,6 +85,9 @@
     "ai:cleanup": "node scripts/ai-cleanup-agent.js",
     "ai:cleanup:execute": "node scripts/ai-cleanup-agent.js --execute",
     "ai:train": "node scripts/ai-repo-trainer.js",
+    "network:optimize": "node scripts/network-path-optimizer.js",
+    "network:optimize:apply": "node scripts/network-path-optimizer.js --apply",
+    "network:report": "node scripts/network-path-optimizer.js --report",
     "start:with-ai": "concurrently \"npm start\" \"npm run ai:gateway\" \"npm run proxy\""
   },
   "engines": {
