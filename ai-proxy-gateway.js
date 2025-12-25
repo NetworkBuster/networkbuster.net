@@ -162,7 +162,8 @@ app.post('/chat', authenticateDevice, async (req, res) => {
             model,
             maxTokens,
             temperature,
-            useCache = true
+            useCache = true,
+            stream = false
         } = req.body;
 
         if (!messages || !Array.isArray(messages)) {
@@ -180,8 +181,32 @@ app.post('/chat', authenticateDevice, async (req, res) => {
             maxTokens,
             temperature,
             deviceId: req.deviceId,
-            useCache
+            useCache,
+            stream
         });
+
+        if (stream && result instanceof ReadableStream) {
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+
+            const reader = result.getReader();
+            const decoder = new TextDecoder();
+
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    res.write(value);
+                }
+            } catch (err) {
+                console.error('Streaming error:', err);
+            } finally {
+                res.end();
+                logRequest(req, 200, Date.now() - startTime, provider + ' (streamed)');
+            }
+            return;
+        }
 
         const tokens = result.usage?.total_tokens || 0;
         aiProviders.trackUsage(req.deviceId, provider, 'chat', tokens);
