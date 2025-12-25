@@ -14,6 +14,8 @@
 Enable-WindowsOptionalFeature -FeatureName Hyper-V -Online -All
 
 # After restart, create VM manually (see HYPERV-LINUX-SETUP.md)
+# Then run the Upgrade script:
+.\scripts\provision-hyperv-vm.ps1 -VMName "NetworkBuster-Linux" -EnableGPU -EnableNetworkAcceleration
 ```
 
 ---
@@ -38,9 +40,9 @@ Enable-WindowsOptionalFeature -FeatureName Hyper-V -Online -All
 # Update system
 sudo apt update && sudo apt upgrade -y
 
-# Install Node.js 24.x
+# Install Node.js 24.x LTS
 curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
-sudo apt install -y nodejs git
+sudo apt install -y nodejs git ethtool
 
 # Clone project
 git clone https://github.com/NetworkBuster/networkbuster.net.git
