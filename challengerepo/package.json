@@ -1,5 +1,0 @@
-{
-    "name": "networkbuster-challengerepo",
-    "private": true,
-    "description": "Shadow package.json to block esbuild from looking at the root/parent"
-}

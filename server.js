@@ -70,12 +70,12 @@ app.use('/api/devices', devicesRouter);
 app.post('/api/ingestion/mock', (req, res) => {
   const payload = req.body;
   console.log('Mock ingestion received:', payload);
-  
+
   // Simulate processing delay (neural network inference time)
   setTimeout(() => {
     // Simulate occasional failures for testing
     const shouldFail = Math.random() < 0.1; // 10% failure rate
-    
+
     if (shouldFail) {
       console.log('Mock ingestion failed for device:', payload.deviceId);
       res.status(500).json({
@@ -201,7 +201,8 @@ app.get('/api/dashboard/services', (req, res) => {
     { name: 'Cache (Redis)', status: 'healthy', uptime: '100%', responseTime: '2ms' },
     { name: 'Message Queue', status: 'healthy', uptime: '99.98%', responseTime: '8ms' },
     { name: 'Search Engine', status: 'healthy', uptime: '99.90%', responseTime: '78ms' },
-    { name: 'Background Jobs', status: 'warning', uptime: '99.85%', responseTime: '234ms' }
+    { name: 'Background Jobs', status: 'warning', uptime: '99.85%', responseTime: '234ms' },
+    { name: 'luna.eu External', status: 'healthy', uptime: '99.99%', responseTime: '42ms' }
   ];
   res.json(services);
 });
@@ -224,11 +225,11 @@ app.get('/api/dashboard/activity', (req, res) => {
 // In-memory secrets storage
 const secretsStore = [
   { id: '1', name: 'github_token', environment: 'production', status: 'active', created: new Date(Date.now() - 86400000), expires: null, masked: '****...e3k9' },
-  { id: '2', name: 'api_key_stripe', environment: 'production', status: 'active', created: new Date(Date.now() - 172800000), expires: new Date(Date.now() + 30*86400000), masked: '****...x8p2' },
+  { id: '2', name: 'api_key_stripe', environment: 'production', status: 'active', created: new Date(Date.now() - 172800000), expires: new Date(Date.now() + 30 * 86400000), masked: '****...x8p2' },
   { id: '3', name: 'db_password', environment: 'production', status: 'active', created: new Date(Date.now() - 259200000), expires: null, masked: '****...q9l1' },
-  { id: '4', name: 'auth_secret', environment: 'staging', status: 'active', created: new Date(Date.now() - 7*86400000), expires: new Date(Date.now() - 86400000), masked: '****...m6v4' },
-  { id: '5', name: 'api_key_aws', environment: 'production', status: 'expiring', created: new Date(Date.now() - 340*86400000), expires: new Date(Date.now() + 5*86400000), masked: '****...f2j7' },
-  { id: '6', name: 'backup_key', environment: 'dev', status: 'active', created: new Date(Date.now() - 14*86400000), expires: null, masked: '****...z1o3' }
+  { id: '4', name: 'auth_secret', environment: 'staging', status: 'active', created: new Date(Date.now() - 7 * 86400000), expires: new Date(Date.now() - 86400000), masked: '****...m6v4' },
+  { id: '5', name: 'api_key_aws', environment: 'production', status: 'expiring', created: new Date(Date.now() - 340 * 86400000), expires: new Date(Date.now() + 5 * 86400000), masked: '****...f2j7' },
+  { id: '6', name: 'backup_key', environment: 'dev', status: 'active', created: new Date(Date.now() - 14 * 86400000), expires: null, masked: '****...z1o3' }
 ];
 
 // Get all secrets (masked)
@@ -267,7 +268,7 @@ app.post('/api/secrets', (req, res) => {
   if (!name || !environment) {
     return res.status(400).json({ error: 'Name and environment required' });
   }
-  
+
   const newSecret = {
     id: Date.now().toString(),
     name,
@@ -277,11 +278,11 @@ app.post('/api/secrets', (req, res) => {
     expires: expiresInDays ? new Date(Date.now() + expiresInDays * 86400000) : null,
     masked: '****...' + Math.random().toString(36).substr(2, 4).toLowerCase()
   };
-  
+
   secretsStore.push(newSecret);
   appState.lastAction = `Secret created: ${name}`;
   addLog('Secret created', name);
-  
+
   res.status(201).json({
     id: newSecret.id,
     name: newSecret.name,
@@ -294,13 +295,13 @@ app.post('/api/secrets', (req, res) => {
 app.patch('/api/secrets/:id', (req, res) => {
   const secret = secretsStore.find(s => s.id === req.params.id);
   if (!secret) return res.status(404).json({ error: 'Secret not found' });
-  
+
   const { status } = req.body;
   if (status) secret.status = status;
-  
+
   appState.lastAction = `Secret updated: ${secret.name}`;
   addLog('Secret updated', secret.name);
-  
+
   res.json({ message: 'Secret updated', id: secret.id, status: secret.status });
 });
 
@@ -308,11 +309,11 @@ app.patch('/api/secrets/:id', (req, res) => {
 app.delete('/api/secrets/:id', (req, res) => {
   const index = secretsStore.findIndex(s => s.id === req.params.id);
   if (index === -1) return res.status(404).json({ error: 'Secret not found' });
-  
+
   const deleted = secretsStore.splice(index, 1)[0];
   appState.lastAction = `Secret deleted: ${deleted.name}`;
   addLog('Secret deleted', deleted.name);
-  
+
   res.json({ message: 'Secret deleted', id: deleted.id, name: deleted.name });
 });
 
@@ -330,7 +331,7 @@ app.get('/api/secrets/validate/expiring', (req, res) => {
     const daysLeft = (s.expires - Date.now()) / 86400000;
     return daysLeft <= 30 && daysLeft > 0;
   });
-  
+
   res.json({
     expiringCount: expiring.count,
     expiringSoon: expiring,
@@ -464,7 +465,7 @@ app.get('/', (req, res) => {
 
 // Serve static files
 app.use('/blog', express.static(path.join(__dirname, 'blog')));
-app.use('/dashboard', express.static(path.join(__dirname, 'dashboard/dist')));        
+app.use('/dashboard', express.static(path.join(__dirname, 'dashboard/dist')));
 app.use('/overlay', express.static(path.join(__dirname, 'challengerepo/real-time-overlay/dist')));
 app.use('/static', express.static(path.join(__dirname, 'web-app')));
 

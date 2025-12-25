@@ -5,7 +5,7 @@ import SatGPU from './components/SatGPU'
 import CameraFeed from './components/CameraFeed'
 import ConnectionGraph from './components/ConnectionGraph'
 import ImmersiveReader from './components/ImmersiveReader'
-import { Monitor, Cpu, Map as MapIcon, Video, Eye, Brain, Gpu } from 'lucide-react'
+import { Monitor, Cpu, Map as MapIcon, Video, Eye, Brain } from 'lucide-react'
 
 function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
