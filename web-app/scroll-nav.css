@@ -1,0 +1,228 @@
+/* Scroll Navigation Styles - NetworkBuster.net Staging */
+
+/* Progress Bar */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 10001;
+}
+
+.scroll-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00f0ff, #667eea, #ff003c);
+    transition: width 0.1s ease-out;
+}
+
+/* Scroll Navigation Bar */
+.scroll-nav {
+    position: fixed;
+    top: 3px;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.scroll-nav.scrolled {
+    background: rgba(10, 15, 30, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.scroll-nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* Brand */
+.scroll-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #00f0ff;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.brand-icon {
+    font-size: 1.5em;
+}
+
+.brand-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.staging-badge {
+    font-size: 0.6em;
+    padding: 3px 8px;
+    background: linear-gradient(135deg, #ff003c, #ff6b6b);
+    color: white;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Navigation Links */
+.scroll-nav-links {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.scroll-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.85em;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.scroll-nav-link:hover {
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.1);
+}
+
+.scroll-nav-link.active {
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.scroll-nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: #00f0ff;
+    border-radius: 2px;
+}
+
+.nav-icon {
+    font-size: 1.1em;
+}
+
+.nav-label {
+    display: none;
+}
+
+@media (min-width: 900px) {
+    .nav-label {
+        display: inline;
+    }
+}
+
+/* Actions */
+.scroll-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.scroll-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.scroll-percent {
+    color: #00f0ff;
+    font-weight: 700;
+    min-width: 35px;
+    text-align: right;
+}
+
+.scroll-to-top {
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 50%;
+    color: #00f0ff;
+    font-size: 1em;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scroll-to-top:hover {
+    background: #00f0ff;
+    color: #0a0f1a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.4);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .scroll-nav {
+        padding: 8px 12px;
+    }
+    
+    .scroll-nav-brand .brand-text {
+        display: none;
+    }
+    
+    .scroll-nav-link {
+        padding: 8px 10px;
+    }
+    
+    .scroll-indicator {
+        display: none;
+    }
+}
+
+/* Adjust body padding for fixed nav */
+body {
+    padding-top: 60px;
+}
+
+/* Section scroll margin */
+section[id] {
+    scroll-margin-top: 80px;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}

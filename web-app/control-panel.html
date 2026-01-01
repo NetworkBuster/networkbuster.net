@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel | NetworkBuster.NET</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="nav-shared.css">
+    <link rel="stylesheet" href="app-slider.css">
+    <style>
+        .control-panel-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, rgba(15, 52, 96, 0.8) 0%, rgba(26, 26, 46, 0.8) 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        
+        .panel-header h1 {
+            font-size: 2rem;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .system-status {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .status-item {
+            text-align: center;
+        }
+        
+        .status-label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4ade80;
+        }
+        
+        .status-value.warning { color: #fbbf24; }
+        .status-value.danger { color: #ef4444; }
+        
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto;
+            gap: 1.5rem;
+        }
+        
+        .panel-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 12px;
+            padding: 1.25rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .panel-card.wide { grid-column: span 2; }
+        .panel-card.tall { grid-row: span 2; }
+        .panel-card.full { grid-column: span 4; }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-badge {
+            padding: 0.25rem 0.5rem;
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .card-badge.warning { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .card-badge.danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        
+        /* Server Controls */
+        .server-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .server-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border-left: 3px solid #4ade80;
+        }
+        
+        .server-item.offline { border-left-color: #ef4444; }
+        .server-item.warning { border-left-color: #fbbf24; }
+        
+        .server-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .server-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .server-name {
+            font-weight: 500;
+            color: #fff;
+        }
+        
+        .server-port {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .server-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn.start { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .action-btn.stop { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .action-btn.restart { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .action-btn.config { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
+        
+        .action-btn:hover { transform: scale(1.1); }
+        
+        /* Resource Meters */
+        .resource-meter {
+            margin-bottom: 1rem;
+        }
+        
+        .meter-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .meter-label {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .meter-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4ade80;
+        }
+        
+        .meter-bar {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .meter-fill.warning { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .meter-fill.danger { background: linear-gradient(90deg, #ef4444, #dc2626); }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .quick-btn {
+            padding: 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+        
+        .quick-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .quick-btn-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quick-btn-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        /* Log Console */
+        .log-console {
+            background: #0d1117;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8rem;
+            height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .log-time {
+            color: rgba(255,255,255,0.4);
+            margin-right: 0.5rem;
+        }
+        
+        .log-level {
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            margin-right: 0.5rem;
+        }
+        
+        .log-level.info { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
+        .log-level.warn { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .log-level.error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .log-level.success { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        
+        .log-message {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        /* Network Graph */
+        .network-graph {
+            height: 150px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .graph-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(180deg, rgba(0, 212, 255, 0.3) 0%, transparent 100%);
+            clip-path: polygon(0% 80%, 5% 70%, 10% 75%, 15% 50%, 20% 60%, 25% 40%, 30% 45%, 35% 30%, 40% 35%, 45% 20%, 50% 25%, 55% 15%, 60% 30%, 65% 25%, 70% 40%, 75% 35%, 80% 50%, 85% 45%, 90% 60%, 95% 55%, 100% 70%, 100% 100%, 0% 100%);
+        }
+        
+        .graph-labels {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .graph-label {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .graph-label span {
+            font-weight: 600;
+            color: #00d4ff;
+        }
+        
+        /* Toggle Switch */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .toggle-label {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+        }
+        
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #4ade80;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+        
+        @media (max-width: 1200px) {
+            .panel-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .panel-card.full { grid-column: span 2; }
+        }
+        
+        @media (max-width: 768px) {
+            .panel-grid {
+                grid-template-columns: 1fr;
+            }
+            .panel-card.wide, .panel-card.full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <script src="nav-shared.js"></script>
+    
+    <div class="control-panel-container">
+        <div class="panel-header">
+            <h1>🎛️ Control Panel</h1>
+            <div class="system-status">
+                <div class="status-item">
+                    <div class="status-label">Uptime</div>
+                    <div class="status-value">99.97%</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Services</div>
+                    <div class="status-value">8/9</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Alerts</div>
+                    <div class="status-value warning">3</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel-grid">
+            <!-- Server Controls -->
+            <div class="panel-card wide">
+                <div class="card-header">
+                    <span class="card-title">🖥️ Server Controls</span>
+                    <span class="card-badge">8 Online</span>
+                </div>
+                <div class="server-list">
+                    <div class="server-item">
+                        <div class="server-info">
+                            <div class="server-icon">🌐</div>
+                            <div>
+                                <div class="server-name">Web Server</div>
+                                <div class="server-port">Port 3500</div>
+                            </div>
+                        </div>
+                        <div class="server-actions">
+                            <button class="action-btn stop" title="Stop">⏹️</button>
+                            <button class="action-btn restart" title="Restart">🔄</button>
+                            <button class="action-btn config" title="Config">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="server-item">
+                        <div class="server-info">
+                            <div class="server-icon">🤖</div>
+                            <div>
+                                <div class="server-name">Chatbot API</div>
+                                <div class="server-port">Port 3005</div>
+                            </div>
+                        </div>
+                        <div class="server-actions">
+                            <button class="action-btn stop" title="Stop">⏹️</button>
+                            <button class="action-btn restart" title="Restart">🔄</button>
+                            <button class="action-btn config" title="Config">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="server-item">
+                        <div class="server-info">
+                            <div class="server-icon">🎵</div>
+                            <div>
+                                <div class="server-name">Audio Server</div>
+                                <div class="server-port">Port 3002</div>
+                            </div>
+                        </div>
+                        <div class="server-actions">
+                            <button class="action-btn stop" title="Stop">⏹️</button>
+                            <button class="action-btn restart" title="Restart">🔄</button>
+                            <button class="action-btn config" title="Config">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="server-item offline">
+                        <div class="server-info">
+                            <div class="server-icon">📊</div>
+                            <div>
+                                <div class="server-name">Analytics Engine</div>
+                                <div class="server-port">Port 3010</div>
+                            </div>
+                        </div>
+                        <div class="server-actions">
+                            <button class="action-btn start" title="Start">▶️</button>
+                            <button class="action-btn config" title="Config">⚙️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resource Monitor -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <span class="card-title">📊 Resources</span>
+                </div>
+                <div class="resource-meter">
+                    <div class="meter-header">
+                        <span class="meter-label">CPU Usage</span>
+                        <span class="meter-value">34%</span>
+                    </div>
+                    <div class="meter-bar">
+                        <div class="meter-fill" style="width: 34%"></div>
+                    </div>
+                </div>
+                <div class="resource-meter">
+                    <div class="meter-header">
+                        <span class="meter-label">Memory</span>
+                        <span class="meter-value" style="color: #fbbf24">67%</span>
+                    </div>
+                    <div class="meter-bar">
+                        <div class="meter-fill warning" style="width: 67%"></div>
+                    </div>
+                </div>
+                <div class="resource-meter">
+                    <div class="meter-header">
+                        <span class="meter-label">Disk I/O</span>
+                        <span class="meter-value">12%</span>
+                    </div>
+                    <div class="meter-bar">
+                        <div class="meter-fill" style="width: 12%"></div>
+                    </div>
+                </div>
+                <div class="resource-meter">
+                    <div class="meter-header">
+                        <span class="meter-label">Network</span>
+                        <span class="meter-value">45%</span>
+                    </div>
+                    <div class="meter-bar">
+                        <div class="meter-fill" style="width: 45%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <span class="card-title">⚡ Quick Actions</span>
+                </div>
+                <div class="quick-actions">
+                    <div class="quick-btn">
+                        <div class="quick-btn-icon">🔄</div>
+                        <div class="quick-btn-label">Restart All</div>
+                    </div>
+                    <div class="quick-btn">
+                        <div class="quick-btn-icon">🧹</div>
+                        <div class="quick-btn-label">Clear Cache</div>
+                    </div>
+                    <div class="quick-btn">
+                        <div class="quick-btn-icon">💾</div>
+                        <div class="quick-btn-label">Backup Now</div>
+                    </div>
+                    <div class="quick-btn">
+                        <div class="quick-btn-icon">📋</div>
+                        <div class="quick-btn-label">View Logs</div>
+                    </div>
+                    <div class="quick-btn">
+                        <div class="quick-btn-icon">🔒</div>
+                        <div class="quick-btn-label">SSL Renew</div>
+                    </div>
+                    <div class="quick-btn">
+                        <div class="quick-btn-icon">📡</div>
+                        <div class="quick-btn-label">Health Check</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Network Traffic -->
+            <div class="panel-card wide">
+                <div class="card-header">
+                    <span class="card-title">📡 Network Traffic</span>
+                    <span class="card-badge">Live</span>
+                </div>
+                <div class="network-graph">
+                    <div class="graph-line"></div>
+                    <div class="graph-labels">
+                        <div class="graph-label">In: <span>2.4 MB/s</span></div>
+                        <div class="graph-label">Out: <span>1.8 MB/s</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Toggles -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <span class="card-title">⚙️ System Settings</span>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Auto Restart</span>
+                    <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Debug Mode</span>
+                    <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">SSL Enforce</span>
+                    <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Rate Limiting</span>
+                    <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Maintenance</span>
+                    <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+                </div>
+            </div>
+            
+            <!-- Live Logs -->
+            <div class="panel-card wide">
+                <div class="card-header">
+                    <span class="card-title">📜 Live Logs</span>
+                    <span class="card-badge">Streaming</span>
+                </div>
+                <div class="log-console" id="logConsole">
+                    <div class="log-entry">
+                        <span class="log-time">08:45:23</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">Web server started on port 3500</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">08:45:24</span>
+                        <span class="log-level success">OK</span>
+                        <span class="log-message">Database connection established</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">08:45:25</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">Chatbot API ready on port 3005</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">08:45:30</span>
+                        <span class="log-level warn">WARN</span>
+                        <span class="log-message">High memory usage detected (67%)</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">08:45:35</span>
+                        <span class="log-level error">ERR</span>
+                        <span class="log-message">Analytics engine failed to start</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">08:45:40</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">New client connected from 192.168.1.100</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simulate live log updates
+        const logs = [
+            { level: 'info', message: 'Request processed: GET /api/health' },
+            { level: 'success', message: 'Cache cleared successfully' },
+            { level: 'info', message: 'WebSocket connection established' },
+            { level: 'warn', message: 'Slow query detected (>500ms)' },
+            { level: 'info', message: 'Static assets served' },
+            { level: 'success', message: 'Backup completed' },
+        ];
+        
+        function addLog() {
+            const log = logs[Math.floor(Math.random() * logs.length)];
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-time">${time}</span>
+                <span class="log-level ${log.level}">${log.level.toUpperCase()}</span>
+                <span class="log-message">${log.message}</span>
+            `;
+            const console = document.getElementById('logConsole');
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        setInterval(addLog, 3000);
+    </script>
+    <script src="app-slider.js"></script>
+</body>
+</html>

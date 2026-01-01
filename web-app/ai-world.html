@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI World | NetworkBuster.NET</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="nav-shared.css">
+    <link rel="stylesheet" href="app-slider.css">
+    <style>
+        .ai-world-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .ai-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 50%, rgba(99, 102, 241, 0.15) 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ai-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+        
+        .ai-header h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .ai-header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .ai-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ai-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899, #6366f1);
+        }
+        
+        .ai-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+        }
+        
+        .ai-card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-card h3 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+        
+        .ai-card p {
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .ai-card-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            color: #ec4899;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .ai-card-btn:hover {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.3));
+            transform: translateX(4px);
+        }
+        
+        /* Feature Tags */
+        .feature-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-tag {
+            padding: 0.25rem 0.75rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #8b5cf6;
+        }
+        
+        /* Neural Network Visualization */
+        .neural-viz {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            min-height: 300px;
+            overflow: hidden;
+        }
+        
+        .neuron {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #8b5cf6, transparent);
+            border-radius: 50%;
+            animation: pulse-neuron 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-neuron {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 1; }
+        }
+        
+        .neural-connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+            transform-origin: left center;
+        }
+        
+        /* Chat Interface */
+        .ai-chat {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.1));
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .chat-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .chat-info h4 {
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+        
+        .chat-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #4ade80;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 1rem 1.25rem;
+            border-radius: 16px;
+            line-height: 1.5;
+        }
+        
+        .message.ai {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: rgba(255,255,255,0.9);
+            align-self: flex-start;
+        }
+        
+        .message.user {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            align-self: flex-end;
+        }
+        
+        .chat-input-area {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(139, 92, 246, 0.1);
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 1rem 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+        
+        .chat-send {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        
+        /* Stats Section */
+        .ai-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+        }
+        
+        /* Model Selection */
+        .model-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .model-option {
+            flex: 1;
+            min-width: 200px;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .model-option:hover,
+        .model-option.active {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .model-option.active {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .model-name {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+        
+        .model-desc {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .ai-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <script src="nav-shared.js"></script>
+    
+    <div class="ai-world-container">
+        <div class="ai-header">
+            <h1>🤖 AI World</h1>
+            <p>Explore intelligent systems, neural networks, and advanced machine learning capabilities</p>
+        </div>
+        
+        <!-- Stats -->
+        <div class="ai-stats">
+            <div class="stat-card">
+                <div class="stat-value">1.2B</div>
+                <div class="stat-label">Parameters</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">99.7%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">24ms</div>
+                <div class="stat-label">Response Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Possibilities</div>
+            </div>
+        </div>
+        
+        <!-- Model Selection -->
+        <h2 style="color: #8b5cf6; margin-bottom: 1rem;">🧠 Select AI Model</h2>
+        <div class="model-selector">
+            <div class="model-option active">
+                <div class="model-name">🚀 GPT-4 Turbo</div>
+                <div class="model-desc">Most capable model for complex tasks</div>
+            </div>
+            <div class="model-option">
+                <div class="model-name">⚡ GPT-3.5</div>
+                <div class="model-desc">Fast responses, cost-effective</div>
+            </div>
+            <div class="model-option">
+                <div class="model-name">🎨 DALL-E 3</div>
+                <div class="model-desc">Image generation and editing</div>
+            </div>
+            <div class="model-option">
+                <div class="model-name">🗣️ Whisper</div>
+                <div class="model-desc">Speech recognition & transcription</div>
+            </div>
+        </div>
+        
+        <!-- Neural Network Viz -->
+        <div class="neural-viz" id="neuralViz">
+            <h3 style="color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 1rem;">Neural Network Activity</h3>
+            <!-- Neurons generated by JS -->
+        </div>
+        
+        <!-- AI Features -->
+        <div class="ai-grid">
+            <div class="ai-card">
+                <div class="ai-card-icon">💬</div>
+                <h3>Natural Language</h3>
+                <div class="feature-tags">
+                    <span class="feature-tag">Chat</span>
+                    <span class="feature-tag">Summarize</span>
+                    <span class="feature-tag">Translate</span>
+                </div>
+                <p>Advanced conversational AI with context understanding, multi-language support, and intelligent responses.</p>
+                <a href="#chat" class="ai-card-btn">Try Chat →</a>
+            </div>
+            
+            <div class="ai-card">
+                <div class="ai-card-icon">👁️</div>
+                <h3>Computer Vision</h3>
+                <div class="feature-tags">
+                    <span class="feature-tag">OCR</span>
+                    <span class="feature-tag">Detection</span>
+                    <span class="feature-tag">Analysis</span>
+                </div>
+                <p>Image recognition, object detection, and visual analysis powered by state-of-the-art neural networks.</p>
+                <a href="#" class="ai-card-btn">Analyze Image →</a>
+            </div>
+            
+            <div class="ai-card">
+                <div class="ai-card-icon">📊</div>
+                <h3>Data Analytics</h3>
+                <div class="feature-tags">
+                    <span class="feature-tag">Prediction</span>
+                    <span class="feature-tag">Insights</span>
+                    <span class="feature-tag">Patterns</span>
+                </div>
+                <p>Machine learning models for predictive analytics, anomaly detection, and data-driven insights.</p>
+                <a href="#" class="ai-card-btn">View Analytics →</a>
+            </div>
+            
+            <div class="ai-card">
+                <div class="ai-card-icon">🎵</div>
+                <h3>Audio Processing</h3>
+                <div class="feature-tags">
+                    <span class="feature-tag">Speech</span>
+                    <span class="feature-tag">Music</span>
+                    <span class="feature-tag">Effects</span>
+                </div>
+                <p>Speech-to-text, text-to-speech, audio enhancement, and music generation capabilities.</p>
+                <a href="audio-lab.html" class="ai-card-btn">Audio Lab →</a>
+            </div>
+            
+            <div class="ai-card">
+                <div class="ai-card-icon">✍️</div>
+                <h3>Content Generation</h3>
+                <div class="feature-tags">
+                    <span class="feature-tag">Write</span>
+                    <span class="feature-tag">Code</span>
+                    <span class="feature-tag">Create</span>
+                </div>
+                <p>Generate articles, code, creative content, and documentation with AI assistance.</p>
+                <a href="#" class="ai-card-btn">Generate →</a>
+            </div>
+            
+            <div class="ai-card">
+                <div class="ai-card-icon">🔬</div>
+                <h3>Research Tools</h3>
+                <div class="feature-tags">
+                    <span class="feature-tag">Search</span>
+                    <span class="feature-tag">Citations</span>
+                    <span class="feature-tag">Synthesis</span>
+                </div>
+                <p>AI-powered research assistance with intelligent search, citation management, and knowledge synthesis.</p>
+                <a href="#" class="ai-card-btn">Research →</a>
+            </div>
+        </div>
+        
+        <!-- Chat Interface -->
+        <div class="ai-chat" id="chat">
+            <div class="chat-header">
+                <div class="chat-avatar">🤖</div>
+                <div class="chat-info">
+                    <h4>NetworkBuster AI</h4>
+                    <div class="chat-status">
+                        <div class="status-dot"></div>
+                        <span>Online • GPT-4 Turbo</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    👋 Hello! I'm NetworkBuster AI. I can help you with coding, research, creative writing, and much more. What would you like to explore today?
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter')sendMessage()">
+                <button class="chat-send" onclick="sendMessage()">Send ✨</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Neural network visualization
+        const viz = document.getElementById('neuralViz');
+        const neurons = [];
+        
+        for (let i = 0; i < 30; i++) {
+            const neuron = document.createElement('div');
+            neuron.className = 'neuron';
+            neuron.style.left = Math.random() * 90 + 5 + '%';
+            neuron.style.top = Math.random() * 80 + 10 + '%';
+            neuron.style.animationDelay = Math.random() * 2 + 's';
+            viz.appendChild(neuron);
+            neurons.push(neuron);
+        }
+        
+        // Draw connections
+        function drawConnections() {
+            const existingConnections = viz.querySelectorAll('.neural-connection');
+            existingConnections.forEach(c => c.remove());
+            
+            for (let i = 0; i < 20; i++) {
+                const n1 = neurons[Math.floor(Math.random() * neurons.length)];
+                const n2 = neurons[Math.floor(Math.random() * neurons.length)];
+                
+                const x1 = parseFloat(n1.style.left);
+                const y1 = parseFloat(n1.style.top);
+                const x2 = parseFloat(n2.style.left);
+                const y2 = parseFloat(n2.style.top);
+                
+                const connection = document.createElement('div');
+                connection.className = 'neural-connection';
+                
+                const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                
+                connection.style.width = length + '%';
+                connection.style.left = x1 + '%';
+                connection.style.top = y1 + '%';
+                connection.style.transform = `rotate(${angle}deg)`;
+                
+                viz.appendChild(connection);
+            }
+        }
+        
+        drawConnections();
+        setInterval(drawConnections, 3000);
+        
+        // Model selection
+        document.querySelectorAll('.model-option').forEach(opt => {
+            opt.onclick = () => {
+                document.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+            };
+        });
+        
+        // Chat functionality
+        const responses = [
+            "That's an interesting question! Let me analyze that for you...",
+            "Based on my training data, I can help you with that. Here's what I know...",
+            "Great question! Here's a comprehensive answer...",
+            "I've processed your request. Here's what I found...",
+            "Let me break that down for you step by step...",
+        ];
+        
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            // User message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user';
+            userMsg.textContent = message;
+            messagesDiv.appendChild(userMsg);
+            
+            input.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // AI response (simulated)
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'message ai';
+                aiMsg.textContent = responses[Math.floor(Math.random() * responses.length)];
+                messagesDiv.appendChild(aiMsg);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 1000);
+        }
+    </script>
+    <script src="app-slider.js"></script>
+</body>
+</html>

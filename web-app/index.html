@@ -5,18 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NetworkBuster Lunar Recycling System - Comprehensive documentation and technical specifications for lunar waste management">
     <meta name="keywords" content="lunar recycling, space technology, NLRS, waste management, moon base">
-    <title>NetworkBuster Lunar Recycling System - Documentation Hub</title>
+    <meta name="stage" content="staging">
+    <meta name="version" content="1.0.0-staging">
+    <title>NetworkBuster.NET - Staging | Lunar Recycling System</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="chatbot.css">
+    <link rel="stylesheet" href="nav-shared.css">
+    <link rel="stylesheet" href="scroll-nav.css">
+    <link rel="stylesheet" href="app-slider.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <script src="scroll-nav.js"></script>
     <div class="background-animation"></div>
     
-    <!-- Header -->
-    <header class="header">
+    <!-- Hero Section with ID for scroll nav -->
+    <section id="hero" class="header">
         <div class="container">
             <div class="logo-section">
                 <div class="logo-icon">🌙</div>
@@ -27,11 +33,11 @@
             </div>
             <nav class="main-nav">
                 <!-- Main Pages -->
-                <a href="/" class="nav-link active">🏠 Home</a>
-                <a href="/about.html" class="nav-link">ℹ️ About</a>
-                <a href="/projects.html" class="nav-link">🚀 Projects</a>
-                <a href="/technology.html" class="nav-link">⚡ Technology</a>
-                <a href="/documentation.html" class="nav-link">📖 Docs</a>
+                <a href="index.html" class="nav-link active">🏠 Home</a>
+                <a href="about.html" class="nav-link">ℹ️ About</a>
+                <a href="projects.html" class="nav-link">🚀 Projects</a>
+                <a href="technology.html" class="nav-link">⚡ Technology</a>
+                <a href="documentation.html" class="nav-link">📖 Docs</a>
                 <button id="toggle-netbot" class="nav-link" style="margin-left:16px;cursor:pointer;background:#0f3460;color:#fff;border:none;padding:8px 16px;border-radius:8px;">🤖 Net Bot: <span id="netbot-status">On</span></button>
                 
                 <!-- Apps Dropdown -->
@@ -52,19 +58,19 @@
                     <div class="dropdown-menu">
                         <a href="#calculator" class="dropdown-item">🧮 Calculator</a>
                         <a href="#data" class="dropdown-item">💾 Data Center</a>
-                        <a href="/flash-commands.html" class="dropdown-item">⚡ Flash Commands</a>
-                        <a href="/packages.html" class="dropdown-item">📦 Packages</a>
-                        <a href="/hud.html" class="dropdown-item">🛰️ Function HUD</a>
-                        <a href="/blog/" class="dropdown-item">📝 Blog</a>
+                        <a href="flash-commands.html" class="dropdown-item">⚡ Flash Commands</a>
+                        <a href="packages.html" class="dropdown-item">📦 Packages</a>
+                        <a href="hud.html" class="dropdown-item">🛰️ Function HUD</a>
+                        <a href="#blog" class="dropdown-item">📝 Blog</a>
                     </div>
                 </div>
                 
-                <a href="/contact.html" class="nav-link">✉️ Contact</a>
+                <a href="contact.html" class="nav-link">✉️ Contact</a>
             </nav>
         </div>
-    </header>
+    </section>
 
-    <!-- Hero Section -->
+    <!-- Hero Content Section -->
     <section class="hero">
         <div class="container">
             <div class="hero-content">
@@ -465,5 +471,6 @@
         style.innerHTML = `#floating-docs-btn { position: fixed; bottom: 100px; right: 30px; background: #6366f1; color: #fff; padding: 14px 22px; border-radius: 50px; box-shadow: 0 4px 16px rgba(99,102,241,0.2); font-size: 1.2rem; z-index: 10001; text-decoration: none; transition: background 0.2s; } #floating-docs-btn:hover { background: #4f46e5; }`;
         document.head.appendChild(style);
         </script>
+        <script src="app-slider.js"></script>
 </body>
 </html>

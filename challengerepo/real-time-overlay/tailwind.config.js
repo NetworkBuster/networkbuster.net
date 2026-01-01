@@ -23,8 +23,13 @@ export default {
       animation: {
         'pulse-cyber': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'glow': 'glow 2s ease-in-out infinite',
+        'radar-spin': 'radar-spin 4s linear infinite',
       },
       keyframes: {
+        'radar-spin': {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
         glow: {
           '0%, 100%': {
             boxShadow: '0 0 20px rgba(0, 240, 255, 0.5)',

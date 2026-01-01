@@ -1,0 +1,6 @@
+list disk
+select disk 1
+detail disk
+attributes disk
+list partition
+list volume

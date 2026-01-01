@@ -4,7 +4,9 @@ import SatelliteMap from './components/SatelliteMap'
 import CameraFeed from './components/CameraFeed'
 import ConnectionGraph from './components/ConnectionGraph'
 import ImmersiveReader from './components/ImmersiveReader'
-import { Monitor, Cpu, Map as MapIcon, Video, Eye, Brain } from 'lucide-react'
+import DashboardOverlay from './components/DashboardOverlay'
+import BlogOverlay from './components/BlogOverlay'
+import { Monitor, Cpu, Map as MapIcon, Video, Eye, Brain, LayoutDashboard, BookOpen } from 'lucide-react'
 
 function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -95,7 +97,7 @@ function App() {
                                 
                                 {/* Immersive Reader Toggle */}
                                 <button
-                                    onClick={() => setActiveTab(activeTab === 'immersive' ? 'dashboard' : 'immersive')}
+                                    onClick={() => setActiveTab(activeTab === 'immersive' ? 'main' : 'immersive')}
                                     className={`w-full mt-2 p-2 rounded flex items-center justify-center gap-2 transition ${
                                         activeTab === 'immersive'
                                             ? 'bg-[#667eea] text-white'
@@ -106,13 +108,39 @@ function App() {
                                     <span className="text-xs font-bold">IMMERSIVE READER</span>
                                 </button>
                                 
+                                {/* Dashboard Overlay Toggle */}
+                                <button
+                                    onClick={() => setActiveTab(activeTab === 'dashboard' ? 'main' : 'dashboard')}
+                                    className={`w-full mt-1 p-2 rounded flex items-center justify-center gap-2 transition ${
+                                        activeTab === 'dashboard'
+                                            ? 'bg-[#00f0ff] text-black'
+                                            : 'bg-white/5 text-[#00f0ff] hover:bg-white/10'
+                                    }`}
+                                >
+                                    <LayoutDashboard size={14} />
+                                    <span className="text-xs font-bold">DASHBOARD</span>
+                                </button>
+                                
+                                {/* Blog Overlay Toggle */}
+                                <button
+                                    onClick={() => setActiveTab(activeTab === 'blog' ? 'main' : 'blog')}
+                                    className={`w-full mt-1 p-2 rounded flex items-center justify-center gap-2 transition ${
+                                        activeTab === 'blog'
+                                            ? 'bg-[#ff003c] text-white'
+                                            : 'bg-white/5 text-[#ff003c] hover:bg-white/10'
+                                    }`}
+                                >
+                                    <BookOpen size={14} />
+                                    <span className="text-xs font-bold">BLOG</span>
+                                </button>
+                                
                                 {/* AI Training Toggle */}
                                 <button
                                     onClick={() => setAiTrainingEnabled(!aiTrainingEnabled)}
                                     className={`w-full mt-1 p-2 rounded flex items-center justify-center gap-2 transition ${
                                         aiTrainingEnabled
                                             ? 'bg-[#764ba2] text-white'
-                                            : 'bg-white/5 text-[#ff003c] hover:bg-white/10'
+                                            : 'bg-white/5 text-[#00ff88] hover:bg-white/10'
                                     }`}
                                 >
                                     <Brain size={14} />
@@ -134,7 +162,7 @@ function App() {
                                     IMMERSIVE READER - REAL-TIME DATA STREAM
                                 </h2>
                                 <button
-                                    onClick={() => setActiveTab('dashboard')}
+                                    onClick={() => setActiveTab('main')}
                                     className="text-[#ff003c] hover:text-white text-xl"
                                 >
                                     ✕
@@ -144,6 +172,48 @@ function App() {
                                 overlayContext={{ activeTab }}
                                 aiMode={aiTrainingEnabled}
                             />
+                        </div>
+                    </div>
+                )}
+                
+                {/* Dashboard Overlay Panel */}
+                {activeTab === 'dashboard' && (
+                    <div className="fixed inset-4 z-50 pointer-events-auto overflow-auto">
+                        <div className="bg-black/95 border border-[#00f0ff] rounded-lg backdrop-blur h-full">
+                            <div className="flex justify-between items-center p-4 border-b border-white/10">
+                                <h2 className="text-lg font-bold text-[#00f0ff] flex items-center gap-2">
+                                    <LayoutDashboard size={20} />
+                                    SYSTEM DASHBOARD - HIGH GRAPHICS MODE
+                                </h2>
+                                <button
+                                    onClick={() => setActiveTab('main')}
+                                    className="text-[#ff003c] hover:text-white text-xl"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <DashboardOverlay />
+                        </div>
+                    </div>
+                )}
+                
+                {/* Blog Overlay Panel */}
+                {activeTab === 'blog' && (
+                    <div className="fixed inset-4 z-50 pointer-events-auto overflow-auto">
+                        <div className="bg-black/95 border border-[#ff003c] rounded-lg backdrop-blur h-full">
+                            <div className="flex justify-between items-center p-4 border-b border-white/10">
+                                <h2 className="text-lg font-bold text-[#ff003c] flex items-center gap-2">
+                                    <BookOpen size={20} />
+                                    NETWORK BLOG - EXPANDED VIEW
+                                </h2>
+                                <button
+                                    onClick={() => setActiveTab('main')}
+                                    className="text-[#ff003c] hover:text-white text-xl"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <BlogOverlay />
                         </div>
                     </div>
                 )}

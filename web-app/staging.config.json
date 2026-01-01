@@ -1,0 +1,49 @@
+{
+    "name": "networkbuster-web",
+    "version": "1.0.0-staging",
+    "environment": "staging",
+    "domain": "networkbuster.net",
+    "staging_url": "staging.networkbuster.net",
+    "build": {
+        "output": "dist",
+        "minify": true,
+        "sourcemaps": false
+    },
+    "deploy": {
+        "provider": "vercel",
+        "region": "iad1",
+        "framework": "static"
+    },
+    "pages": [
+        { "path": "/", "file": "index.html", "title": "Home" },
+        { "path": "/about", "file": "about.html", "title": "About" },
+        { "path": "/projects", "file": "projects.html", "title": "Projects" },
+        { "path": "/technology", "file": "technology.html", "title": "Technology" },
+        { "path": "/documentation", "file": "documentation.html", "title": "Documentation" },
+        { "path": "/contact", "file": "contact.html", "title": "Contact" },
+        { "path": "/flash-commands", "file": "flash-commands.html", "title": "Flash Commands" },
+        { "path": "/packages", "file": "packages.html", "title": "Packages" },
+        { "path": "/hud", "file": "hud.html", "title": "Function HUD" },
+        { "path": "/overlay", "file": "overlay.html", "title": "AI World Overlay" },
+        { "path": "/recycle", "file": "recycle.html", "title": "Recycling Assistant" }
+    ],
+    "sections": [
+        { "id": "hero", "label": "Home" },
+        { "id": "overview", "label": "Architecture" },
+        { "id": "technical", "label": "Specifications" },
+        { "id": "calculator", "label": "Calculator" },
+        { "id": "data", "label": "Data" },
+        { "id": "operations", "label": "Operations" }
+    ],
+    "features": {
+        "scroll_navigation": true,
+        "chatbot": true,
+        "dark_mode": true,
+        "animations": true
+    },
+    "meta": {
+        "author": "NetworkBuster Team",
+        "copyright": "2026 NetworkBuster Research Division",
+        "last_updated": "2026-01-01"
+    }
+}

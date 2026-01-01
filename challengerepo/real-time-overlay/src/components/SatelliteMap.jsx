@@ -1,5 +1,6 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import RadarOverlay from './RadarOverlay';
 
 // Fix for default marker icon in React Leaflet
 import L from 'leaflet';
@@ -20,9 +21,15 @@ export default function SatelliteMap() {
 
     return (
         <div className="w-full h-full relative" style={{ minHeight: '300px' }}>
-            <div className="absolute top-2 right-2 z-[1000] bg-black/50 px-2 py-1 text-xs text-[#00f0ff] border border-[#00f0ff]">
-                SAT_LINK: ONLINE
+            <div className="absolute top-2 right-2 z-[1000] flex flex-col gap-1 items-end">
+                <div className="bg-black/50 px-2 py-1 text-[10px] text-[#00f0ff] border border-[#00f0ff]">
+                    SAT_LINK: ONLINE
+                </div>
+                <div className="bg-black/50 px-2 py-1 text-[10px] text-[#ff003c] border border-[#ff003c] animate-pulse">
+                    RADAR: ACTIVE
+                </div>
             </div>
+            <RadarOverlay />
             <MapContainer center={position} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
                 <TileLayer
                     attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'

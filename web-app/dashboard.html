@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | NetworkBuster.NET</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="nav-shared.css">
+    <link rel="stylesheet" href="app-slider.css">
+    <style>
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2rem;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .header-btn {
+            padding: 0.75rem 1.25rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            color: #00d4ff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .header-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+        
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(15, 52, 96, 0.6) 0%, rgba(26, 26, 46, 0.8) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent, linear-gradient(90deg, #00d4ff, #4ade80));
+        }
+        
+        .stat-card:nth-child(2)::before { --accent: linear-gradient(90deg, #8b5cf6, #ec4899); }
+        .stat-card:nth-child(3)::before { --accent: linear-gradient(90deg, #fbbf24, #f97316); }
+        .stat-card:nth-child(4)::before { --accent: linear-gradient(90deg, #4ade80, #22d3ee); }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+        }
+        
+        .stat-change {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .stat-change.up {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+        
+        .stat-change.down {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .dashboard-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #00d4ff;
+        }
+        
+        .card-badge {
+            padding: 0.25rem 0.75rem;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #00d4ff;
+        }
+        
+        /* Chart Area */
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .chart-area {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(0, 212, 255, 0.1) 0%, transparent 100%);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(180deg, rgba(0, 212, 255, 0.3) 0%, transparent 100%);
+            clip-path: polygon(0% 100%, 5% 70%, 10% 80%, 15% 50%, 20% 60%, 25% 30%, 30% 40%, 35% 20%, 40% 35%, 45% 15%, 50% 25%, 55% 10%, 60% 30%, 65% 20%, 70% 35%, 75% 25%, 80% 40%, 85% 30%, 90% 50%, 95% 40%, 100% 55%, 100% 100%);
+        }
+        
+        .chart-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        /* Activity Feed */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border-left: 3px solid #00d4ff;
+        }
+        
+        .activity-item.success { border-left-color: #4ade80; }
+        .activity-item.warning { border-left-color: #fbbf24; }
+        .activity-item.error { border-left-color: #ef4444; }
+        
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .activity-time {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.75rem;
+        }
+        
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .quick-stat {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .quick-stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+        
+        .quick-stat-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        /* Progress Bars */
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .progress-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .progress-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+        
+        .progress-value {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #4ade80);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-fill.purple { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+        .progress-fill.orange { background: linear-gradient(90deg, #fbbf24, #f97316); }
+        .progress-fill.green { background: linear-gradient(90deg, #4ade80, #22d3ee); }
+        
+        /* World Map */
+        .world-map {
+            height: 200px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500"><path fill="%23ffffff10" d="M150,100 Q200,80 250,100 T350,90 T450,100 T550,90 T650,100 T750,90 T850,100 V200 Q800,220 750,200 T650,210 T550,200 T450,210 T350,200 T250,210 T150,200 Z M100,250 Q150,230 200,250 T300,240 T400,250 T500,240 T600,250 V350 Q550,370 500,350 T400,360 T300,350 T200,360 T100,350 Z M600,280 Q650,260 700,280 T800,270 T900,280 V380 Q850,400 800,380 T700,390 T600,380 Z"/></svg>') center/cover no-repeat;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .map-dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: map-pulse 2s infinite;
+        }
+        
+        @keyframes map-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(2); opacity: 0.3; }
+        }
+        
+        /* Bottom Row */
+        .bottom-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .bottom-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script src="nav-shared.js"></script>
+    
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>📊 Dashboard</h1>
+            <div class="header-actions">
+                <button class="header-btn">🔄 Refresh</button>
+                <button class="header-btn">📥 Export</button>
+                <button class="header-btn">⚙️ Settings</button>
+            </div>
+        </div>
+        
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <span class="stat-change up">↑ 12%</span>
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">24,521</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-change up">↑ 8%</span>
+                <div class="stat-icon">📊</div>
+                <div class="stat-value">1.2M</div>
+                <div class="stat-label">API Requests</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-change down">↓ 3%</span>
+                <div class="stat-icon">⚡</div>
+                <div class="stat-value">42ms</div>
+                <div class="stat-label">Avg Response</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-change up">↑ 15%</span>
+                <div class="stat-icon">💰</div>
+                <div class="stat-value">$8,432</div>
+                <div class="stat-label">Revenue (MTD)</div>
+            </div>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="dashboard-grid">
+            <!-- Traffic Chart -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">📈 Traffic Overview</span>
+                    <span class="card-badge">Last 7 days</span>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-area">
+                        <div class="chart-grid"></div>
+                        <div class="chart-line"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Activity Feed -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">🔔 Recent Activity</span>
+                    <span class="card-badge">Live</span>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item success">
+                        <div class="activity-icon">✅</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Deployment successful</div>
+                            <div class="activity-time">2 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">👤</div>
+                        <div class="activity-content">
+                            <div class="activity-title">New user registered</div>
+                            <div class="activity-time">5 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item warning">
+                        <div class="activity-icon">⚠️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">High memory usage detected</div>
+                            <div class="activity-time">12 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">📧</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Email campaign sent</div>
+                            <div class="activity-time">25 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item error">
+                        <div class="activity-icon">❌</div>
+                        <div class="activity-content">
+                            <div class="activity-title">API rate limit exceeded</div>
+                            <div class="activity-time">1 hour ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item success">
+                        <div class="activity-icon">💳</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Payment received: $299</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Row -->
+        <div class="bottom-row">
+            <!-- Quick Stats -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">⚡ Quick Stats</span>
+                </div>
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <div class="quick-stat-value">99.9%</div>
+                        <div class="quick-stat-label">Uptime</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-value">847</div>
+                        <div class="quick-stat-label">Online Now</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-value">12.4K</div>
+                        <div class="quick-stat-label">Today's Visits</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-value">3.2%</div>
+                        <div class="quick-stat-label">Bounce Rate</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Progress -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">🖥️ System Resources</span>
+                </div>
+                <div class="progress-list">
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">CPU Usage</span>
+                            <span class="progress-value">34%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 34%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Memory</span>
+                            <span class="progress-value">67%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill purple" style="width: 67%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Storage</span>
+                            <span class="progress-value">52%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill orange" style="width: 52%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Bandwidth</span>
+                            <span class="progress-value">28%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill green" style="width: 28%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- World Map -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">🌍 Global Traffic</span>
+                </div>
+                <div class="world-map">
+                    <div class="map-dot" style="top: 30%; left: 20%"></div>
+                    <div class="map-dot" style="top: 25%; left: 48%; animation-delay: 0.3s"></div>
+                    <div class="map-dot" style="top: 40%; left: 75%; animation-delay: 0.6s"></div>
+                    <div class="map-dot" style="top: 60%; left: 35%; animation-delay: 0.9s"></div>
+                    <div class="map-dot" style="top: 35%; left: 85%; animation-delay: 1.2s"></div>
+                </div>
+                <div style="display: flex; justify-content: space-around; margin-top: 1rem; font-size: 0.8rem; color: rgba(255,255,255,0.6);">
+                    <span>🇺🇸 USA: 45%</span>
+                    <span>🇪🇺 EU: 28%</span>
+                    <span>🇯🇵 Asia: 18%</span>
+                    <span>🌍 Other: 9%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Animate chart line
+        function animateChart() {
+            const line = document.querySelector('.chart-line');
+            const points = [];
+            for (let i = 0; i <= 20; i++) {
+                points.push(Math.random() * 70 + 10);
+            }
+            const path = points.map((p, i) => `${i * 5}% ${100 - p}%`).join(', ');
+            line.style.clipPath = `polygon(${path}, 100% 100%, 0% 100%)`;
+        }
+        setInterval(animateChart, 3000);
+    </script>
+    <script src="app-slider.js"></script>
+</body>
+</html>

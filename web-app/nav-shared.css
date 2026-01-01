@@ -1,0 +1,158 @@
+/* Shared Navigation Styles for NetworkBuster Website */
+.site-nav {
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.site-nav .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.site-nav .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #00f0ff;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.site-nav .nav-brand:hover {
+    color: #fff;
+}
+
+.site-nav .nav-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.site-nav .nav-link {
+    color: #e0e0e0;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.site-nav .nav-link:hover {
+    background: rgba(0, 240, 255, 0.15);
+    color: #00f0ff;
+}
+
+.site-nav .nav-link.active {
+    background: rgba(0, 240, 255, 0.2);
+    color: #00f0ff;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+/* Dropdown Styles */
+.site-nav .nav-dropdown {
+    position: relative;
+}
+
+.site-nav .dropdown-toggle {
+    cursor: pointer;
+}
+
+.site-nav .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #16213e;
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 8px;
+    min-width: 180px;
+    padding: 8px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    z-index: 1001;
+}
+
+.site-nav .nav-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.site-nav .dropdown-item {
+    display: block;
+    color: #e0e0e0;
+    text-decoration: none;
+    padding: 10px 16px;
+    font-size: 0.85em;
+    transition: all 0.2s;
+}
+
+.site-nav .dropdown-item:hover {
+    background: rgba(0, 240, 255, 0.1);
+    color: #00f0ff;
+}
+
+/* Page Footer */
+.site-footer {
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+    color: #8b949e;
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 60px;
+    border-top: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.site-footer .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.site-footer .footer-link {
+    color: #00f0ff;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.site-footer .footer-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.site-footer p {
+    margin: 0;
+    font-size: 0.85em;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .site-nav .nav-container {
+        flex-direction: column;
+    }
+    
+    .site-nav .nav-links {
+        justify-content: center;
+    }
+    
+    .site-nav .dropdown-menu {
+        position: static;
+        box-shadow: none;
+        border: none;
+        background: rgba(0, 0, 0, 0.2);
+        margin-top: 5px;
+        border-radius: 4px;
+    }
+}

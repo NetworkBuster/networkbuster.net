@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Lab | NetworkBuster.NET</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="nav-shared.css">
+    <link rel="stylesheet" href="app-slider.css">
+    <style>
+        .audio-lab-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .audio-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .audio-header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        .audio-header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.2rem;
+        }
+        
+        .audio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .audio-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .audio-panel h3 {
+            color: #8b5cf6;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Waveform Visualizer */
+        .waveform-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .waveform-canvas {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+            border-radius: 8px;
+        }
+        
+        /* Spectrum Analyzer */
+        .spectrum-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 150px;
+            gap: 3px;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+        }
+        
+        .spectrum-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #ec4899, #8b5cf6, #6366f1);
+            border-radius: 2px 2px 0 0;
+            transition: height 0.1s ease;
+            min-height: 4px;
+        }
+        
+        /* Audio Controls */
+        .audio-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .audio-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .audio-btn.primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+        
+        .audio-btn.secondary {
+            background: rgba(99, 102, 241, 0.2);
+            color: #8b5cf6;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .audio-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Mixer Sliders */
+        .mixer-channel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .mixer-channels {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .mixer-slider {
+            writing-mode: vertical-lr;
+            direction: rtl;
+            width: 30px;
+            height: 100px;
+            accent-color: #8b5cf6;
+        }
+        
+        .mixer-label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .mixer-value {
+            font-size: 0.8rem;
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+        
+        /* Effects Panel */
+        .effects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .effect-card {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+        
+        .effect-card h4 {
+            color: #ec4899;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .effect-knob {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(from 135deg, #6366f1 0%, #8b5cf6 50%, rgba(99, 102, 241, 0.2) 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0.5rem auto;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .effect-knob::after {
+            content: '';
+            width: 50px;
+            height: 50px;
+            background: #1e293b;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .effect-knob span {
+            position: relative;
+            z-index: 1;
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+        
+        /* Stream Status */
+        .stream-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* File Upload */
+        .upload-zone {
+            border: 2px dashed rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-zone:hover {
+            border-color: #8b5cf6;
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .upload-zone-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Playlist */
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .playlist-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .playlist-item.active {
+            border-left: 3px solid #8b5cf6;
+        }
+        
+        .playlist-thumb {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .playlist-info {
+            flex: 1;
+        }
+        
+        .playlist-title {
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        .playlist-duration {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <script src="nav-shared.js"></script>
+    
+    <div class="audio-lab-container">
+        <div class="audio-header">
+            <h1>🎵 Audio Lab</h1>
+            <p>Real-time audio processing, streaming, and visualization studio</p>
+        </div>
+        
+        <div class="audio-grid">
+            <!-- Waveform Panel -->
+            <div class="audio-panel">
+                <h3>📊 Waveform Visualizer</h3>
+                <div class="stream-status">
+                    <div class="status-dot"></div>
+                    <span>Stream Active - 44.1kHz / 16-bit / Stereo</span>
+                </div>
+                <div class="waveform-container">
+                    <canvas id="waveformCanvas" class="waveform-canvas"></canvas>
+                </div>
+                <div class="audio-controls">
+                    <button class="audio-btn primary" onclick="togglePlayback()">▶️ Play</button>
+                    <button class="audio-btn secondary" onclick="stopPlayback()">⏹️ Stop</button>
+                    <button class="audio-btn secondary" onclick="toggleRecord()">🔴 Record</button>
+                </div>
+            </div>
+            
+            <!-- Spectrum Analyzer -->
+            <div class="audio-panel">
+                <h3>🌈 Spectrum Analyzer</h3>
+                <div class="spectrum-bars" id="spectrumBars">
+                    <!-- Generated by JS -->
+                </div>
+                <div class="audio-controls">
+                    <button class="audio-btn secondary">Linear</button>
+                    <button class="audio-btn secondary">Logarithmic</button>
+                    <button class="audio-btn secondary">Peak Hold</button>
+                </div>
+            </div>
+            
+            <!-- Mixer Panel -->
+            <div class="audio-panel">
+                <h3>🎚️ Channel Mixer</h3>
+                <div class="mixer-channels">
+                    <div class="mixer-channel">
+                        <span class="mixer-label">Master</span>
+                        <input type="range" class="mixer-slider" min="0" max="100" value="80">
+                        <span class="mixer-value">80%</span>
+                    </div>
+                    <div class="mixer-channel">
+                        <span class="mixer-label">Vocals</span>
+                        <input type="range" class="mixer-slider" min="0" max="100" value="70">
+                        <span class="mixer-value">70%</span>
+                    </div>
+                    <div class="mixer-channel">
+                        <span class="mixer-label">Bass</span>
+                        <input type="range" class="mixer-slider" min="0" max="100" value="65">
+                        <span class="mixer-value">65%</span>
+                    </div>
+                    <div class="mixer-channel">
+                        <span class="mixer-label">Drums</span>
+                        <input type="range" class="mixer-slider" min="0" max="100" value="75">
+                        <span class="mixer-value">75%</span>
+                    </div>
+                    <div class="mixer-channel">
+                        <span class="mixer-label">Synth</span>
+                        <input type="range" class="mixer-slider" min="0" max="100" value="60">
+                        <span class="mixer-value">60%</span>
+                    </div>
+                    <div class="mixer-channel">
+                        <span class="mixer-label">FX</span>
+                        <input type="range" class="mixer-slider" min="0" max="100" value="45">
+                        <span class="mixer-value">45%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Effects Panel -->
+            <div class="audio-panel">
+                <h3>✨ Effects Rack</h3>
+                <div class="effects-grid">
+                    <div class="effect-card">
+                        <h4>Reverb</h4>
+                        <div class="effect-knob"><span>42%</span></div>
+                    </div>
+                    <div class="effect-card">
+                        <h4>Delay</h4>
+                        <div class="effect-knob"><span>28%</span></div>
+                    </div>
+                    <div class="effect-card">
+                        <h4>Compression</h4>
+                        <div class="effect-knob"><span>65%</span></div>
+                    </div>
+                    <div class="effect-card">
+                        <h4>EQ Boost</h4>
+                        <div class="effect-knob"><span>15%</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upload Zone -->
+            <div class="audio-panel">
+                <h3>📁 Import Audio</h3>
+                <div class="upload-zone" onclick="document.getElementById('audioUpload').click()">
+                    <div class="upload-zone-icon">🎶</div>
+                    <p style="color: rgba(255,255,255,0.7);">Drop audio files here or click to browse</p>
+                    <p style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">Supports: WAV, MP3, FLAC, OGG</p>
+                </div>
+                <input type="file" id="audioUpload" accept="audio/*" multiple hidden>
+            </div>
+            
+            <!-- Playlist -->
+            <div class="audio-panel">
+                <h3>🎧 Playlist</h3>
+                <div class="playlist-item active">
+                    <div class="playlist-thumb">▶️</div>
+                    <div class="playlist-info">
+                        <div class="playlist-title">Lunar Ambience</div>
+                        <div class="playlist-duration">3:42</div>
+                    </div>
+                </div>
+                <div class="playlist-item">
+                    <div class="playlist-thumb">🎵</div>
+                    <div class="playlist-info">
+                        <div class="playlist-title">System Startup</div>
+                        <div class="playlist-duration">0:08</div>
+                    </div>
+                </div>
+                <div class="playlist-item">
+                    <div class="playlist-thumb">🎵</div>
+                    <div class="playlist-info">
+                        <div class="playlist-title">Network Pulse</div>
+                        <div class="playlist-duration">2:15</div>
+                    </div>
+                </div>
+                <div class="playlist-item">
+                    <div class="playlist-thumb">🎵</div>
+                    <div class="playlist-info">
+                        <div class="playlist-title">Data Stream</div>
+                        <div class="playlist-duration">4:20</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Generate spectrum bars
+        const spectrumContainer = document.getElementById('spectrumBars');
+        for (let i = 0; i < 32; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'spectrum-bar';
+            bar.style.height = Math.random() * 100 + 20 + 'px';
+            spectrumContainer.appendChild(bar);
+        }
+        
+        // Animate spectrum
+        function animateSpectrum() {
+            const bars = document.querySelectorAll('.spectrum-bar');
+            bars.forEach(bar => {
+                bar.style.height = Math.random() * 120 + 10 + 'px';
+            });
+        }
+        setInterval(animateSpectrum, 100);
+        
+        // Waveform canvas
+        const canvas = document.getElementById('waveformCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        function drawWaveform() {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#8b5cf6';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const centerY = canvas.height / 2;
+            for (let x = 0; x < canvas.width; x++) {
+                const y = centerY + Math.sin(x * 0.05 + Date.now() * 0.003) * 30 * Math.sin(x * 0.01);
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            requestAnimationFrame(drawWaveform);
+        }
+        drawWaveform();
+        
+        // Mixer slider updates
+        document.querySelectorAll('.mixer-slider').forEach(slider => {
+            slider.addEventListener('input', function() {
+                this.nextElementSibling.textContent = this.value + '%';
+            });
+        });
+        
+        function togglePlayback() { console.log('Toggle playback'); }
+        function stopPlayback() { console.log('Stop playback'); }
+        function toggleRecord() { console.log('Toggle record'); }
+    </script>
+    <script src="app-slider.js"></script>
+</body>
+</html>
