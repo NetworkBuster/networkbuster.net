@@ -12,6 +12,14 @@ const PAGES = [
     { path: 'contact.html', label: 'Contact', icon: '✉️' }
 ];
 
+const APPS = [
+    { path: 'dashboard.html', label: 'Dashboard', icon: '📊' },
+    { path: 'control-panel.html', label: 'Control Panel', icon: '🎛️' },
+    { path: 'ai-world.html', label: 'AI World', icon: '🤖' },
+    { path: 'audio-lab.html', label: 'Audio Lab', icon: '🎵' },
+    { path: 'auth.html', label: 'Auth Portal', icon: '🔐' }
+];
+
 const TOOLS = [
     { path: 'flash-commands.html', label: 'Flash Commands', icon: '⚡' },
     { path: 'packages.html', label: 'Packages', icon: '📦' },
@@ -39,6 +47,17 @@ function generateNavigation() {
                         ${page.icon} ${page.label}
                     </a>
                 `).join('')}
+                
+                <div class="nav-dropdown">
+                    <span class="nav-link dropdown-toggle">🎮 Apps ▼</span>
+                    <div class="dropdown-menu">
+                        ${APPS.map(app => `
+                            <a href="${app.path}" class="dropdown-item ${currentPage === app.path ? 'active' : ''}">
+                                ${app.icon} ${app.label}
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
                 
                 <div class="nav-dropdown">
                     <span class="nav-link dropdown-toggle">🛠️ Tools ▼</span>
@@ -133,6 +152,7 @@ if (document.readyState === 'loading') {
 // Export for manual use
 window.NetworkBusterNav = {
     PAGES,
+    APPS,
     TOOLS,
     generateNavigation,
     generateFooter,

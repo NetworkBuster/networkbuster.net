@@ -6,7 +6,11 @@ import ConnectionGraph from './components/ConnectionGraph'
 import ImmersiveReader from './components/ImmersiveReader'
 import DashboardOverlay from './components/DashboardOverlay'
 import BlogOverlay from './components/BlogOverlay'
-import { Monitor, Cpu, Map as MapIcon, Video, Eye, Brain, LayoutDashboard, BookOpen } from 'lucide-react'
+import ControlPanelOverlay from './components/ControlPanelOverlay'
+import AIWorldOverlay from './components/AIWorldOverlay'
+import AudioLabOverlay from './components/AudioLabOverlay'
+import AuthPortalOverlay from './components/AuthPortalOverlay'
+import { Monitor, Cpu, Map as MapIcon, Video, Eye, Brain, LayoutDashboard, BookOpen, Settings, Sparkles, Music, Lock } from 'lucide-react'
 
 function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -146,6 +150,58 @@ function App() {
                                     <Brain size={14} />
                                     <span className="text-xs font-bold">{aiTrainingEnabled ? 'AI ON' : 'AI OFF'}</span>
                                 </button>
+                                
+                                {/* Control Panel Toggle */}
+                                <button
+                                    onClick={() => setActiveTab(activeTab === 'controlpanel' ? 'main' : 'controlpanel')}
+                                    className={`w-full mt-1 p-2 rounded flex items-center justify-center gap-2 transition ${
+                                        activeTab === 'controlpanel'
+                                            ? 'bg-[#ff8c00] text-white'
+                                            : 'bg-white/5 text-[#ff8c00] hover:bg-white/10'
+                                    }`}
+                                >
+                                    <Settings size={14} />
+                                    <span className="text-xs font-bold">CONTROL PANEL</span>
+                                </button>
+                                
+                                {/* AI World Toggle */}
+                                <button
+                                    onClick={() => setActiveTab(activeTab === 'aiworld' ? 'main' : 'aiworld')}
+                                    className={`w-full mt-1 p-2 rounded flex items-center justify-center gap-2 transition ${
+                                        activeTab === 'aiworld'
+                                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                                            : 'bg-white/5 text-purple-400 hover:bg-white/10'
+                                    }`}
+                                >
+                                    <Sparkles size={14} />
+                                    <span className="text-xs font-bold">AI WORLD</span>
+                                </button>
+                                
+                                {/* Audio Lab Toggle */}
+                                <button
+                                    onClick={() => setActiveTab(activeTab === 'audiolab' ? 'main' : 'audiolab')}
+                                    className={`w-full mt-1 p-2 rounded flex items-center justify-center gap-2 transition ${
+                                        activeTab === 'audiolab'
+                                            ? 'bg-[#1db954] text-white'
+                                            : 'bg-white/5 text-[#1db954] hover:bg-white/10'
+                                    }`}
+                                >
+                                    <Music size={14} />
+                                    <span className="text-xs font-bold">AUDIO LAB</span>
+                                </button>
+                                
+                                {/* Auth Portal Toggle */}
+                                <button
+                                    onClick={() => setActiveTab(activeTab === 'auth' ? 'main' : 'auth')}
+                                    className={`w-full mt-1 p-2 rounded flex items-center justify-center gap-2 transition ${
+                                        activeTab === 'auth'
+                                            ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white'
+                                            : 'bg-white/5 text-pink-400 hover:bg-white/10'
+                                    }`}
+                                >
+                                    <Lock size={14} />
+                                    <span className="text-xs font-bold">AUTH PORTAL</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -214,6 +270,90 @@ function App() {
                                 </button>
                             </div>
                             <BlogOverlay />
+                        </div>
+                    </div>
+                )}
+                
+                {/* Control Panel Overlay */}
+                {activeTab === 'controlpanel' && (
+                    <div className="fixed inset-4 z-50 pointer-events-auto overflow-auto">
+                        <div className="bg-black/95 border border-[#ff8c00] rounded-lg backdrop-blur h-full">
+                            <div className="flex justify-between items-center p-4 border-b border-white/10">
+                                <h2 className="text-lg font-bold text-[#ff8c00] flex items-center gap-2">
+                                    <Settings size={20} />
+                                    CONTROL PANEL - SERVER MANAGEMENT
+                                </h2>
+                                <button
+                                    onClick={() => setActiveTab('main')}
+                                    className="text-[#ff003c] hover:text-white text-xl"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <ControlPanelOverlay />
+                        </div>
+                    </div>
+                )}
+                
+                {/* AI World Overlay */}
+                {activeTab === 'aiworld' && (
+                    <div className="fixed inset-4 z-50 pointer-events-auto overflow-auto">
+                        <div className="bg-black/95 border border-purple-500 rounded-lg backdrop-blur h-full">
+                            <div className="flex justify-between items-center p-4 border-b border-white/10">
+                                <h2 className="text-lg font-bold text-purple-400 flex items-center gap-2">
+                                    <Sparkles size={20} />
+                                    AI WORLD - NEURAL NETWORK CENTER
+                                </h2>
+                                <button
+                                    onClick={() => setActiveTab('main')}
+                                    className="text-[#ff003c] hover:text-white text-xl"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <AIWorldOverlay />
+                        </div>
+                    </div>
+                )}
+                
+                {/* Audio Lab Overlay */}
+                {activeTab === 'audiolab' && (
+                    <div className="fixed inset-4 z-50 pointer-events-auto overflow-auto">
+                        <div className="bg-black/95 border border-[#1db954] rounded-lg backdrop-blur h-full">
+                            <div className="flex justify-between items-center p-4 border-b border-white/10">
+                                <h2 className="text-lg font-bold text-[#1db954] flex items-center gap-2">
+                                    <Music size={20} />
+                                    AUDIO LAB - SOUND PROCESSING
+                                </h2>
+                                <button
+                                    onClick={() => setActiveTab('main')}
+                                    className="text-[#ff003c] hover:text-white text-xl"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <AudioLabOverlay />
+                        </div>
+                    </div>
+                )}
+                
+                {/* Auth Portal Overlay */}
+                {activeTab === 'auth' && (
+                    <div className="fixed inset-4 z-50 pointer-events-auto overflow-auto">
+                        <div className="bg-black/95 border border-pink-500 rounded-lg backdrop-blur h-full flex flex-col">
+                            <div className="flex justify-between items-center p-4 border-b border-white/10">
+                                <h2 className="text-lg font-bold text-pink-400 flex items-center gap-2">
+                                    <Lock size={20} />
+                                    AUTH PORTAL - SECURE ACCESS
+                                </h2>
+                                <button
+                                    onClick={() => setActiveTab('main')}
+                                    className="text-[#ff003c] hover:text-white text-xl"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <AuthPortalOverlay />
                         </div>
                     </div>
                 )}
