@@ -1,0 +1,44 @@
+name: Test AI Robot (mock)
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    name: AI Robot tests (mock) on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          chmod +x ./scripts/test-ai-robot.sh
+
+      - name: Run AI Robot tests (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          ./scripts/test-ai-robot.sh --mock --concurrency 3
+
+      - name: Run AI Robot tests (Windows PowerShell)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+          .\scripts\test-ai-robot.ps1 -Mock -Concurrency 3
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-robot-test-logs-${{ github.run_id }}
+          path: |
+            ./scripts/test-ai-robot.sh || true
+            ./scripts/test-ai-robot.ps1 || true

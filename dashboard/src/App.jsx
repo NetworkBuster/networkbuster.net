@@ -1,37 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './App.css';
 
 function App() {
-  const [specs, setSpecs] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch('/api/specs')
-      .then(res => res.json())
-      .then(data => {
-        setSpecs(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div className="container"><h2>Loading...</h2></div>;
-  if (error) return <div className="container error"><h2>Error: {error}</h2></div>;
-
   return (
     <div className="container">
-      <h1>🚀 NetworkBuster Dashboard</h1>
-      <div className="specs-grid">
-        {specs && Object.entries(specs).map(([key, value]) => (
-          <div key={key} className="spec-card">
-            <h3>{key.replace(/_/g, ' ').toUpperCase()}</h3>
-            <pre>{JSON.stringify(value, null, 2)}</pre>
-          </div>
-        ))}
+      <h1>Vercel Admin Dashboard</h1>
+      <p>Welcome to the Vercel admin template. Use this dashboard to manage your deployments and settings.</p>
+      <div className="admin-panel">
+        <h2>Project Overview</h2>
+        <ul>
+          <li>Environment: <strong>Production</strong></li>
+          <li>Status: <strong>Online</strong></li>
+          <li>Last Deploy: <strong>Just now</strong></li>
+          <li>External Link: <a href="https://github.com/Cleanskiier27/luna.eu" target="_blank">luna.eu</a></li>
+        </ul>
       </div>
     </div>
   );

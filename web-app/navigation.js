@@ -83,6 +83,20 @@ const BUTTONS = {
   }
 };
 
+// Feature flag for auth links (set via build or environment)
+const AUTH_ENABLED = (typeof process !== 'undefined' && process.env && process.env.AUTH_ENABLED === 'true') || false;
+
+// Remove auth routes/links when disabled
+if (!AUTH_ENABLED) {
+  delete NAVIGATION.apps.authUI;
+  delete NAVIGATION.api.authLogin;
+  delete NAVIGATION.api.authSignup;
+  delete NAVIGATION.api.authDocs;
+  delete BUTTONS.primary.login;
+  delete BUTTONS.primary.signup;
+  console.log('Auth links removed from navigation (AUTH_ENABLED != "true")');
+}
+
 // Generate full URL
 function getFullUrl(route, useLocal = false) {
   const base = useLocal ? SITE_CONFIG.localUrl : SITE_CONFIG.baseUrl;
@@ -90,7 +104,7 @@ function getFullUrl(route, useLocal = false) {
     return `http://localhost:${route.port}${route.path}`;
   }
   return `${base}${route.path}`;
-}
+} 
 
 // Generate navigation HTML
 function generateNavHTML(category = 'main') {

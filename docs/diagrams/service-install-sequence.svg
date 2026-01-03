@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220">
+  <style> .box{fill:#eef2ff;stroke:#3730a3;stroke-width:1.5} .label{font:14px sans-serif;fill:#0f172a} .arrow{stroke:#0f172a;stroke-width:1.5;fill:none;marker-end:url(#a)} </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="6" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0f172a" />
+    </marker>
+  </defs>
+
+  <rect x="40" y="30" width="160" height="40" rx="6" class="box" />
+  <text x="120" y="55" text-anchor="middle" class="label">Admin</text>
+
+  <rect x="260" y="30" width="200" height="40" rx="6" class="box" />
+  <text x="360" y="55" text-anchor="middle" class="label">install-nbapp-service.ps1</text>
+
+  <rect x="500" y="30" width="140" height="40" rx="6" class="box" />
+  <text x="570" y="55" text-anchor="middle" class="label">GitHub Repo</text>
+
+  <rect x="500" y="110" width="140" height="40" rx="6" class="box" />
+  <text x="570" y="135" text-anchor="middle" class="label">NSSM</text>
+
+  <rect x="700" y="110" width="140" height="40" rx="6" class="box" />
+  <text x="770" y="135" text-anchor="middle" class="label">Windows Service</text>
+
+  <path d="M200 50 L260 50" class="arrow" />
+  <text x="230" y="40" class="label" text-anchor="middle">run installer</text>
+
+  <path d="M460 50 L500 50" class="arrow" />
+  <text x="480" y="40" class="label" text-anchor="middle">clone / pull</text>
+
+  <path d="M600 70 L600 110" class="arrow" />
+  <text x="630" y="90" class="label">npm install</text>
+
+  <path d="M640 130 L700 130" class="arrow" />
+  <text x="670" y="120" class="label" text-anchor="middle">call NSSM installer</text>
+
+  <path d="M840 130 L840 150" class="arrow" />
+  <text x="760" y="150" class="label">service registered</text>
+
+  <rect x="30" y="170" width="820" height="30" rx="6" fill="#ecfccb" stroke="#84cc16" />
+  <text x="60" y="190" class="label">Result: service started and nbapp installed (if UAC accepted)</text>
+</svg>

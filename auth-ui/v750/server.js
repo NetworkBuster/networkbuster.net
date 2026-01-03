@@ -33,6 +33,57 @@ app.use((req, res, next) => {
 const users = new Map();
 const sessions = new Map();
 
+// Feature flag: enable/disable auth endpoints
+const AUTH_ENABLED = process.env.AUTH_ENABLED === 'true';
+
+if (!AUTH_ENABLED) {
+  console.log('⚠️ Auth UI disabled (AUTH_ENABLED != "true") - running minimal service');
+
+  // Minimal health endpoints and a single root page
+  app.get('/health', (req, res) => {
+    res.json({
+      status: 'disabled',
+      service: 'auth-ui-v750',
+      message: 'Authentication endpoints are disabled',
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  app.get('/api/health', (req, res) => {
+    res.json({
+      status: 'disabled',
+      version: 'v750'
+    });
+  });
+
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  });
+
+  // All auth routes respond with 503 (service unavailable)
+  app.use('/api/auth', (req, res) => {
+    res.status(503).json({
+      success: false,
+      message: 'Authentication is disabled by configuration'
+    });
+  });
+
+  app.use((req, res) => {
+    res.status(404).json({
+      success: false,
+      message: 'Not found or disabled',
+      path: req.path
+    });
+  });
+
+  app.listen(PORT, () => {
+    console.log(`Auth UI (minimal) listening at http://localhost:${PORT}`);
+  });
+
+  // Stop further route registration
+  return;
+} 
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
