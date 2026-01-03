@@ -1,0 +1,5 @@
+ID,Name,Status,CPU,Memory
+1,Server A,Online,45%,62%
+2,Server B,Online,32%,48%
+3,Server C,Offline,0%,0%
+4,Server D,Online,78%,85%

@@ -1,0 +1,93 @@
+
+================================================================================
+                              USERS REPORT
+                           Date: January 3, 2026
+================================================================================
+
+Total Users: 10
+
+--------------------------------------------------------------------------------
+
+User #1
+  Name:     Leanne Graham
+  Username: Bret
+  Email:    Sincere@april.biz
+  Phone:    1-770-736-8031 x56442
+  Website:  hildegard.org
+  Company:  Romaguera-Crona
+--------------------------------------------------------------------------------
+User #2
+  Name:     Ervin Howell
+  Username: Antonette
+  Email:    Shanna@melissa.tv
+  Phone:    010-692-6593 x09125
+  Website:  anastasia.net
+  Company:  Deckow-Crist
+--------------------------------------------------------------------------------
+User #3
+  Name:     Clementine Bauch
+  Username: Samantha
+  Email:    Nathan@yesenia.net
+  Phone:    1-463-123-4447
+  Website:  ramiro.info
+  Company:  Romaguera-Jacobson
+--------------------------------------------------------------------------------
+User #4
+  Name:     Patricia Lebsack
+  Username: Karianne
+  Email:    Julianne.OConner@kory.org
+  Phone:    493-170-9623 x156
+  Website:  kale.biz
+  Company:  Robel-Corkery
+--------------------------------------------------------------------------------
+User #5
+  Name:     Chelsey Dietrich
+  Username: Kamren
+  Email:    Lucio_Hettinger@annie.ca
+  Phone:    (254)954-1289
+  Website:  demarco.info
+  Company:  Keebler LLC
+--------------------------------------------------------------------------------
+User #6
+  Name:     Mrs. Dennis Schulist
+  Username: Leopoldo_Corkery
+  Email:    Karley_Dach@jasper.info
+  Phone:    1-477-935-8478 x6430
+  Website:  ola.org
+  Company:  Considine-Lockman
+--------------------------------------------------------------------------------
+User #7
+  Name:     Kurtis Weissnat
+  Username: Elwyn.Skiles
+  Email:    Telly.Hoeger@billy.biz
+  Phone:    210.067.6132
+  Website:  elvis.io
+  Company:  Johns Group
+--------------------------------------------------------------------------------
+User #8
+  Name:     Nicholas Runolfsdottir V
+  Username: Maxime_Nienow
+  Email:    Sherwood@rosamond.me
+  Phone:    586.493.6943 x140
+  Website:  jacynthe.com
+  Company:  Abernathy Group
+--------------------------------------------------------------------------------
+User #9
+  Name:     Glenna Reichert
+  Username: Delphine
+  Email:    Chaim_McDermott@dana.io
+  Phone:    (775)976-6794 x41206
+  Website:  conrad.com
+  Company:  Yost and Sons
+--------------------------------------------------------------------------------
+User #10
+  Name:     Clementina DuBuque
+  Username: Moriah.Stanton
+  Email:    Rey.Padberg@karina.biz
+  Phone:    024-648-3804
+  Website:  ambrose.net
+  Company:  Hoeger LLC
+--------------------------------------------------------------------------------
+
+                              END OF REPORT
+================================================================================
