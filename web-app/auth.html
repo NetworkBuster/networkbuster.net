@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auth Portal | NetworkBuster.NET</title>
+    <title>Sign In with Google | NetworkBuster.NET</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="nav-shared.css">
     <link rel="stylesheet" href="app-slider.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         .auth-container {
             min-height: 100vh;
@@ -60,123 +61,118 @@
             -webkit-text-fill-color: transparent;
         }
         
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 2rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 4px;
-        }
-        
-        .auth-tab {
-            flex: 1;
-            padding: 0.75rem;
+        .auth-subtitle {
             text-align: center;
-            cursor: pointer;
-            border-radius: 10px;
             color: rgba(255,255,255,0.6);
-            transition: all 0.3s ease;
-            font-weight: 500;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
         }
         
-        .auth-tab.active {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-        }
-        
-        .auth-tab:hover:not(.active) {
-            color: white;
-        }
-        
-        .auth-form {
+        .google-signin-container {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            align-items: center;
+            gap: 1.5rem;
         }
         
-        .form-group {
-            position: relative;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-        }
-        
-        .form-input {
+        .google-btn {
             width: 100%;
-            padding: 0.875rem 1rem;
-            padding-left: 2.75rem;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         
-        .form-input:focus {
-            outline: none;
-            border-color: #8b5cf6;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        .google-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
         
-        .form-input::placeholder {
-            color: rgba(255,255,255,0.3);
+        .google-btn:active {
+            transform: translateY(0);
         }
         
-        .form-icon {
-            position: absolute;
-            left: 1rem;
-            top: 2.4rem;
-            color: rgba(255,255,255,0.4);
+        .google-icon {
+            width: 24px;
+            height: 24px;
         }
         
-        .password-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 2.4rem;
-            cursor: pointer;
-            color: rgba(255,255,255,0.4);
-            transition: color 0.2s;
+        .user-info {
+            display: none;
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            width: 100%;
         }
         
-        .password-toggle:hover {
+        .user-info.active {
+            display: block;
+        }
+        
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            border: 3px solid #4ade80;
+        }
+        
+        .user-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+        
+        .user-email {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-message {
+            display: none;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        
+        .status-message.success {
+            display: block;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+        
+        .status-message.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .status-message.loading {
+            display: block;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
             color: #8b5cf6;
         }
         
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-        }
-        
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            color: rgba(255,255,255,0.7);
-        }
-        
-        .checkbox-label input {
-            accent-color: #8b5cf6;
-        }
-        
-        .forgot-link {
-            color: #8b5cf6;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        
-        .forgot-link:hover {
-            color: #ec4899;
-        }
-        
-        .auth-btn {
+        .continue-btn {
             width: 100%;
             padding: 1rem;
             background: linear-gradient(135deg, #6366f1, #8b5cf6);
@@ -187,58 +183,43 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            margin-top: 1rem;
         }
         
-        .auth-btn:hover {
+        .continue-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
         }
         
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin: 1.5rem 0;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.85rem;
-        }
-        
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .social-login {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .social-btn {
-            flex: 1;
-            padding: 0.875rem;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 10px;
+        .signout-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.6);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+        
+        .signout-btn:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        
+        .security-badge {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            color: white;
-            font-size: 1.25rem;
-        }
-        
-        .social-btn:hover {
-            background: rgba(99, 102, 241, 0.1);
-            border-color: rgba(99, 102, 241, 0.4);
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #4ade80;
         }
         
         .auth-footer {
@@ -259,42 +240,6 @@
             text-decoration: underline;
         }
         
-        /* Security Badge */
-        .security-badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            padding: 0.75rem;
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.2);
-            border-radius: 8px;
-            font-size: 0.8rem;
-            color: #4ade80;
-        }
-        
-        /* Register form extras */
-        .register-form .form-group { display: none; }
-        .register-form.active .form-group { display: block; }
-        
-        /* Error state */
-        .form-input.error {
-            border-color: #ef4444;
-        }
-        
-        .error-message {
-            color: #ef4444;
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-        }
-        
-        /* Loading state */
-        .auth-btn.loading {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-        
         .spinner {
             width: 20px;
             height: 20px;
@@ -302,44 +247,12 @@
             border-top-color: white;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }
-        
-        /* 2FA Panel */
-        .twofa-panel {
-            display: none;
-        }
-        
-        .twofa-panel.active {
-            display: block;
-        }
-        
-        .code-inputs {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            margin: 1.5rem 0;
-        }
-        
-        .code-input {
-            width: 48px;
-            height: 56px;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(99, 102, 241, 0.2);
-            border-radius: 10px;
-            color: white;
-            transition: all 0.2s;
-        }
-        
-        .code-input:focus {
-            outline: none;
-            border-color: #8b5cf6;
         }
     </style>
 </head>
@@ -355,95 +268,31 @@
                 <div class="auth-logo-text">NetworkBuster</div>
             </div>
             
-            <div class="auth-tabs">
-                <div class="auth-tab active" onclick="showLogin()">Sign In</div>
-                <div class="auth-tab" onclick="showRegister()">Register</div>
-            </div>
+            <p class="auth-subtitle">Sign in with your Google account to access the platform</p>
             
-            <!-- Login Form -->
-            <form class="auth-form" id="loginForm">
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <span class="form-icon">📧</span>
-                    <input type="email" class="form-input" placeholder="you@example.com" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <span class="form-icon">🔒</span>
-                    <input type="password" class="form-input" id="passwordInput" placeholder="••••••••" required>
-                    <span class="password-toggle" onclick="togglePassword()">👁️</span>
-                </div>
-                
-                <div class="form-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" checked> Remember me
-                    </label>
-                    <a href="#" class="forgot-link">Forgot password?</a>
-                </div>
-                
-                <button type="submit" class="auth-btn">
-                    Sign In →
+            <div class="google-signin-container">
+                <!-- Google Sign-In Button -->
+                <button class="google-btn" id="googleSignInBtn" onclick="initiateGoogleSignIn()">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Sign in with Google
                 </button>
-            </form>
-            
-            <!-- Register Form (hidden) -->
-            <form class="auth-form" id="registerForm" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <span class="form-icon">👤</span>
-                    <input type="text" class="form-input" placeholder="John Doe" required>
+                
+                <!-- User Info (shown after successful login) -->
+                <div class="user-info" id="userInfo">
+                    <img class="user-avatar" id="userAvatar" src="" alt="User Avatar">
+                    <div class="user-name" id="userName"></div>
+                    <div class="user-email" id="userEmail"></div>
+                    <button class="continue-btn" onclick="continueToApp()">Continue to Dashboard →</button>
+                    <button class="signout-btn" onclick="signOut()">Sign Out</button>
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <span class="form-icon">📧</span>
-                    <input type="email" class="form-input" placeholder="you@example.com" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <span class="form-icon">🔒</span>
-                    <input type="password" class="form-input" placeholder="Min. 8 characters" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Confirm Password</label>
-                    <span class="form-icon">🔒</span>
-                    <input type="password" class="form-input" placeholder="Confirm password" required>
-                </div>
-                
-                <label class="checkbox-label" style="margin-top: 0.5rem;">
-                    <input type="checkbox" required> I agree to the <a href="#" class="forgot-link">Terms of Service</a>
-                </label>
-                
-                <button type="submit" class="auth-btn">
-                    Create Account →
-                </button>
-            </form>
-            
-            <!-- 2FA Panel -->
-            <div class="twofa-panel" id="twofaPanel">
-                <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 1rem;">
-                    Enter the 6-digit code from your authenticator app
-                </p>
-                <div class="code-inputs">
-                    <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 1)">
-                    <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 2)">
-                    <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 3)">
-                    <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 4)">
-                    <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 5)">
-                    <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 6)">
-                </div>
-                <button class="auth-btn">Verify Code</button>
-            </div>
-            
-            <div class="divider">or continue with</div>
-            
-            <div class="social-login">
-                <button class="social-btn" title="Google">🔵</button>
-                <button class="social-btn" title="GitHub">⚫</button>
-                <button class="social-btn" title="Microsoft">🟦</button>
+                <!-- Status Messages -->
+                <div class="status-message" id="statusMessage"></div>
             </div>
             
             <div class="security-badge">
@@ -458,59 +307,176 @@
     </div>
     
     <script>
-        function showLogin() {
-            document.querySelectorAll('.auth-tab')[0].classList.add('active');
-            document.querySelectorAll('.auth-tab')[1].classList.remove('active');
-            document.getElementById('loginForm').style.display = 'flex';
-            document.getElementById('registerForm').style.display = 'none';
-        }
+        // Configuration - Replace with your Google Client ID
+        const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+        const AUTH_SERVER_URL = 'http://localhost:3002'; // Backend auth server
         
-        function showRegister() {
-            document.querySelectorAll('.auth-tab')[0].classList.remove('active');
-            document.querySelectorAll('.auth-tab')[1].classList.add('active');
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'flex';
-        }
+        let googleUser = null;
         
-        function togglePassword() {
-            const input = document.getElementById('passwordInput');
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-        
-        function moveToNext(current, nextIndex) {
-            if (current.value.length === 1) {
-                const inputs = document.querySelectorAll('.code-input');
-                if (nextIndex < inputs.length) {
-                    inputs[nextIndex].focus();
-                }
+        // Initialize Google Sign-In
+        function initializeGoogleSignIn() {
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCallback,
+                    auto_select: false
+                });
             }
         }
         
-        // Form submissions
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = this.querySelector('.auth-btn');
-            btn.classList.add('loading');
-            btn.innerHTML = '<div class="spinner"></div> Signing in...';
-            
-            setTimeout(() => {
-                // Simulate login success
-                window.location.href = 'index.html';
-            }, 1500);
-        });
+        // Wait for Google API to load
+        window.onload = function() {
+            setTimeout(initializeGoogleSignIn, 500);
+            checkExistingSession();
+        };
         
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = this.querySelector('.auth-btn');
-            btn.classList.add('loading');
-            btn.innerHTML = '<div class="spinner"></div> Creating account...';
+        // Initiate Google Sign-In
+        function initiateGoogleSignIn() {
+            showStatus('loading', 'Connecting to Google...');
             
-            setTimeout(() => {
-                showLogin();
-                btn.classList.remove('loading');
-                btn.innerHTML = 'Create Account →';
-            }, 1500);
-        });
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.prompt((notification) => {
+                    if (notification.isNotDisplayed()) {
+                        // Fallback: Use OAuth popup
+                        openGoogleOAuthPopup();
+                    }
+                });
+            } else {
+                openGoogleOAuthPopup();
+            }
+        }
+        
+        // Fallback OAuth popup method
+        function openGoogleOAuthPopup() {
+            const redirectUri = encodeURIComponent(window.location.origin + '/web-app/auth-callback.html');
+            const scope = encodeURIComponent('email profile');
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
+            
+            const popup = window.open(authUrl, 'Google Sign In', 'width=500,height=600');
+            
+            // Listen for callback
+            window.addEventListener('message', function(event) {
+                if (event.data.type === 'google-auth-success') {
+                    handleGoogleToken(event.data.token);
+                }
+            });
+        }
+        
+        // Handle Google Sign-In callback
+        function handleGoogleCallback(response) {
+            handleGoogleToken(response.credential);
+        }
+        
+        // Process Google token
+        async function handleGoogleToken(token) {
+            showStatus('loading', 'Verifying your account...');
+            
+            try {
+                // Decode JWT token to get user info
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                
+                const userData = {
+                    googleId: payload.sub,
+                    email: payload.email,
+                    name: payload.name,
+                    picture: payload.picture,
+                    token: token
+                };
+                
+                // Send to backend to record in Excel
+                const response = await fetch(`${AUTH_SERVER_URL}/api/auth/google`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    googleUser = userData;
+                    
+                    // Store session
+                    localStorage.setItem('networkbuster_user', JSON.stringify(userData));
+                    
+                    // Update UI
+                    displayUserInfo(userData);
+                    showStatus('success', result.isNewUser ? 'Account created! Welcome to NetworkBuster!' : 'Welcome back!');
+                } else {
+                    throw new Error('Server authentication failed');
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+                showStatus('error', 'Authentication failed. Please try again.');
+                
+                // Fallback: Still allow access but show warning
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const userData = {
+                    googleId: payload.sub,
+                    email: payload.email,
+                    name: payload.name,
+                    picture: payload.picture
+                };
+                googleUser = userData;
+                localStorage.setItem('networkbuster_user', JSON.stringify(userData));
+                displayUserInfo(userData);
+            }
+        }
+        
+        // Display user info after successful login
+        function displayUserInfo(user) {
+            document.getElementById('googleSignInBtn').style.display = 'none';
+            document.getElementById('userInfo').classList.add('active');
+            document.getElementById('userAvatar').src = user.picture || 'https://via.placeholder.com/64';
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userEmail').textContent = user.email;
+        }
+        
+        // Show status message
+        function showStatus(type, message) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.className = 'status-message ' + type;
+            statusEl.innerHTML = type === 'loading' ? '<span class="spinner"></span>' + message : message;
+        }
+        
+        // Hide status message
+        function hideStatus() {
+            document.getElementById('statusMessage').className = 'status-message';
+        }
+        
+        // Continue to app
+        function continueToApp() {
+            window.location.href = 'index.html';
+        }
+        
+        // Sign out
+        function signOut() {
+            localStorage.removeItem('networkbuster_user');
+            googleUser = null;
+            
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.disableAutoSelect();
+            }
+            
+            // Reset UI
+            document.getElementById('googleSignInBtn').style.display = 'flex';
+            document.getElementById('userInfo').classList.remove('active');
+            hideStatus();
+        }
+        
+        // Check for existing session
+        function checkExistingSession() {
+            const storedUser = localStorage.getItem('networkbuster_user');
+            if (storedUser) {
+                try {
+                    const user = JSON.parse(storedUser);
+                    googleUser = user;
+                    displayUserInfo(user);
+                } catch (e) {
+                    localStorage.removeItem('networkbuster_user');
+                }
+            }
+        }
     </script>
     <script src="app-slider.js"></script>
 </body>
