@@ -1,0 +1,9 @@
+{
+  "admin": {
+    "password_hash": "8a6d1f7718c6d64b31d720c8f0c1ee60c9f75c8016b6d95ad86e24a6e325b817",
+    "level": 4,
+    "created": "2026-01-02T11:48:37.888238",
+    "last_login": "2026-01-02T11:50:53.033672",
+    "mfa_enabled": false
+  }
+}
