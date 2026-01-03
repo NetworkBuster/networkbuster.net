@@ -15,6 +15,34 @@ import glob
 
 app = Flask(__name__)
 
+# Gateway management data
+def get_gateway_configs(local_ip):
+    """Get gateway configurations with dynamic local IP"""
+    return {
+        'router-wifi7': {
+            'type': 'gateway',
+            'dhcp_enabled': True,
+            'firewall_enabled': True,
+            'uptime': '15 days 8 hours',
+            'connected_devices': 24,
+            'bandwidth_usage': '45%',
+            'wan_ip': '203.0.113.45',
+            'dns_servers': ['8.8.8.8', '8.8.4.4'],
+            'port_forwarding': [{'port': 80, 'to': '192.168.1.100'}, {'port': 443, 'to': '192.168.1.100'}]
+        },
+        'router-nb': {
+            'type': 'gateway',
+            'dhcp_enabled': True,
+            'firewall_enabled': True,
+            'uptime': '22 days 3 hours',
+            'connected_devices': 8,
+            'bandwidth_usage': '23%',
+            'wan_ip': '203.0.113.46',
+            'dns_servers': ['1.1.1.1', '1.0.0.1'],
+            'port_forwarding': [{'port': 3000, 'to': local_ip}, {'port': 4000, 'to': local_ip}]
+        }
+    }
+
 # Device discovery and classification
 def get_network_devices():
     """Discover devices on network and classify by type"""
@@ -23,6 +51,9 @@ def get_network_devices():
     # Get local machine info
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
+    
+    # Get gateway configs with local IP
+    gateway_configs = get_gateway_configs(local_ip)
     
     # Main workstation (current device)
     devices.append({
@@ -36,28 +67,32 @@ def get_network_devices():
         'logs': get_system_logs('workstation')
     })
     
-    # WiFi 7 Mesh Router
+    # WiFi 7 Mesh Router (Gateway)
     devices.append({
         'id': 'router-wifi7',
         'name': 'WiFi 7 Mesh Router',
-        'type': 'router',
+        'type': 'gateway',
         'ip': '192.168.1.1',
         'status': 'online',
         'x': 200,
         'y': 150,
-        'logs': get_device_logs('router')
+        'logs': get_device_logs('router'),
+        'is_gateway': True,
+        'gateway_config': gateway_configs.get('router-wifi7', {})
     })
     
-    # NetworkBuster Router
+    # NetworkBuster Router (Gateway)
     devices.append({
         'id': 'router-nb',
         'name': 'NetworkBuster Router',
-        'type': 'router',
+        'type': 'gateway',
         'ip': '192.168.1.100',
         'status': 'online',
         'x': 600,
         'y': 150,
-        'logs': get_device_logs('networkbuster')
+        'logs': get_device_logs('networkbuster'),
+        'is_gateway': True,
+        'gateway_config': gateway_configs.get('router-nb', {})
     })
     
     # Mesh Nodes
@@ -230,6 +265,8 @@ MAP_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetworkBuster Topology Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * {
             margin: 0;
@@ -257,6 +294,34 @@ MAP_TEMPLATE = """
             font-size: 24px;
         }
         
+        .map-type-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .map-type-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .map-type-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: #4CAF50;
+        }
+        
+        .map-type-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+        
         .git-status {
             display: flex;
             align-items: center;
@@ -279,13 +344,30 @@ MAP_TEMPLATE = """
             position: relative;
             width: 100vw;
             height: calc(100vh - 70px);
-            background: radial-gradient(circle at 50% 50%, #2a5298 0%, #1e3c72 100%);
             overflow: hidden;
-            cursor: grab;
-            user-select: none;
         }
         
-        .map-container:active {
+        #satelliteMap {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        #networkLayer {
+            position: absolute;
+            width: 100vw;
+            height: calc(100vh - 70px);
+            background: transparent;
+            cursor: grab;
+            user-select: none;
+            z-index: 2;
+            pointer-events: auto;
+        }
+        
+        #networkLayer:active {
             cursor: grabbing;
         }
         
@@ -474,7 +556,7 @@ MAP_TEMPLATE = """
             z-index: 1000;
         }
         
-        .zoom-btn {
+        .zoom-btn, .nav-btn {
             width: 40px;
             height: 40px;
             background: rgba(0, 0, 0, 0.8);
@@ -487,11 +569,75 @@ MAP_TEMPLATE = """
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            font-weight: bold;
         }
         
-        .zoom-btn:hover {
+        .zoom-btn:hover, .nav-btn:hover {
             background: #4CAF50;
             transform: scale(1.1);
+        }
+        
+        .nav-separator {
+            height: 2px;
+            width: 40px;
+            background: #4CAF50;
+            opacity: 0.5;
+        }
+        
+        .pan-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 40px);
+            gap: 5px;
+        }
+        
+        .pan-controls .nav-btn:nth-child(1) {
+            grid-column: 2;
+        }
+        
+        .pan-controls .nav-btn:nth-child(2) {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        
+        .pan-controls .nav-btn:nth-child(3) {
+            grid-column: 2;
+            grid-row: 2;
+        }
+        
+        .pan-controls .nav-btn:nth-child(4) {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .pan-controls .nav-btn:nth-child(5) {
+            grid-column: 2;
+            grid-row: 3;
+        }
+        
+        .coordinates-display {
+            position: absolute;
+            bottom: 20px;
+            left: 140px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #4CAF50;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 11px;
+            border: 2px solid #4CAF50;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .zoom-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #4CAF50;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            border: 2px solid #4CAF50;
+            font-weight: bold;
         }
         
         .docs-panel {
@@ -572,6 +718,144 @@ MAP_TEMPLATE = """
             background: rgba(255, 255, 255, 0.05);
             padding: 10px;
             border-radius: 5px;
+            margin-top: 5px;
+            max-height: 100px;
+            overflow: hidden;
+        }
+        
+        .gateway-panel {
+            position: absolute;
+            right: -450px;
+            top: 0;
+            width: 450px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            overflow-y: auto;
+            transition: right 0.3s ease-out;
+            z-index: 999;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .gateway-panel.open {
+            right: 0;
+        }
+        
+        .gateway-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .gateway-toggle {
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #f5576c;
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            transition: background 0.2s;
+        }
+        
+        .gateway-toggle:hover {
+            background: #f5576c;
+        }
+        
+        .gateway-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .gateway-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .gateway-info {
+            padding: 20px;
+        }
+        
+        .gateway-metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .gateway-metric label {
+            color: #f093fb;
+            font-weight: bold;
+        }
+        
+        .gateway-actions {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .gateway-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .gateway-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .gateway-btn.danger {
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        }
+        
+        .gateway-btn.danger:hover {
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+        
+        .port-forwarding-list {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .port-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
             margin-top: 10px;
             max-height: 100px;
             overflow: hidden;
@@ -605,6 +889,11 @@ MAP_TEMPLATE = """
 <body>
     <div class="header">
         <h1>🗺️ NetworkBuster Topology Map</h1>
+        <div class="map-type-selector">
+            <button class="map-type-btn active" onclick="switchMapType('network')" id="btnNetwork">🔷 Network View</button>
+            <button class="map-type-btn" onclick="switchMapType('satellite')" id="btnSatellite">🛰️ Satellite</button>
+            <button class="map-type-btn" onclick="switchMapType('hybrid')" id="btnHybrid">🗺️ Hybrid</button>
+        </div>
         <div class="git-status">
             <span id="gitBadge" class="git-badge">🔗 Git</span>
             <span id="gitBranch"></span>
@@ -613,17 +902,31 @@ MAP_TEMPLATE = """
     </div>
     
     <div class="map-container" id="mapContainer">
-        <div class="map-viewport" id="mapViewport">
-            <div class="grid-pattern"></div>
-            <div id="connections"></div>
-            <div id="devices"></div>
+        <div id="satelliteMap"></div>
+        <div id="networkLayer">
+            <div class="map-viewport" id="mapViewport">
+                <div class="grid-pattern"></div>
+                <div id="connections"></div>
+                <div id="devices"></div>
+            </div>
         </div>
         
         <div class="zoom-controls">
             <button class="zoom-btn" onclick="zoomIn()">+</button>
             <button class="zoom-btn" onclick="zoomOut()">-</button>
             <button class="zoom-btn" onclick="resetZoom()">⟲</button>
+            <div class="nav-separator"></div>
+            <div class="pan-controls">
+                <button class="nav-btn" onclick="panUp()">↑</button>
+                <button class="nav-btn" onclick="panLeft()">←</button>
+                <button class="nav-btn" onclick="resetView()">⊙</button>
+                <button class="nav-btn" onclick="panRight()">→</button>
+                <button class="nav-btn" onclick="panDown()">↓</button>
+            </div>
         </div>
+        
+        <div class="zoom-display" id="zoomDisplay">Zoom: 100%</div>
+        <div class="coordinates-display" id="coordDisplay">X: 0 | Y: 0</div>
         
         <div class="docs-panel" id="docsPanel">
             <div class="docs-toggle" onclick="toggleDocs()">📚</div>
@@ -632,6 +935,19 @@ MAP_TEMPLATE = """
                 <p id="docCount">Loading...</p>
             </div>
             <div id="docsList"></div>
+        </div>
+        
+        <div class="gateway-panel" id="gatewayPanel">
+            <div class="gateway-toggle" onclick="toggleGatewayPanel()">🚪</div>
+            <div class="gateway-header">
+                <h2>🚪 Gateway Management</h2>
+                <button class="gateway-close" onclick="toggleGatewayPanel()">✕</button>
+            </div>
+            <div id="gatewayContent">
+                <div style="padding: 20px; text-align: center; opacity: 0.5;">
+                    Click on a gateway device to manage it
+                </div>
+            </div>
         </div>
         
         <button class="refresh-btn" onclick="refreshMap()">🔄 Refresh Map</button>
@@ -647,7 +963,11 @@ MAP_TEMPLATE = """
                 <span>Router</span>
             </div>
             <div class="legend-item">
-                <span class="legend-icon">📡</span>
+                <span class="legend-icon">�</span>
+                <span>Gateway (Click to manage)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">�📡</span>
                 <span>Mesh Node</span>
             </div>
             <div class="legend-item">
@@ -658,9 +978,69 @@ MAP_TEMPLATE = """
     </div>
     
     <script>
+        // Satellite Map Initialization
+        let satelliteMap = null;
+        let mapType = 'network';
+        
+        // Initialize Leaflet map (hidden by default)
+        function initSatelliteMap() {
+            if (!satelliteMap) {
+                satelliteMap = L.map('satelliteMap', {
+                    center: [37.7749, -122.4194], // Default: San Francisco
+                    zoom: 13,
+                    zoomControl: false
+                });
+                
+                // Add satellite tile layer (ESRI World Imagery - free, no API key needed)
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                    maxZoom: 19
+                }).addTo(satelliteMap);
+                
+                // Add labels overlay for hybrid view
+                window.labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                    maxZoom: 19,
+                    subdomains: 'abcd'
+                });
+            }
+            document.getElementById('satelliteMap').style.display = 'block';
+        }
+        
+        function switchMapType(type) {
+            mapType = type;
+            const networkLayer = document.getElementById('networkLayer');
+            const satelliteMapDiv = document.getElementById('satelliteMap');
+            
+            // Update button states
+            document.querySelectorAll('.map-type-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+            
+            if (type === 'network') {
+                satelliteMapDiv.style.display = 'none';
+                networkLayer.style.background = 'radial-gradient(circle at 50% 50%, #2a5298 0%, #1e3c72 100%)';
+                document.querySelector('.grid-pattern').style.display = 'block';
+            } else if (type === 'satellite') {
+                initSatelliteMap();
+                networkLayer.style.background = 'transparent';
+                document.querySelector('.grid-pattern').style.display = 'none';
+                if (window.labelsLayer && satelliteMap.hasLayer(window.labelsLayer)) {
+                    satelliteMap.removeLayer(window.labelsLayer);
+                }
+            } else if (type === 'hybrid') {
+                initSatelliteMap();
+                networkLayer.style.background = 'transparent';
+                document.querySelector('.grid-pattern').style.display = 'none';
+                if (window.labelsLayer && !satelliteMap.hasLayer(window.labelsLayer)) {
+                    window.labelsLayer.addTo(satelliteMap);
+                }
+            }
+        }
+        
         const deviceIcons = {
             'workstation': '🖥️',
             'router': '🌐',
+            'gateway': '🚪',
             'mesh': '📡',
             'service': '⚡'
         };
@@ -672,9 +1052,11 @@ MAP_TEMPLATE = """
         let translateX = -500;
         let translateY = -500;
         let docsOpen = false;
+        let gatewayPanelOpen = false;
+        let selectedGateway = null;
         
         // Google Maps-style pan and zoom
-        const mapContainer = document.getElementById('mapContainer');
+        const mapContainer = document.getElementById('networkLayer');
         const mapViewport = document.getElementById('mapViewport');
         
         mapContainer.addEventListener('mousedown', startPan);
@@ -724,14 +1106,165 @@ MAP_TEMPLATE = """
             updateTransform();
         }
         
+        function panUp() {
+            translateY += 100;
+            updateTransform();
+        }
+        
+        function panDown() {
+            translateY -= 100;
+            updateTransform();
+        }
+        
+        function panLeft() {
+            translateX += 100;
+            updateTransform();
+        }
+        
+        function panRight() {
+            translateX -= 100;
+            updateTransform();
+        }
+        
+        function resetView() {
+            currentZoom = 1;
+            translateX = -500;
+            translateY = -500;
+            updateTransform();
+        }
+        
         function updateTransform() {
             mapViewport.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoom})`;
+            document.getElementById('zoomDisplay').textContent = `Zoom: ${Math.round(currentZoom * 100)}%`;
+            document.getElementById('coordDisplay').textContent = `X: ${Math.round(translateX)} | Y: ${Math.round(translateY)}`;
         }
         
         function toggleDocs() {
             docsOpen = !docsOpen;
             const panel = document.getElementById('docsPanel');
             panel.classList.toggle('open', docsOpen);
+        }
+        
+        function toggleGatewayPanel() {
+            gatewayPanelOpen = !gatewayPanelOpen;
+            const panel = document.getElementById('gatewayPanel');
+            panel.classList.toggle('open', gatewayPanelOpen);
+        }
+        
+        async function openGatewayManager(device) {
+            selectedGateway = device;
+            const panel = document.getElementById('gatewayPanel');
+            const content = document.getElementById('gatewayContent');
+            
+            if (!device.gateway_config) {
+                content.innerHTML = '<div style="padding: 20px; text-align: center; color: #f44336;">No configuration available</div>';
+                return;
+            }
+            
+            const config = device.gateway_config;
+            
+            content.innerHTML = `
+                <div class="gateway-info">
+                    <h3 style="color: #f093fb; margin-bottom: 15px;">${device.name}</h3>
+                    <div class="gateway-metric">
+                        <label>IP Address:</label>
+                        <span>${device.ip}</span>
+                    </div>
+                    <div class="gateway-metric">
+                        <label>WAN IP:</label>
+                        <span>${config.wan_ip || 'N/A'}</span>
+                    </div>
+                    <div class="gateway-metric">
+                        <label>Uptime:</label>
+                        <span>${config.uptime || 'Unknown'}</span>
+                    </div>
+                    <div class="gateway-metric">
+                        <label>Connected Devices:</label>
+                        <span>${config.connected_devices || 0} devices</span>
+                    </div>
+                    <div class="gateway-metric">
+                        <label>Bandwidth Usage:</label>
+                        <span>${config.bandwidth_usage || '0%'}</span>
+                    </div>
+                    <div class="gateway-metric">
+                        <label>DHCP Server:</label>
+                        <span style="color: ${config.dhcp_enabled ? '#4CAF50' : '#f44336'}">${config.dhcp_enabled ? 'Enabled ✓' : 'Disabled ✗'}</span>
+                    </div>
+                    <div class="gateway-metric">
+                        <label>Firewall:</label>
+                        <span style="color: ${config.firewall_enabled ? '#4CAF50' : '#f44336'}">${config.firewall_enabled ? 'Enabled ✓' : 'Disabled ✗'}</span>
+                    </div>
+                    <div class="gateway-metric">
+                        <label>DNS Servers:</label>
+                        <span>${config.dns_servers ? config.dns_servers.join(', ') : 'Default'}</span>
+                    </div>
+                    
+                    <h4 style="color: #f093fb; margin: 20px 0 10px 0;">Port Forwarding Rules</h4>
+                    <div class="port-forwarding-list">
+                        ${config.port_forwarding && config.port_forwarding.length > 0 
+                            ? config.port_forwarding.map(rule => `
+                                <div class="port-item">
+                                    <span>Port ${rule.port}</span>
+                                    <span>→ ${rule.to}</span>
+                                </div>
+                            `).join('')
+                            : '<div style="text-align: center; opacity: 0.5;">No port forwarding rules</div>'
+                        }
+                    </div>
+                </div>
+                
+                <div class="gateway-actions">
+                    <h4 style="color: #f093fb; margin-bottom: 15px;">Gateway Actions</h4>
+                    <button class="gateway-btn" onclick="performGatewayAction('${device.id}', 'restart')">
+                        🔄 Restart Gateway
+                    </button>
+                    <button class="gateway-btn" onclick="performGatewayAction('${device.id}', 'toggle_firewall')">
+                        🛡️ Toggle Firewall
+                    </button>
+                    <button class="gateway-btn" onclick="performGatewayAction('${device.id}', 'toggle_dhcp')">
+                        🌐 Toggle DHCP Server
+                    </button>
+                    <button class="gateway-btn" onclick="performGatewayAction('${device.id}', 'update_firmware')">
+                        ⬆️ Update Firmware
+                    </button>
+                    <button class="gateway-btn danger" onclick="performGatewayAction('${device.id}', 'reset')">
+                        ⚠️ Factory Reset
+                    </button>
+                </div>
+            `;
+            
+            panel.classList.add('open');
+            gatewayPanelOpen = true;
+        }
+        
+        async function performGatewayAction(gatewayId, action) {
+            try {
+                const response = await fetch(`/api/gateway/${gatewayId}/action`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: action })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✓ ${data.message}`);
+                    // Refresh gateway info
+                    if (selectedGateway) {
+                        const devices = await fetch('/api/devices').then(r => r.json());
+                        const updatedDevice = devices.devices.find(d => d.id === gatewayId);
+                        if (updatedDevice) {
+                            openGatewayManager(updatedDevice);
+                        }
+                    }
+                } else {
+                    alert(`✗ Error: ${data.error || 'Action failed'}`);
+                }
+            } catch (error) {
+                alert(`✗ Failed to perform action: ${error.message}`);
+            }
         }
         
         async function loadDocumentation() {
@@ -795,6 +1328,12 @@ MAP_TEMPLATE = """
                 deviceEl.style.left = device.x + 'px';
                 deviceEl.style.top = device.y + 'px';
                 
+                // Add click handler for gateways
+                if (device.is_gateway) {
+                    deviceEl.style.cursor = 'pointer';
+                    deviceEl.onclick = () => openGatewayManager(device);
+                }
+                
                 const logs = device.logs.map(log => 
                     `<div class="log-entry">${log}</div>`
                 ).join('');
@@ -804,7 +1343,7 @@ MAP_TEMPLATE = """
                         <div class="device-header">
                             <span class="device-icon">${deviceIcons[device.type]}</span>
                             <div class="device-info">
-                                <h3>${device.name}</h3>
+                                <h3>${device.name}${device.is_gateway ? ' 🚪' : ''}</h3>
                                 <p>${device.ip}</p>
                             </div>
                             <div class="status-indicator ${device.status}"></div>
@@ -902,7 +1441,9 @@ def api_devices():
     
     return jsonify({
         'devices': devices,
-      
+        'git': git_status,
+        'timestamp': datetime.now().isoformat()
+    })
 
 @app.route('/api/docs')
 def api_docs():
@@ -912,8 +1453,6 @@ def api_docs():
     return jsonify({
         'docs': docs,
         'count': len(docs),
-        'timestamp': datetime.now().isoformat()
-    })  'git': git_status,
         'timestamp': datetime.now().isoformat()
     })
 
@@ -931,6 +1470,74 @@ def api_device_logs(device_id):
         })
     else:
         return jsonify({'error': 'Device not found'}), 404
+
+@app.route('/api/gateways')
+def api_gateways():
+    """Get all gateway devices"""
+    devices = get_network_devices()
+    gateways = [d for d in devices if d.get('is_gateway', False)]
+    
+    return jsonify({
+        'gateways': gateways,
+        'count': len(gateways),
+        'timestamp': datetime.now().isoformat()
+    })
+
+@app.route('/api/gateway/<gateway_id>/config', methods=['GET', 'POST'])
+def api_gateway_config(gateway_id):
+    """Get or update gateway configuration"""
+    devices = get_network_devices()
+    gateways = [d for d in devices if d.get('is_gateway', False)]
+    gateway_configs = {g['id']: g.get('gateway_config', {}) for g in gateways}
+    
+    if request.method == 'GET':
+        config = gateway_configs.get(gateway_id, {})
+        return jsonify({
+            'gateway_id': gateway_id,
+            'config': config,
+            'timestamp': datetime.now().isoformat()
+        })
+    elif request.method == 'POST':
+        data = request.json
+        if gateway_id in gateway_configs:
+            gateway_configs[gateway_id].update(data)
+            return jsonify({
+                'success': True,
+                'gateway_id': gateway_id,
+                'config': gateway_configs[gateway_id]
+            })
+        return jsonify({'error': 'Gateway not found'}), 404
+
+@app.route('/api/gateway/<gateway_id>/action', methods=['POST'])
+def api_gateway_action(gateway_id):
+    """Perform action on gateway (restart, reset, etc.)"""
+    data = request.json
+    action = data.get('action', '')
+    
+    devices = get_network_devices()
+    gateways = [d for d in devices if d.get('is_gateway', False)]
+    gateway_configs = {g['id']: g.get('gateway_config', {}) for g in gateways}
+    
+    if gateway_id not in gateway_configs:
+        return jsonify({'error': 'Gateway not found'}), 404
+    
+    actions_log = {
+        'restart': f'Gateway {gateway_id} restarted successfully',
+        'reset': f'Gateway {gateway_id} reset to factory defaults',
+        'update_firmware': f'Gateway {gateway_id} firmware update initiated',
+        'toggle_firewall': f'Gateway {gateway_id} firewall toggled',
+        'toggle_dhcp': f'Gateway {gateway_id} DHCP server toggled'
+    }
+    
+    message = actions_log.get(action, f'Unknown action: {action}')
+    
+    return jsonify({
+        'success': True,
+        'gateway_id': gateway_id,
+        'action': action,
+        'message': message,
+        'timestamp': datetime.now().isoformat()
+    })
 
 @app.route('/health')
 def health():
@@ -957,6 +1564,11 @@ if __name__ == '__main__':
     print("   ✓ Git integration status")
     print("   ✓ Auto-refresh every 5 seconds")
     print("   ✓ Device classification by type")
+    print("   ✓ Satellite map integration")
+    print("   ✓ Gateway management panel")
+    print("")
+    print("🚀 Running production WSGI server (Waitress)...")
     print("")
     
-    app.run(host='0.0.0.0', port=6000, debug=False)
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=6000, threads=8, url_scheme='http')

@@ -364,23 +364,25 @@ pause > nul
         return script_path
     
     def create_scheduled_task(self):
-        """Create Windows scheduled task with admin privileges"""
+        """Create Windows scheduled task with admin privileges and thumbnail extraction"""
         task_name = "NetworkBuster_ScheduledLaunch"
         scheduled_date = datetime.fromisoformat(self.config['scheduled_launch_date'])
         
-        # Create task XML with elevated privileges for overclocking
+        # Create task XML with elevated privileges for overclocking and thumbnail extraction
         task_xml = f"""<?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>NetworkBuster Scheduled Launch with Overclocking Optimizations</Description>
+    <Description>NetworkBuster Scheduled Launch - Administrator Mode with Thumbnail Extraction</Description>
+    <Author>NetworkBuster</Author>
   </RegistrationInfo>
   <Triggers>
     <TimeTrigger>
       <StartBoundary>{scheduled_date.isoformat()}</StartBoundary>
+      <Enabled>true</Enabled>
     </TimeTrigger>
   </Triggers>
   <Principals>
-    <Principal>
+    <Principal id="Author">
       <LogonType>InteractiveToken</LogonType>
       <RunLevel>HighestAvailable</RunLevel>
     </Principal>
@@ -389,13 +391,18 @@ pause > nul
     <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
     <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
     <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
     <ExecutionTimeLimit>PT0S</ExecutionTimeLimit>
     <Priority>4</Priority>
   </Settings>
   <Actions>
     <Exec>
       <Command>powershell.exe</Command>
-      <Arguments>-ExecutionPolicy Bypass -File "{os.path.join(os.getcwd(), 'run_launcher_admin.ps1')}"</Arguments>
+      <Arguments>-ExecutionPolicy Bypass -WindowStyle Normal -File "{os.path.join(os.getcwd(), 'run_launcher_admin.ps1')}"</Arguments>
       <WorkingDirectory>{os.getcwd()}</WorkingDirectory>
     </Exec>
   </Actions>

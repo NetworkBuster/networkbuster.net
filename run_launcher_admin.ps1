@@ -56,14 +56,28 @@ Write-Host "   CPU Parking: Disabled" -ForegroundColor White
 Write-Host "   Process Priority: High" -ForegroundColor White
 Write-Host "   Network: Optimized" -ForegroundColor White
 
+# Extract network thumbnails
+Write-Host "`n📸 Extracting network map thumbnails..." -ForegroundColor Cyan
+& "$PSScriptRoot\.venv\Scripts\Activate.ps1"
+python "$PSScriptRoot\extract_thumbnails.py"
+
 # Activate virtual environment and run launcher
 Write-Host "`n🚀 Starting NetworkBuster Launcher..." -ForegroundColor Cyan
-& "$PSScriptRoot\.venv\Scripts\Activate.ps1"
 python "$PSScriptRoot\networkbuster_launcher.py" --schedule
 
 Write-Host "`n✅ Scheduled launch created!" -ForegroundColor Green
 Write-Host "   Launch Date: January 17, 2026 at 9:00 AM" -ForegroundColor White
 Write-Host "   Countdown: 14 days, 2 hours" -ForegroundColor White
+Write-Host "   Run Level: Administrator (Highest)" -ForegroundColor White
+Write-Host "   Features: Overclocking + Thumbnail Extraction" -ForegroundColor White
+
+# Open thumbnail gallery
+Write-Host "`n🖼️  Opening thumbnail gallery..." -ForegroundColor Yellow
+$thumbIndexPath = Join-Path $PSScriptRoot "network_thumbnails\index.html"
+if (Test-Path $thumbIndexPath) {
+    Start-Process $thumbIndexPath
+    Write-Host "   ✅ Gallery opened: $thumbIndexPath" -ForegroundColor Green
+}
 
 # Create Desktop Shortcut
 Write-Host "`n📌 Creating desktop shortcut..." -ForegroundColor Yellow

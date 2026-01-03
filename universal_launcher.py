@@ -21,7 +21,7 @@ TOOLS = {
         {'name': 'Network Map', 'port': 6000, 'cmd': 'python network_map_viewer.py', 'url': 'http://localhost:6000'},
     ],
     'utilities': [
-        {'name': 'Gemini AI', 'port': 4000, 'cmd': 'python gemini_integration.py', 'url': 'http://localhost:4000'},
+        {'name': 'NetworkBuster AI', 'port': 4000, 'cmd': 'python networkbuster_ai.py', 'url': 'http://localhost:4000'},
         {'name': 'Git Cloud Shortcuts', 'cmd': 'python git_cloud_shortcuts.py', 'type': 'script'},
         {'name': 'Flash Git Backup', 'cmd': 'python flash_git_backup.py', 'type': 'script'},
         {'name': 'Drone Simulation', 'cmd': 'python run_drone_simulation.py', 'type': 'script'},
