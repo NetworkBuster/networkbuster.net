@@ -440,14 +440,16 @@ app.get('/overlay', (req, res) => {
   res.sendFile(path.join(__dirname, 'challengerepo/real-time-overlay/dist/index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 Server running at http://localhost:${PORT}`);
-  console.log(`🏠 Home Hub: http://localhost:${PORT}/home`);
-  console.log(`📈 Dashboard: http://localhost:${PORT}/dashboard`);
-  console.log(`🎨 Real-time overlay: http://localhost:${PORT}/overlay`);
-  console.log(`📝 Blog: http://localhost:${PORT}/blog`);
-  console.log(`⚙️ Control Panel: http://localhost:${PORT}/control-panel`);
-  console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`📊 API Status: http://localhost:${PORT}/api/status\n`);
-  addLog('Server started', `Port: ${PORT}`);
+const HOST = '192.168.1.181';
+
+app.listen(PORT, HOST, () => {
+  console.log(`\n🚀 Server running at http://${HOST}:${PORT}`);
+  console.log(`🏠 Home Hub: http://${HOST}:${PORT}/home`);
+  console.log(`📈 Dashboard: http://${HOST}:${PORT}/dashboard`);
+  console.log(`🎨 Real-time overlay: http://${HOST}:${PORT}/overlay`);
+  console.log(`📝 Blog: http://${HOST}:${PORT}/blog`);
+  console.log(`⚙️ Control Panel: http://${HOST}:${PORT}/control-panel`);
+  console.log(`🏥 Health Check: http://${HOST}:${PORT}/api/health`);
+  console.log(`📊 API Status: http://${HOST}:${PORT}/api/status\n`);
+  addLog('Server started', `Host: ${HOST}, Port: ${PORT}`);
 });

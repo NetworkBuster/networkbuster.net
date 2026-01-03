@@ -5,43 +5,43 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
+    host: '192.168.1.181',
     port: 5173,
     strictPort: false,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://192.168.1.181:3001',
         changeOrigin: true,
         rewrite: (path) => path
       },
       '/dashboard': {
-        target: 'http://localhost:3001',
+        target: 'http://192.168.1.181:3001',
         changeOrigin: true
       },
       '/overlay': {
-        target: 'http://localhost:3001',
+        target: 'http://192.168.1.181:3001',
         changeOrigin: true
       },
       '/blog': {
-        target: 'http://localhost:3001',
+        target: 'http://192.168.1.181:3001',
         changeOrigin: true
       },
       '/control-panel': {
-        target: 'http://localhost:3001',
+        target: 'http://192.168.1.181:3001',
         changeOrigin: true
       },
       '/ai-world': {
-        target: 'http://localhost:3001',
+        target: 'http://192.168.1.181:3001',
         changeOrigin: true
       },
       '/home': {
-        target: 'http://localhost:3001',
+        target: 'http://192.168.1.181:3001',
         changeOrigin: true
       }
     },
     middlewareMode: false,
     hmr: {
-      host: '192.168.1.180',
+      host: '192.168.1.181',
       port: 5173
     }
   },

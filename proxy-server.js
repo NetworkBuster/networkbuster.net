@@ -2,9 +2,9 @@ import httpProxy from 'http-proxy';
 import http from 'http';
 import https from 'https';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://192.168.1.181:3001';
 const PROXY_PORT = process.env.PROXY_PORT || 3000;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://192.168.1.180:5173';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://192.168.1.181:5173';
 
 // Create proxy
 const proxy = httpProxy.createProxyServer({

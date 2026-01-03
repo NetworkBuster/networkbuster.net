@@ -7,7 +7,7 @@ export default defineConfig({
     base: '/overlay/',
     server: {
         port: 5173,
-        host: true,
+        host: '192.168.1.181',
         cors: true
     },
     build: {
