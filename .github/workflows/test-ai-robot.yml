@@ -18,6 +18,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare artifact name
+        run: |
+          branch="${GITHUB_REF#refs/heads/}"
+          branch="${branch//\//-}"
+          head_ref="${GITHUB_HEAD_REF:-}"
+          head_ref="${head_ref//\//-}"
+          echo "ARTIFACT_NAME=ai-robot-test-logs-${GITHUB_RUN_ID}-${{ matrix.os }}-${branch}-${head_ref}" >> $GITHUB_ENV
+        shell: bash
+
       - name: Setup
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -41,7 +50,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ai-robot-test-logs-${{ github.run_id }}-${{ matrix.os }}-${{ replace(github.ref_name, '/', '-') }}-${{ replace(github.head_ref, '/', '-') }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: |
             ./scripts/ai-robot-linux-*.log
             ./scripts/ai-robot-windows-*.log
