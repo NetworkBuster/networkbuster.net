@@ -26,7 +26,8 @@ param(
   [string]$MapDriveName = 'networkbustersetup',
   [switch]$MapDriveLetter,
   [ValidatePattern('^[A-Z]$')][string]$DriveLetter = 'K',
-  [string]$DriveLabel = 'setup'
+  [string]$DriveLabel = 'setup',
+  [switch]$PersistMapping
 )
 
 if (-not $Prompt -or $Prompt.Length -eq 0) {
@@ -102,8 +103,26 @@ if ($env:OS -eq 'Windows_NT' -and $EnsureWsl) {
             if (Get-PSDrive -Name $DriveLetter -ErrorAction SilentlyContinue) {
               Remove-PSDrive -Name $DriveLetter -Force -ErrorAction SilentlyContinue
             }
-            New-PSDrive -Name $DriveLetter -PSProvider FileSystem -Root $p -ErrorAction Stop | Out-Null
-            Write-Output ("Mapped {0} to drive {1}:" -f $p, $DriveLetter)
+            # Prefer persistent mapping when requested and when path is a UNC network path
+            if ($PersistMapping -and ($p -like '\\*')) {
+              try {
+                Write-Output "Creating persistent mapping ${DriveLetter}: -> $p"
+                net use "${DriveLetter}:" "$p" /persistent:yes | Out-Null
+                Write-Output "Persisted mapping ${DriveLetter}: -> $p"
+              } catch {
+                Write-Warning "Failed to create persistent mapping for ${DriveLetter}: -> $p - $($_.Exception.Message)"
+                # Fall back to temporary PSDrive mapping
+                New-PSDrive -Name $DriveLetter -PSProvider FileSystem -Root $p -ErrorAction Stop | Out-Null
+                Write-Output ("Mapped {0} to drive {1}:" -f $p, $DriveLetter)
+              }
+            } else {
+              if ($PersistMapping) {
+                Write-Warning "Persistent mapping requested but $p is not a UNC path; skipping persistent map and using temporary PSDrive"
+              }
+              New-PSDrive -Name $DriveLetter -PSProvider FileSystem -Root $p -ErrorAction Stop | Out-Null
+              Write-Output ("Mapped {0} to drive {1}:" -f $p, $DriveLetter)
+            }
+
             if ($DriveLabel) {
               $labelDir = Join-Path "$($DriveLetter):" $DriveLabel
               if (-not (Test-Path $labelDir)) { New-Item -Path $labelDir -ItemType Directory -Force | Out-Null }
