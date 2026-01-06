@@ -51,7 +51,9 @@ run_one(){
   # Send request
   local tmp=$(mktemp)
   local status
-  status=$(curl -sS -X POST -H "Content-Type: application/json" -d "{\"prompt\": \"${prompt//"/\"}\"}" "$URL" -o "$tmp" -w "%{http_code}") || return 1
+  local escaped_prompt
+  escaped_prompt=$(echo "$prompt" | sed 's/"/\\\"/g')
+  status=$(curl -sS -X POST -H "Content-Type: application/json" -d "{\"prompt\": \"$escaped_prompt\"}" "$URL" -o "$tmp" -w "%{http_code}") || return 1
   local body
   body=$(cat "$tmp")
   rm -f "$tmp"
