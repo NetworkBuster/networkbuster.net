@@ -41,7 +41,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ai-robot-test-logs-${{ github.run_id }}-${{ matrix.os }}-${{ github.ref_name }}-${{ github.head_ref }}
+          name: ai-robot-test-logs-${{ github.run_id }}-${{ matrix.os }}-${{ replace(github.ref_name, '/', '-') }}-${{ replace(github.head_ref, '/', '-') }}
           path: |
             ./scripts/ai-robot-linux-*.log
             ./scripts/ai-robot-windows-*.log
