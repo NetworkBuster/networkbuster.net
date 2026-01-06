@@ -26,14 +26,16 @@ jobs:
       - name: Run AI Robot tests (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          ./scripts/test-ai-robot.sh --mock --concurrency 3
+          LOG=./scripts/ai-robot-linux-${{ github.run_id }}.log
+          ./scripts/test-ai-robot.sh --mock --concurrency 3 2>&1 | tee "$LOG"
 
       - name: Run AI Robot tests (Windows PowerShell)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
           Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
-          .\scripts\test-ai-robot.ps1 -Mock -Concurrency 3
+          $Log = ".\scripts\ai-robot-windows-${{ github.run_id }}.log"
+          .\scripts\test-ai-robot.ps1 -Mock -Concurrency 3 *>&1 | Tee-Object -FilePath $Log
 
       - name: Upload test logs
         if: always()
@@ -41,5 +43,5 @@ jobs:
         with:
           name: ai-robot-test-logs-${{ github.run_id }}
           path: |
-            ./scripts/test-ai-robot.sh || true
-            ./scripts/test-ai-robot.ps1 || true
+            ./scripts/ai-robot-linux-*.log
+            ./scripts/ai-robot-windows-*.log
