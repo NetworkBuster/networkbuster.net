@@ -1,0 +1,44 @@
+name: Trigger Remote Workflow (via GH CLI)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: 'Target repo in owner/repo format'
+        required: true
+        default: 'owner/target-repo'
+      workflow_file:
+        description: 'Name/path of the workflow file in the target repo (e.g. ci.yml)'
+        required: true
+        default: 'ci.yml'
+      ref:
+        description: 'Git ref in the target repository to run the workflow on'
+        required: true
+        default: 'main'
+
+# Use explicit permissions for this workflow; the GH CLI runs using a PAT supplied as `GH_CLI_TOKEN`.
+permissions:
+  actions: write
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup GitHub CLI and authenticate
+        uses: cli/gh-action@v2
+        with:
+          token: ${{ secrets.GH_CLI_TOKEN }}
+
+      - name: Verify gh auth
+        run: |
+          echo "Checking gh auth status"
+          gh auth status || true
+
+      - name: Trigger remote workflow
+        run: |
+          echo "Triggering workflow '${{ github.event.inputs.workflow_file }}' in '${{ github.event.inputs.target_repo }}' (ref=${{ github.event.inputs.ref }})"
+          gh workflow run "${{ github.event.inputs.workflow_file }}" --repo "${{ github.event.inputs.target_repo }}" --ref "${{ github.event.inputs.ref }}"
+
+      - name: Show workflow runs (recent)
+        run: |
+          gh run list --repo "${{ github.event.inputs.target_repo }}" --limit 5 --json databaseId,workflowName,status

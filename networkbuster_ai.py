@@ -1743,9 +1743,10 @@ def main():
     print(f"   🛡️  Blocked Threats: {len(ai_engine.blocked_devices)}")
     print(f"   📊 Reputation Scores: {len(ai_engine.device_reputation)} devices")
     print(f"\n🌐 Server Details:")
-    print(f"   Main Dashboard: http://localhost:4000")
-    print(f"   Signal Monitor: http://localhost:4000/monitor 📡")
-    print(f"   API Endpoint: http://localhost:4000/api/nbai/chat")
+    print(f"   Main Dashboard: http://localhost:8000")
+    print(f"   Signal Monitor: http://localhost:8000/monitor 📡")
+    print(f"   API Endpoint: http://localhost:8000/api/nbai/chat")
+    print(f"   🌍 Remote Access: Use ngrok or Cloudflare Tunnel")
     print(f"   Library File: {ai_engine.library_file}")
     print("\n💡 Features:")
     print("   • Interactive AI Chat Interface")
@@ -1755,7 +1756,7 @@ def main():
     print("\n📡 Open /monitor for real-time signal feed to home base!")
     print("═" * 60 + "\n")
     
-    app.run(host='0.0.0.0', port=4000, debug=False)
+    app.run(host='0.0.0.0', port=8000, debug=False)
 
 if __name__ == '__main__':
     main()

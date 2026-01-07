@@ -265,8 +265,14 @@ MAP_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetworkBuster Topology Map</title>
+    <!-- Leaflet for ESRI and other tile layers -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Google Maps API with client authentication -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=places&client=389435108940-rdmp3ckl3f67p73eil8hc3pnb05ulh1u.apps.googleusercontent.com"></script>
+    <!-- Google Sign-In for authentication -->
+    <meta name="google-signin-client_id" content="389435108940-rdmp3ckl3f67p73eil8hc3pnb05ulh1u.apps.googleusercontent.com">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * {
             margin: 0;
@@ -794,6 +800,193 @@ MAP_TEMPLATE = """
             padding: 20px;
         }
         
+        .regex-panel {
+            position: absolute;
+            bottom: -450px;
+            left: 0;
+            width: 100%;
+            height: 450px;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            overflow-y: auto;
+            transition: bottom 0.3s ease-out;
+            z-index: 998;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .regex-panel.open {
+            bottom: 0;
+        }
+        
+        .regex-toggle {
+            position: absolute;
+            left: 50%;
+            top: -40px;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00bcd4;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        
+        .regex-toggle:hover {
+            background: #00bcd4;
+        }
+        
+        .regex-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .regex-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .regex-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .regex-content {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .regex-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .regex-section h3 {
+            margin-bottom: 15px;
+            color: #00bcd4;
+            font-size: 16px;
+        }
+        
+        .regex-input-group {
+            margin-bottom: 15px;
+        }
+        
+        .regex-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .regex-input-group input,
+        .regex-input-group textarea,
+        .regex-input-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: white;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+        }
+        
+        .regex-input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .regex-btn {
+            padding: 10px 20px;
+            background: #00bcd4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        
+        .regex-btn:hover {
+            background: #0097a7;
+        }
+        
+        .regex-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            border-left: 3px solid #00bcd4;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .regex-result.success {
+            border-left-color: #4CAF50;
+        }
+        
+        .regex-result.error {
+            border-left-color: #f44336;
+        }
+        
+        .regex-patterns-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .regex-pattern-item {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .regex-pattern-item:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .regex-pattern-item strong {
+            color: #00bcd4;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .regex-pattern-item code {
+            display: block;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin: 5px 0;
+        }
+        
+        .regex-pattern-item small {
+            opacity: 0.7;
+            font-size: 11px;
+        }
+        
         .gateway-metric {
             display: flex;
             justify-content: space-between;
@@ -890,9 +1083,12 @@ MAP_TEMPLATE = """
     <div class="header">
         <h1>🗺️ NetworkBuster Topology Map</h1>
         <div class="map-type-selector">
-            <button class="map-type-btn active" onclick="switchMapType('network')" id="btnNetwork">🔷 Network View</button>
-            <button class="map-type-btn" onclick="switchMapType('satellite')" id="btnSatellite">🛰️ Satellite</button>
-            <button class="map-type-btn" onclick="switchMapType('hybrid')" id="btnHybrid">🗺️ Hybrid</button>
+            <button class="map-type-btn active" onclick="switchMapType('network')" id="btnNetwork">🔷 Network</button>
+            <button class="map-type-btn" onclick="switchMapType('google-satellite')" id="btnGoogleSatellite">📡 Google Satellite</button>
+            <button class="map-type-btn" onclick="switchMapType('google-roadmap')" id="btnGoogleRoadmap">🗺️ Google Maps</button>
+            <button class="map-type-btn" onclick="switchMapType('google-hybrid')" id="btnGoogleHybrid">🌍 Google Hybrid</button>
+            <button class="map-type-btn" onclick="switchMapType('esri-satellite')" id="btnEsriSatellite">🛰️ ESRI Satellite</button>
+            <button class="map-type-btn" onclick="switchMapType('apple')" id="btnApple">🍎 Apple Maps</button>
         </div>
         <div class="git-status">
             <span id="gitBadge" class="git-badge">🔗 Git</span>
@@ -950,6 +1146,106 @@ MAP_TEMPLATE = """
             </div>
         </div>
         
+        <!-- Regex Testing Panel -->
+        <div class="regex-panel" id="regexPanel">
+            <div class="regex-toggle" onclick="toggleRegexPanel()">🔍 Regex Tools</div>
+            <div class="regex-header">
+                <h2>🔍 Regex Testing & Validation</h2>
+                <button class="regex-close" onclick="toggleRegexPanel()">Close</button>
+            </div>
+            <div class="regex-content">
+                <div class="regex-section">
+                    <h3>Test Pattern</h3>
+                    <div class="regex-input-group">
+                        <label>Test Text:</label>
+                        <textarea id="regexTestText" placeholder="Enter text to test...">user@example.com</textarea>
+                    </div>
+                    <div class="regex-input-group">
+                        <label>Regex Pattern:</label>
+                        <input type="text" id="regexPattern" placeholder="Enter regex pattern..." value="^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" />
+                    </div>
+                    <div class="regex-input-group">
+                        <label>
+                            <input type="checkbox" id="regexCaseInsensitive" />
+                            Case Insensitive
+                        </label>
+                    </div>
+                    <button class="regex-btn" onclick="testRegexPattern()">Test Pattern</button>
+                    <div id="regexTestResult" class="regex-result" style="display:none;"></div>
+                </div>
+                
+                <div class="regex-section">
+                    <h3>Validate Input</h3>
+                    <div class="regex-input-group">
+                        <label>Input to Validate:</label>
+                        <input type="text" id="regexValidateText" placeholder="Enter text..." value="user@example.com" />
+                    </div>
+                    <div class="regex-input-group">
+                        <label>Validation Type:</label>
+                        <select id="regexValidateType">
+                            <option value="email">Email</option>
+                            <option value="url">URL</option>
+                            <option value="ipv4">IPv4 Address</option>
+                            <option value="ipv6">IPv6 Address</option>
+                            <option value="port">Port Number</option>
+                            <option value="mac">MAC Address</option>
+                            <option value="hex">Hex Color</option>
+                            <option value="uuid">UUID</option>
+                            <option value="phone">Phone Number</option>
+                            <option value="alphanumeric">Alphanumeric</option>
+                            <option value="slug">URL Slug</option>
+                        </select>
+                    </div>
+                    <button class="regex-btn" onclick="validateInput()">Validate</button>
+                    <div id="regexValidateResult" class="regex-result" style="display:none;"></div>
+                </div>
+                
+                <div class="regex-section">
+                    <h3>Replace Text</h3>
+                    <div class="regex-input-group">
+                        <label>Original Text:</label>
+                        <textarea id="regexReplaceText" placeholder="Enter text...">Hello World</textarea>
+                    </div>
+                    <div class="regex-input-group">
+                        <label>Find Pattern:</label>
+                        <input type="text" id="regexReplacePattern" placeholder="Pattern to find..." value="World" />
+                    </div>
+                    <div class="regex-input-group">
+                        <label>Replace With:</label>
+                        <input type="text" id="regexReplaceWith" placeholder="Replacement..." value="NetworkBuster" />
+                    </div>
+                    <button class="regex-btn" onclick="replaceText()">Replace</button>
+                    <div id="regexReplaceResult" class="regex-result" style="display:none;"></div>
+                </div>
+                
+                <div class="regex-section">
+                    <h3>Available Patterns</h3>
+                    <div class="regex-patterns-list" id="regexPatternsList">
+                        <div class="regex-pattern-item" onclick="loadPattern('email')">
+                            <strong>Email</strong>
+                            <code>^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$</code>
+                            <small>Example: user@example.com</small>
+                        </div>
+                        <div class="regex-pattern-item" onclick="loadPattern('ipv4')">
+                            <strong>IPv4 Address</strong>
+                            <code>^(\\d{1,3}\\.){3}\\d{1,3}$</code>
+                            <small>Example: 192.168.1.1</small>
+                        </div>
+                        <div class="regex-pattern-item" onclick="loadPattern('url')">
+                            <strong>URL</strong>
+                            <code>^https?://...</code>
+                            <small>Example: https://example.com</small>
+                        </div>
+                        <div class="regex-pattern-item" onclick="loadPattern('mac')">
+                            <strong>MAC Address</strong>
+                            <code>^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$</code>
+                            <small>Example: 00:1B:44:11:3A:B7</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <button class="refresh-btn" onclick="refreshMap()">🔄 Refresh Map</button>
         
         <div class="legend">
@@ -978,32 +1274,73 @@ MAP_TEMPLATE = """
     </div>
     
     <script>
-        // Satellite Map Initialization
+        // Map Initialization Variables
         let satelliteMap = null;
+        let googleMap = null;
         let mapType = 'network';
         
-        // Initialize Leaflet map (hidden by default)
-        function initSatelliteMap() {
+        // Initialize Google Maps
+        function initGoogleMap(mapTypeId) {
+            const mapDiv = document.getElementById('satelliteMap');
+            
+            if (!googleMap && typeof google !== 'undefined' && google.maps) {
+                googleMap = new google.maps.Map(mapDiv, {
+                    center: { lat: 37.7749, lng: -122.4194 }, // San Francisco default
+                    zoom: 13,
+                    mapTypeId: mapTypeId || google.maps.MapTypeId.SATELLITE,
+                    mapTypeControl: true,
+                    streetViewControl: false,
+                    fullscreenControl: false
+                });
+            } else if (googleMap) {
+                googleMap.setMapTypeId(mapTypeId);
+            }
+            
+            mapDiv.style.display = 'block';
+        }
+        
+        // Initialize Leaflet map (ESRI/Apple)
+        function initSatelliteMap(provider = 'esri') {
             if (!satelliteMap) {
                 satelliteMap = L.map('satelliteMap', {
-                    center: [37.7749, -122.4194], // Default: San Francisco
+                    center: [37.7749, -122.4194],
                     zoom: 13,
                     zoomControl: false
                 });
                 
-                // Add satellite tile layer (ESRI World Imagery - free, no API key needed)
+                // Store tile layers
+                window.tileLayersMap = {};
+            }
+            
+            // Remove existing layers
+            satelliteMap.eachLayer(layer => {
+                satelliteMap.removeLayer(layer);
+            });
+            
+            // Add appropriate tile layer based on provider
+            if (provider === 'esri') {
+                // ESRI World Imagery
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                    attribution: 'Tiles &copy; Esri',
                     maxZoom: 19
                 }).addTo(satelliteMap);
-                
-                // Add labels overlay for hybrid view
+            } else if (provider === 'apple') {
+                // Apple Maps-style (using OpenStreetMap as proxy)
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors (Apple Maps style)',
+                    maxZoom: 19
+                }).addTo(satelliteMap);
+            }
+            
+            // Add labels layer for hybrid view
+            if (!window.labelsLayer) {
                 window.labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                    attribution: '&copy; CARTO',
                     maxZoom: 19,
                     subdomains: 'abcd'
                 });
             }
+            
             document.getElementById('satelliteMap').style.display = 'block';
         }
         
@@ -1014,26 +1351,51 @@ MAP_TEMPLATE = """
             
             // Update button states
             document.querySelectorAll('.map-type-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+            
+            // Handle different button ID formats
+            const btnId = 'btn' + type.split('-').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join('');
+            
+            const btn = document.getElementById(btnId);
+            if (btn) btn.classList.add('active');
+            
+            // Hide all maps first
+            satelliteMapDiv.style.display = 'none';
+            networkLayer.style.background = 'transparent';
+            document.querySelector('.grid-pattern').style.display = 'none';
             
             if (type === 'network') {
+                // Network view only
                 satelliteMapDiv.style.display = 'none';
                 networkLayer.style.background = 'radial-gradient(circle at 50% 50%, #2a5298 0%, #1e3c72 100%)';
                 document.querySelector('.grid-pattern').style.display = 'block';
-            } else if (type === 'satellite') {
-                initSatelliteMap();
-                networkLayer.style.background = 'transparent';
-                document.querySelector('.grid-pattern').style.display = 'none';
-                if (window.labelsLayer && satelliteMap.hasLayer(window.labelsLayer)) {
-                    satelliteMap.removeLayer(window.labelsLayer);
+                
+            } else if (type.startsWith('google-')) {
+                // Google Maps variants
+                const googleMapType = type === 'google-satellite' ? google.maps.MapTypeId.SATELLITE :
+                                     type === 'google-roadmap' ? google.maps.MapTypeId.ROADMAP :
+                                     type === 'google-hybrid' ? google.maps.MapTypeId.HYBRID :
+                                     google.maps.MapTypeId.SATELLITE;
+                
+                if (typeof google !== 'undefined' && google.maps) {
+                    initGoogleMap(googleMapType);
+                    networkLayer.style.background = 'transparent';
+                } else {
+                    console.warn('Google Maps API not loaded yet, falling back to ESRI');
+                    initSatelliteMap('esri');
+                    networkLayer.style.background = 'transparent';
                 }
-            } else if (type === 'hybrid') {
-                initSatelliteMap();
+                
+            } else if (type === 'esri-satellite') {
+                // ESRI satellite
+                initSatelliteMap('esri');
                 networkLayer.style.background = 'transparent';
-                document.querySelector('.grid-pattern').style.display = 'none';
-                if (window.labelsLayer && !satelliteMap.hasLayer(window.labelsLayer)) {
-                    window.labelsLayer.addTo(satelliteMap);
-                }
+                
+            } else if (type === 'apple') {
+                // Apple Maps style
+                initSatelliteMap('apple');
+                networkLayer.style.background = 'transparent';
             }
         }
         
@@ -1416,6 +1778,130 @@ MAP_TEMPLATE = """
             loadMap();
         }
         
+        // Regex Panel Functions
+        function toggleRegexPanel() {
+            const panel = document.getElementById('regexPanel');
+            panel.classList.toggle('open');
+        }
+        
+        async function testRegexPattern() {
+            const text = document.getElementById('regexTestText').value;
+            const pattern = document.getElementById('regexPattern').value;
+            const caseInsensitive = document.getElementById('regexCaseInsensitive').checked;
+            const resultDiv = document.getElementById('regexTestResult');
+            
+            try {
+                const response = await fetch('/api/regex/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, pattern, case_insensitive: caseInsensitive })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'regex-result success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Test Result</strong><br/>
+                        Matches: ${data.matches ? 'Yes' : 'No'}<br/>
+                        Found: ${JSON.stringify(data.found, null, 2)}<br/>
+                        Pattern: ${data.pattern}
+                    `;
+                } else {
+                    resultDiv.className = 'regex-result error';
+                    resultDiv.innerHTML = `<strong>❌ Error</strong><br/>${data.error}`;
+                }
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                resultDiv.className = 'regex-result error';
+                resultDiv.innerHTML = `<strong>❌ Error</strong><br/>${error.message}`;
+                resultDiv.style.display = 'block';
+            }
+        }
+        
+        async function validateInput() {
+            const text = document.getElementById('regexValidateText').value;
+            const type = document.getElementById('regexValidateType').value;
+            const resultDiv = document.getElementById('regexValidateResult');
+            
+            try {
+                const response = await fetch('/api/regex/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, type })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = data.valid ? 'regex-result success' : 'regex-result error';
+                    resultDiv.innerHTML = `
+                        <strong>${data.valid ? '✅ Valid' : '❌ Invalid'}</strong><br/>
+                        Type: ${data.type}<br/>
+                        Text: ${data.text}<br/>
+                        Pattern: ${data.pattern}
+                    `;
+                } else {
+                    resultDiv.className = 'regex-result error';
+                    resultDiv.innerHTML = `<strong>❌ Error</strong><br/>${data.error}`;
+                }
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                resultDiv.className = 'regex-result error';
+                resultDiv.innerHTML = `<strong>❌ Error</strong><br/>${error.message}`;
+                resultDiv.style.display = 'block';
+            }
+        }
+        
+        async function replaceText() {
+            const text = document.getElementById('regexReplaceText').value;
+            const pattern = document.getElementById('regexReplacePattern').value;
+            const replacement = document.getElementById('regexReplaceWith').value;
+            const resultDiv = document.getElementById('regexReplaceResult');
+            
+            try {
+                const response = await fetch('/api/regex/replace', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, pattern, replacement, case_insensitive: false })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'regex-result success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Replacement Complete</strong><br/>
+                        Replacements: ${data.replacements}<br/>
+                        Original: ${data.original}<br/>
+                        Result: <strong>${data.result}</strong>
+                    `;
+                } else {
+                    resultDiv.className = 'regex-result error';
+                    resultDiv.innerHTML = `<strong>❌ Error</strong><br/>${data.error}`;
+                }
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                resultDiv.className = 'regex-result error';
+                resultDiv.innerHTML = `<strong>❌ Error</strong><br/>${error.message}`;
+                resultDiv.style.display = 'block';
+            }
+        }
+        
+        function loadPattern(type) {
+            const patterns = {
+                'email': '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$',
+                'ipv4': '^(\\d{1,3}\\.){3}\\d{1,3}$',
+                'url': '^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)$',
+                'mac': '^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'
+            };
+            
+            const pattern = patterns[type];
+            if (pattern) {
+                document.getElementById('regexPattern').value = pattern;
+            }
+        }
+        
         // Initial load
         loadMap();
         loadDocumentation();
@@ -1548,6 +2034,188 @@ def health():
         'devices': len(get_network_devices())
     })
 
+@app.route('/api/regex/validate', methods=['POST'])
+def api_regex_validate():
+    """Validate input against common regex patterns"""
+    data = request.json
+    text = data.get('text', '')
+    pattern_type = data.get('type', '')
+    
+    patterns = {
+        'email': r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
+        'url': r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$',
+        'ipv4': r'^(\d{1,3}\.){3}\d{1,3}$',
+        'ipv6': r'^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$',
+        'port': r'^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$',
+        'mac': r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$',
+        'hex': r'^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$',
+        'uuid': r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+        'phone': r'^\+?[\d\s\-\(\)]+$',
+        'alphanumeric': r'^[a-zA-Z0-9]+$',
+        'slug': r'^[a-z0-9]+(?:-[a-z0-9]+)*$'
+    }
+    
+    if pattern_type not in patterns:
+        return jsonify({
+            'error': f'Unknown pattern type: {pattern_type}',
+            'available': list(patterns.keys())
+        }), 400
+    
+    import re
+    pattern = patterns[pattern_type]
+    is_valid = bool(re.match(pattern, text))
+    
+    return jsonify({
+        'valid': is_valid,
+        'text': text,
+        'type': pattern_type,
+        'pattern': pattern,
+        'timestamp': datetime.now().isoformat()
+    })
+
+@app.route('/api/regex/escape', methods=['POST'])
+def api_regex_escape():
+    """Escape special regex characters in a string"""
+    data = request.json
+    text = data.get('text', '')
+    
+    import re
+    escaped = re.escape(text)
+    
+    return jsonify({
+        'original': text,
+        'escaped': escaped,
+        'timestamp': datetime.now().isoformat()
+    })
+
+@app.route('/api/regex/test', methods=['POST'])
+def api_regex_test():
+    """Test if a string matches a custom regex pattern"""
+    data = request.json
+    text = data.get('text', '')
+    pattern = data.get('pattern', '')
+    case_insensitive = data.get('case_insensitive', False)
+    
+    import re
+    
+    try:
+        flags = re.IGNORECASE if case_insensitive else 0
+        regex = re.compile(pattern, flags)
+        matches = regex.findall(text)
+        is_match = bool(regex.search(text))
+        
+        return jsonify({
+            'matches': is_match,
+            'found': matches,
+            'text': text,
+            'pattern': pattern,
+            'case_insensitive': case_insensitive,
+            'timestamp': datetime.now().isoformat()
+        })
+    except re.error as e:
+        return jsonify({
+            'error': f'Invalid regex pattern: {str(e)}',
+            'pattern': pattern
+        }), 400
+
+@app.route('/api/regex/replace', methods=['POST'])
+def api_regex_replace():
+    """Replace text using regex pattern"""
+    data = request.json
+    text = data.get('text', '')
+    pattern = data.get('pattern', '')
+    replacement = data.get('replacement', '')
+    case_insensitive = data.get('case_insensitive', False)
+    
+    import re
+    
+    try:
+        flags = re.IGNORECASE if case_insensitive else 0
+        regex = re.compile(pattern, flags)
+        result = regex.sub(replacement, text)
+        count = len(regex.findall(text))
+        
+        return jsonify({
+            'original': text,
+            'result': result,
+            'pattern': pattern,
+            'replacement': replacement,
+            'replacements': count,
+            'timestamp': datetime.now().isoformat()
+        })
+    except re.error as e:
+        return jsonify({
+            'error': f'Invalid regex pattern: {str(e)}',
+            'pattern': pattern
+        }), 400
+
+@app.route('/api/regex/patterns')
+def api_regex_patterns():
+    """Get list of available regex patterns"""
+    patterns = {
+        'email': {
+            'pattern': r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
+            'description': 'Email address validation',
+            'example': 'user@example.com'
+        },
+        'url': {
+            'pattern': r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$',
+            'description': 'URL validation (http/https)',
+            'example': 'https://example.com/path'
+        },
+        'ipv4': {
+            'pattern': r'^(\d{1,3}\.){3}\d{1,3}$',
+            'description': 'IPv4 address',
+            'example': '192.168.1.1'
+        },
+        'ipv6': {
+            'pattern': r'^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$',
+            'description': 'IPv6 address',
+            'example': '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
+        },
+        'port': {
+            'pattern': r'^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$',
+            'description': 'Network port (1-65535)',
+            'example': '8080'
+        },
+        'mac': {
+            'pattern': r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$',
+            'description': 'MAC address',
+            'example': '00:1B:44:11:3A:B7'
+        },
+        'hex': {
+            'pattern': r'^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$',
+            'description': 'Hex color code',
+            'example': '#FF5733'
+        },
+        'uuid': {
+            'pattern': r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+            'description': 'UUID v4',
+            'example': '550e8400-e29b-41d4-a716-446655440000'
+        },
+        'phone': {
+            'pattern': r'^\+?[\d\s\-\(\)]+$',
+            'description': 'Phone number',
+            'example': '+1 (555) 123-4567'
+        },
+        'alphanumeric': {
+            'pattern': r'^[a-zA-Z0-9]+$',
+            'description': 'Alphanumeric only',
+            'example': 'abc123'
+        },
+        'slug': {
+            'pattern': r'^[a-z0-9]+(?:-[a-z0-9]+)*$',
+            'description': 'URL-friendly slug',
+            'example': 'my-url-slug'
+        }
+    }
+    
+    return jsonify({
+        'patterns': patterns,
+        'count': len(patterns),
+        'timestamp': datetime.now().isoformat()
+    })
+
 if __name__ == '__main__':
     print("""
 ╔════════════════════════════════════════════════════════════╗
@@ -1556,7 +2224,8 @@ if __name__ == '__main__':
 ╚════════════════════════════════════════════════════════════╝
     """)
     
-    print("🗺️  Starting Network Map Viewer on http://localhost:6000")
+    print("🗺️  Starting Network Map Viewer on http://localhost:8080")
+    print("🌐 Remote Access: Use ngrok or Cloudflare Tunnel for secure access")
     print("⚡ Features:")
     print("   ✓ Interactive topology map")
     print("   ✓ Device thumbnails with live logs")
@@ -1566,9 +2235,10 @@ if __name__ == '__main__':
     print("   ✓ Device classification by type")
     print("   ✓ Satellite map integration")
     print("   ✓ Gateway management panel")
+    print("   ✓ Regex testing & validation")
     print("")
-    print("🚀 Running production WSGI server (Waitress)...")
+    print("🚀 Running production WSGI server (Waitress) on port 8080...")
     print("")
     
     from waitress import serve
-    serve(app, host='0.0.0.0', port=6000, threads=8, url_scheme='http')
+    serve(app, host='0.0.0.0', port=8080, threads=8, url_scheme='http')
