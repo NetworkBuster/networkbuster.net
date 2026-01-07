@@ -1,0 +1,10 @@
+version: '3'
+services:
+  vercel-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.vercel
+    volumes:
+      - ..:/app
+    environment:
+      - VERCEL_TOKEN=${VERCEL_TOKEN}

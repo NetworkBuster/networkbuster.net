@@ -1,0 +1,11 @@
+FROM node:18-slim
+
+# Install Vercel CLI
+RUN npm install -g vercel
+
+WORKDIR /app
+
+# Copy project files (to be mounted)
+# COPY . .
+
+CMD ["vercel", "build"]
