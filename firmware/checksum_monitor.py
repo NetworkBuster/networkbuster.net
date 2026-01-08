@@ -130,8 +130,27 @@ def check_once(db_path, base_dir='.', add_new=False):
             results['bad'].append(rel)
             logger.error('BAD: %s expected %s found %s', rel, meta['sha256'][:12], cur_sha[:12])
             # write alert
+            alert = {'ts': int(time.time()), 'file': rel, 'expected': meta['sha256'], 'found': cur_sha}
             with open(ALERT_LOG, 'a', encoding='utf-8') as af:
-                af.write(json.dumps({'ts': int(time.time()), 'file': rel, 'expected': meta['sha256'], 'found': cur_sha}) + '\n')
+                af.write(json.dumps(alert) + '\n')
+            # optionally notify via MQTT or email (configured via env or parameters)
+            try:
+                from .notify_helper import notify_mqtt, notify_email
+            except Exception:
+                try:
+                    from notify_helper import notify_mqtt, notify_email
+                except Exception:
+                    notify_mqtt = None; notify_email = None
+            if notify_mqtt and os.environ.get('CHECK_MON_MQTT') == '1':
+                try:
+                    notify_mqtt(broker=os.environ.get('CHECK_MON_MQTT_HOST','127.0.0.1'), port=int(os.environ.get('CHECK_MON_MQTT_PORT','1883')), topic=os.environ.get('CHECK_MON_MQTT_TOPIC','checksums/alerts'), payload=alert, username=os.environ.get('CHECK_MON_MQTT_USER'), password=os.environ.get('CHECK_MON_MQTT_PASS'))
+                except Exception as e:
+                    logger.warning('MQTT notify failed: %s', str(e))
+            if notify_email and os.environ.get('CHECK_MON_EMAIL') == '1':
+                try:
+                    notify_email(smtp_host=os.environ.get('CHECK_MON_SMTP_HOST','localhost'), smtp_port=int(os.environ.get('CHECK_MON_SMTP_PORT','25')), from_addr=os.environ.get('CHECK_MON_FROM','no-reply@example.com'), to_addrs=os.environ.get('CHECK_MON_TO','admin@example.com').split(','), subject=f'Checksum alert: {rel}', body=json.dumps(alert, indent=2), username=os.environ.get('CHECK_MON_SMTP_USER'), password=os.environ.get('CHECK_MON_SMTP_PASS'))
+                except Exception as e:
+                    logger.warning('Email notify failed: %s', str(e))
 
     # Optionally find new files not in db
     all_files = scan_dir(base_dir, recursive=True)
@@ -149,6 +168,19 @@ def check_once(db_path, base_dir='.', add_new=False):
             }
             results['added'].append(rel)
             logger.info('New file added to DB: %s', rel)
+
+    # Write last scan summary for dashboard consumption
+    last_scan = {'ts': int(time.time()), 'results': results}
+    try:
+        with open('firmware/last_scan.json', 'w', encoding='utf-8') as lf:
+            json.dump(last_scan, lf, indent=2)
+        # copy to web-app data folder if exists
+        webdata = os.path.join('web-app', 'data')
+        os.makedirs(webdata, exist_ok=True)
+        with open(os.path.join(webdata, 'checksums.json'), 'w', encoding='utf-8') as wf:
+            json.dump(last_scan, wf, indent=2)
+    except Exception as e:
+        logger.warning('Could not write last_scan: %s', e)
 
     save_db(db, db_path)
     return results

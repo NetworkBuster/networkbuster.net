@@ -1,0 +1,15 @@
+{
+  "ts": 1767901501,
+  "results": {
+    "good": [
+      "test-standstill-v1.0.0\\README-SIMULATOR.md",
+      "test-standstill-v1.0.0\\device_simulator.py",
+      "test-standstill-v1.0.0\\integration.yml",
+      "test-standstill-v1.0.0\\integration_test.py",
+      "test-standstill-v1.0.0\\make_standstill_release.ps1"
+    ],
+    "bad": [],
+    "missing": [],
+    "added": []
+  }
+}
