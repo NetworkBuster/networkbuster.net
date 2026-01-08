@@ -1,0 +1,44 @@
+{
+  "files": {
+    "test-standstill-v1.0.0\\README-SIMULATOR.md": {
+      "current_sha256": "ac99afc51eb808c6f9c24eefa81bc5cef13e56680d70ebdc76d36cc08aa82e41",
+      "last_checked": null,
+      "mtime": 1767897446,
+      "sha256": "ac99afc51eb808c6f9c24eefa81bc5cef13e56680d70ebdc76d36cc08aa82e41",
+      "size": 2015,
+      "status": "good"
+    },
+    "test-standstill-v1.0.0\\device_simulator.py": {
+      "current_sha256": "30bb933f2834b37bf286cccc7da097d8d2529262973bbef06152ee80068c85b1",
+      "last_checked": null,
+      "mtime": 1767897438,
+      "sha256": "30bb933f2834b37bf286cccc7da097d8d2529262973bbef06152ee80068c85b1",
+      "size": 8540,
+      "status": "good"
+    },
+    "test-standstill-v1.0.0\\integration.yml": {
+      "current_sha256": "46cc21e848eb4dcbfdd089791b4564031356e224a75bbedbcafa4d7220d5071f",
+      "last_checked": null,
+      "mtime": 1767897489,
+      "sha256": "46cc21e848eb4dcbfdd089791b4564031356e224a75bbedbcafa4d7220d5071f",
+      "size": 966,
+      "status": "good"
+    },
+    "test-standstill-v1.0.0\\integration_test.py": {
+      "current_sha256": "c51fcc5bf5e66b30b904602770d7b61224c24940ef101b905dd3b3f9eb0a18da",
+      "last_checked": null,
+      "mtime": 1767897467,
+      "sha256": "c51fcc5bf5e66b30b904602770d7b61224c24940ef101b905dd3b3f9eb0a18da",
+      "size": 2653,
+      "status": "good"
+    },
+    "test-standstill-v1.0.0\\make_standstill_release.ps1": {
+      "current_sha256": "4fce19bb1252d4c9e6494fb42c8d7ae5ee28bef5346a58876e474d9fb1de2ca7",
+      "last_checked": null,
+      "mtime": 1767897511,
+      "sha256": "4fce19bb1252d4c9e6494fb42c8d7ae5ee28bef5346a58876e474d9fb1de2ca7",
+      "size": 3405,
+      "status": "good"
+    }
+  }
+}
