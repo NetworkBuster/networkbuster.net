@@ -130,8 +130,10 @@ if ($Mode -eq 'secure') {
         $leaf = $f.Name
         if ($DryRun) { Log "DRYRUN: would write $shaFile with '$sha  $leaf'" } else { Set-Content -Path $shaFile -Value "$sha  $leaf" -Encoding ascii }
         Gpg-SignIfRequested $shaFile
-        # prepare tag name
-        $safeName = ($f.FullName -replace '[\\/]', '-') -replace '^releases-','' -replace '\s+','-'
+        # prepare tag name using relative path from repo root
+        $rel = $f.FullName.Substring((Get-Location).Path.Length + 1)
+        $safeName = $rel -replace '[\\/:]','-' -replace '\s+','-'
+        $safeName = $safeName -replace '^releases[-_]?','' # strip leading releases-
         $short = $sha.Substring(0,12)
         $tagName = "kit-$safeName-sha256-$short"
         $tagMsg = "SHA256 for $($f.FullName): $sha"
