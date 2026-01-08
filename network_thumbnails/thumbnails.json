@@ -1,0 +1,67 @@
+{
+  "generated": "2026-01-03T07:16:30.219592",
+  "version": "1.0.1",
+  "total_devices": 10,
+  "devices": {
+    "workstation": {
+      "icon": "\ud83d\udda5\ufe0f",
+      "name": "Primary Workstation",
+      "type": "Hardware",
+      "status": "online"
+    },
+    "router-wifi7": {
+      "icon": "\ud83c\udf10",
+      "name": "WiFi 7 Mesh Router",
+      "type": "Network",
+      "status": "online"
+    },
+    "router-networkbuster": {
+      "icon": "\ud83d\udd27",
+      "name": "NetworkBuster Router",
+      "type": "Network",
+      "status": "online"
+    },
+    "mesh-node-1": {
+      "icon": "\ud83d\udce1",
+      "name": "Mesh Node Alpha",
+      "type": "Network",
+      "status": "online"
+    },
+    "mesh-node-2": {
+      "icon": "\ud83d\udce1",
+      "name": "Mesh Node Beta",
+      "type": "Network",
+      "status": "online"
+    },
+    "mesh-node-3": {
+      "icon": "\ud83d\udce1",
+      "name": "Mesh Node Gamma",
+      "type": "Network",
+      "status": "online"
+    },
+    "service-web": {
+      "icon": "\u26a1",
+      "name": "Web Server (3000)",
+      "type": "Service",
+      "status": "running"
+    },
+    "service-api": {
+      "icon": "\u26a1",
+      "name": "API Server (3001)",
+      "type": "Service",
+      "status": "running"
+    },
+    "service-audio": {
+      "icon": "\u26a1",
+      "name": "Audio Stream (3002)",
+      "type": "Service",
+      "status": "running"
+    },
+    "service-mission": {
+      "icon": "\u26a1",
+      "name": "Mission Control (5000)",
+      "type": "Service",
+      "status": "running"
+    }
+  }
+}

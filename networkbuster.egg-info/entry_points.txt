@@ -1,0 +1,4 @@
+[console_scripts]
+networkbuster = networkbuster_launcher:main
+networkbuster-map = network_map_viewer:main
+networkbuster-tracer = api_tracer:main

@@ -1,0 +1,41 @@
+Metadata-Version: 2.4
+Name: networkbuster
+Version: 1.0.1
+Summary: NetworkBuster - Complete Network Management Suite
+Home-page: https://networkbuster.net
+Author: NetworkBuster Team
+Author-email: admin@networkbuster.net
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: System Administrators
+Classifier: Topic :: System :: Networking :: Monitoring
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Operating System :: Microsoft :: Windows
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: LICENSE.txt
+Requires-Dist: flask>=3.0.0
+Requires-Dist: flask-cors>=4.0.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: psutil>=5.9.0
+Requires-Dist: schedule>=1.2.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+
+NetworkBuster is a comprehensive network management suite featuring:
+- Real-time network monitoring and topology mapping
+- API endpoint tracing and performance analysis
+- Mission control dashboard
+- Audio streaming server
+- Universal launcher with scheduled deployment
+- Maximum power production optimization
