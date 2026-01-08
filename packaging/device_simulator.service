@@ -6,9 +6,11 @@ After=network.target
 Type=simple
 User=nb
 WorkingDirectory=/opt/networkbuster/firmware
-ExecStart=/usr/bin/python3 /opt/networkbuster/firmware/device_simulator.py --id device-01 --interval 5 --duration 0
+ExecStart=/usr/bin/python3 /opt/networkbuster/firmware/device_simulator.py --id device-01 --interval 5 --duration 0 --http-port 8080 --prom-port 9091 --log-file /var/log/device_simulator.log
 Restart=on-failure
 RestartSec=5
+StandardOutput=append:/var/log/device_simulator.log
+StandardError=append:/var/log/device_simulator.log
 
 [Install]
 WantedBy=multi-user.target

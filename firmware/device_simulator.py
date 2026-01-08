@@ -15,13 +15,31 @@ import argparse
 import json
 import time
 import random
+import logging
+import signal
+from logging.handlers import RotatingFileHandler
 from paho.mqtt import client as mqtt_client
+# Prometheus
+from prometheus_client import start_http_server, Gauge
 
 class DeviceSim:
-    def __init__(self, device_id='device-01', broker='test.mosquitto.org', port=1883, username=None, password=None, cafile=None):
+    def __init__(self, device_id='device-01', broker='test.mosquitto.org', port=1883, username=None, password=None, cafile=None, log_file=None, log_level='INFO', prom_port=None):
         self.id = device_id
         self.broker = broker
         self.port = port
+
+        # Logging
+        self.logger = logging.getLogger(f'device-{self.id}')
+        level = getattr(logging, log_level.upper(), logging.INFO)
+        self.logger.setLevel(level)
+        fmt = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        if log_file:
+            handler = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=3)
+        else:
+            handler = logging.StreamHandler()
+        handler.setFormatter(fmt)
+        self.logger.addHandler(handler)
+
         # Use explicit protocol to avoid callback API mismatch in some paho versions
         self.client = mqtt_client.Client(client_id=f"sim-{device_id}", protocol=mqtt_client.MQTTv311)
         if username:
@@ -33,15 +51,30 @@ class DeviceSim:
         self.client.connect(broker, port)
         self.client.loop_start()
 
+        # state
         self.mode = 'normal'
         self.battery = 60
         self.harvest = 200
         self.queued = 0
         self.stats = {'sent':0}
+        self._stop = False
+
+        # Prometheus metrics
+        self.prom_port = prom_port
+        self.g_battery = Gauge('device_battery_percent', 'Battery percent', ['device'])
+        self.g_harvest = Gauge('device_harvest_mw', 'Harvest mW', ['device'])
+        self.g_sent = Gauge('device_sent_total', 'Telemetry messages sent', ['device'])
+        if self.prom_port:
+            start_http_server(self.prom_port)
+            self.logger.info('Prometheus metrics available on port %s', self.prom_port)
+
+        # setup signal handlers for graceful shutdown
+        signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
 
     def on_connect(self, client, userdata, flags, rc):
         topic = f'device/{self.id}/power/control'
-        print('Connected to MQTT broker, subscribing to', topic)
+        self.logger.info('Connected to MQTT broker, subscribing to %s', topic)
         client.subscribe(topic)
 
     def on_message(self, client, userdata, msg):
@@ -52,7 +85,7 @@ class DeviceSim:
         entry = {'ts': int(time.time()), 'topic': msg.topic, 'payload': payload}
         with open('controls.jsonl', 'a', encoding='utf-8') as f:
             f.write(json.dumps(entry) + '\n')
-        print('Received control:', payload)
+        self.logger.info('Received control: %s', payload)
         # apply control
         if isinstance(payload, dict):
             if 'set_mode' in payload:
@@ -94,15 +127,76 @@ class DeviceSim:
         topic = f'device/{self.id}/power/telemetry'
         self.client.publish(topic, json.dumps({'telemetry':telemetry}))
         self.stats['sent'] += 1
-        print('Published telemetry ->', telemetry)
+        self.logger.debug('Published telemetry -> %s', telemetry)
+        # update prometheus metrics
+        try:
+            self.g_battery.labels(device=self.id).set(self.battery)
+            self.g_harvest.labels(device=self.id).set(self.harvest)
+            self.g_sent.labels(device=self.id).set(self.stats['sent'])
+        except Exception:
+            pass
 
-    def run(self, interval=5, duration=None):
+    def run(self, interval=5, duration=None, http_port=None):
+        # Optionally start a simple HTTP health endpoint
+        server = None
+        if http_port:
+            server = self._start_health_server(http_port)
+
         start = time.time()
-        while True:
-            self.publish_telemetry()
-            if duration and (time.time() - start) > duration:
-                break
-            time.sleep(interval)
+        try:
+            while not self._stop:
+                self.publish_telemetry()
+                if duration and (time.time() - start) > duration:
+                    break
+                time.sleep(interval)
+        except KeyboardInterrupt:
+            self.logger.info('Interrupted, stopping')
+        finally:
+            if server:
+                server.shutdown()
+            self.client.loop_stop()
+            self.client.disconnect()
+            self.logger.info('Simulator stopped')
+
+    def _signal_handler(self, signum, frame):
+        self.logger.info('Received signal %s, scheduling stop', signum)
+        self._stop = True
+
+    def _start_health_server(self, port):
+        # Lightweight HTTP health endpoint that returns current state as JSON
+        import threading
+        from http.server import HTTPServer, BaseHTTPRequestHandler
+
+        sim = self
+
+        class HealthHandler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path != '/health':
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+                payload = {
+                    'id': sim.id,
+                    'mode': sim.mode,
+                    'batteryPercent': sim.battery,
+                    'harvest_mw': sim.harvest,
+                    'stats': sim.stats
+                }
+                body = json.dumps(payload).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, format, *args):
+                return
+
+        httpd = HTTPServer(('0.0.0.0', port), HealthHandler)
+        t = threading.Thread(target=httpd.serve_forever, daemon=True)
+        t.start()
+        print(f'Health endpoint listening on http://0.0.0.0:{port}/health')
+        return httpd
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

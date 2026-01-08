@@ -15,6 +15,8 @@ Quickstart:
 End-to-end tests:
 - Start `device_simulator.py` (publishes telemetry)
   - Optionally enable HTTP health: `--http-port 8080` and open `http://localhost:8080/health`
+  - Optionally enable Prometheus metrics: `--prom-port 9091` and visit `http://localhost:9091/metrics`
+  - Configure logging with `--log-file /var/log/device_simulator.log` and `--log-level DEBUG`
 - Start `telemetry_ws_server.py` (tails telemetry.jsonl) or run `mqtt_bridge.py` depending on your preferred path
 - Use the React panel to send a control; it will be forwarded to MQTT (when `mqtt_bridge.py --ws` is running), and the simulator will receive and apply it.
 
@@ -23,7 +25,7 @@ Bulk simulation:
 
 Automated CI test:
 - A simple integration test is provided at `ci/integration_test.py`. Run it in CI to verify control flow:
-  `python ci/integration_test.py` (uses public test.mosquitto.org broker by default)
+  `python ci/integration_test.py --broker localhost --port 1883` (the GitHub Action runs a local Mosquitto service)
 
 Systemd unit:
-- A template systemd unit is available at `packaging/device_simulator.service` for production deployments; adjust paths and user as needed.
+- A template systemd unit is available at `packaging/device_simulator.service` for production deployments; adjust paths and user as needed. Example unit includes `--http-port` and `--prom-port` arguments.

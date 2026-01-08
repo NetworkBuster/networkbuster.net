@@ -17,13 +17,13 @@ from paho.mqtt import client as mqtt_client
 SIM = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'firmware', 'device_simulator.py'))
 CONTROLS_LOG = os.path.abspath('controls.jsonl')
 
-def run_simulator(device_id='itest-01', duration=15):
-    proc = subprocess.Popen([sys.executable, SIM, '--id', device_id, '--interval', '1', '--duration', str(duration)])
+def run_simulator(device_id='itest-01', duration=15, broker='127.0.0.1', port=1883):
+    proc = subprocess.Popen([sys.executable, SIM, '--id', device_id, '--interval', '1', '--duration', str(duration), '--broker', broker, '--port', str(port)])
     return proc
 
-def publish_control(device_id, payload):
+def publish_control(device_id, payload, broker='127.0.0.1', port=1883):
     c = mqtt_client.Client()
-    c.connect('test.mosquitto.org', 1883)
+    c.connect(broker, port)
     c.loop_start()
     topic = f'device/{device_id}/power/control'
     c.publish(topic, json.dumps(payload))
@@ -47,6 +47,12 @@ def wait_for_control_entry(device_id, timeout=10):
     return None
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--broker', default='127.0.0.1')
+    parser.add_argument('--port', type=int, default=1883)
+    args = parser.parse_args()
+
     device = 'itest-01'
     # remove old control file
     try:
@@ -54,10 +60,10 @@ if __name__ == '__main__':
     except Exception:
         pass
 
-    p = run_simulator(device_id=device, duration=20)
+    p = run_simulator(device_id=device, duration=20, broker=args.broker, port=args.port)
     time.sleep(2)  # let simulator connect
     print('Publishing control...')
-    publish_control(device, {'set_mode':'low_power'})
+    publish_control(device, {'set_mode':'low_power'}, broker=args.broker, port=args.port)
 
     entry = wait_for_control_entry(device, timeout=12)
     p.wait()

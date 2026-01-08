@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Power Panel (Mock)</title>
+  <style>
+    body{font-family:Inter,Segoe UI,Arial;margin:20px}
+    .card{border:1px solid #ddd;padding:16px;border-radius:8px;max-width:680px}
+    .row{display:flex;gap:16px}
+    .donut{width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:conic-gradient(#0f9 0 0% , #eee 0)}
+    #log{height:120px;overflow:auto;border:1px solid #eee;padding:8px;margin-top:12px;background:#fafafa}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Power Panel — Live (mock)</h2>
+    <div class="row">
+      <div>
+        <div id="donut" class="donut">--%</div>
+        <div id="mode">Mode: -</div>
+      </div>
+      <div style="flex:1">
+        <div>Harvest: <span id="harvest">--</span> mW</div>
+        <div>Queued: <span id="queued">0</span></div>
+        <div>Sent total: <span id="sent">0</span></div>
+        <div>Uptime: <span id="uptime">0</span>s</div>
+        <div>Last signal: <span id="last_signal">-</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <button id="btnLow">Set Low Power</button>
+      <button id="btnNormal">Set Normal</button>
+    </div>
+
+    <div id="log"></div>
+  </div>
+
+  <script>
+    const url = (location.hostname === 'localhost' ? 'ws://localhost:8765' : 'wss://' + location.host + '/ws');
+    const ws = new WebSocket(url);
+    const donut = document.getElementById('donut');
+    const harvest = document.getElementById('harvest');
+    const queued = document.getElementById('queued');
+    const sent = document.getElementById('sent');
+    const uptime = document.getElementById('uptime');
+    const mode = document.getElementById('mode');
+    const log = document.getElementById('log');
+    const lastSignal = document.getElementById('last_signal');
+
+    ws.onopen = ()=>{appendLog('Connected to telemetry server')}
+    ws.onmessage = (m)=>{
+      try{
+        const d = JSON.parse(m.data);
+        const t = d.telemetry || d;
+        harvest.textContent = t.harvest_mw || '--';
+        queued.textContent = t.queued || 0;
+        sent.textContent = t.stats ? t.stats.sent : (t.sent_count||0);
+        uptime.textContent = t.uptime_s || 0;
+        mode.textContent = 'Mode: ' + (t.mode||'-');
+        donut.style.background = `conic-gradient(#0f9 0 ${t.batteryPercent}%, #eee ${t.batteryPercent}% 100%)`;
+        donut.textContent = (t.batteryPercent||0) + '%';
+        if(t.lastSignal) lastSignal.textContent = new Date(t.lastSignal*1000).toLocaleTimeString();
+        appendLog('Telemetry: ' + JSON.stringify(t));
+      }catch(e){appendLog('Bad message: '+m.data)}
+    }
+    ws.onclose = ()=>appendLog('Disconnected from server')
+
+    function appendLog(s){
+      const p = document.createElement('div'); p.textContent = '['+new Date().toLocaleTimeString()+'] '+s; log.prepend(p);
+    }
+
+    // Buttons are mock controls; in a real system these would publish to MQTT/ws control topic
+    document.getElementById('btnLow').onclick = ()=>appendLog('Simulated: set mode low_power');
+    document.getElementById('btnNormal').onclick = ()=>appendLog('Simulated: set mode normal');
+  </script>
+</body>
+</html>
