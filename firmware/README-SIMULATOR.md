@@ -14,5 +14,16 @@ Quickstart:
 
 End-to-end tests:
 - Start `device_simulator.py` (publishes telemetry)
+  - Optionally enable HTTP health: `--http-port 8080` and open `http://localhost:8080/health`
 - Start `telemetry_ws_server.py` (tails telemetry.jsonl) or run `mqtt_bridge.py` depending on your preferred path
 - Use the React panel to send a control; it will be forwarded to MQTT (when `mqtt_bridge.py --ws` is running), and the simulator will receive and apply it.
+
+Bulk simulation:
+- Use `bulk_simulator.py` to start many simulated devices in-process: `python firmware/bulk_simulator.py --count 20 --interval 5 --duration 300`
+
+Automated CI test:
+- A simple integration test is provided at `ci/integration_test.py`. Run it in CI to verify control flow:
+  `python ci/integration_test.py` (uses public test.mosquitto.org broker by default)
+
+Systemd unit:
+- A template systemd unit is available at `packaging/device_simulator.service` for production deployments; adjust paths and user as needed.

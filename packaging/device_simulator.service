@@ -1,0 +1,14 @@
+[Unit]
+Description=NetworkBuster Device Simulator
+After=network.target
+
+[Service]
+Type=simple
+User=nb
+WorkingDirectory=/opt/networkbuster/firmware
+ExecStart=/usr/bin/python3 /opt/networkbuster/firmware/device_simulator.py --id device-01 --interval 5 --duration 0
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
