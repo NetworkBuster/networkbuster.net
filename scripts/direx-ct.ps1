@@ -21,8 +21,7 @@ param(
     [string]$Branch = 'direx-ct-batch',
     [switch]$GpgSign,
     [switch]$AttachToRelease,
-    [string]$ReleaseTag = 'test-standstill-v1.0.0',
-    [switch]$Verbose
+    [string]$ReleaseTag = 'test-standstill-v1.0.0'
 )
 
 function Log { param($msg) Write-Host "[direx-ct] $msg" }
