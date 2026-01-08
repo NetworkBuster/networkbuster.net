@@ -44,23 +44,59 @@ async def ws_client(url, on_msg):
                 payload = json.loads(msg)
             except Exception:
                 payload = {'raw': msg}
+            # If payload includes a control from client UI, publish to MQTT control topic
+            if 'control' in payload:
+                dev = payload.get('device') or (payload.get('control',{}).get('id')) or 'device-unknown'
+                bridge = on_msg.__self__ if hasattr(on_msg, '__self__') else None
+                if bridge and hasattr(bridge, 'client'):
+                    # publish control
+                    print('WS -> MQTT: publishing control for', dev)
+                    bridge.publish({'control': payload['control'], 'device': dev})
             await on_msg(payload)
 
 class MqttBridge:
-    def __init__(self, broker='test.mosquitto.org', port=1883, client_id='nb-bridge'):
+    def __init__(self, broker='test.mosquitto.org', port=1883, client_id='nb-bridge', username=None, password=None, cafile=None):
         self.broker = broker
         self.port = port
         self.client = mqtt_client.Client(client_id)
+        if username:
+            self.client.username_pw_set(username, password)
+        if cafile:
+            self.client.tls_set(ca_certs=cafile)
+        self.client.on_connect = self._on_connect
+        self.client.on_message = self._on_message
         self.client.connect(broker, port)
         self.client.loop_start()
+        self._control_log = 'controls.jsonl'
+
+    def _on_connect(self, client, userdata, flags, rc):
+        print('MQTT connected, subscribing to control topics')
+        # subscribe to control topics so we can capture inbound controls
+        client.subscribe('device/+/power/control')
+
+    def _on_message(self, client, userdata, msg):
+        try:
+            payload = json.loads(msg.payload.decode('utf-8'))
+        except Exception:
+            payload = {'raw': msg.payload.decode('utf-8')}
+        entry = {'ts': int(time.time()), 'topic': msg.topic, 'payload': payload}
+        with open(self._control_log, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(entry) + '\n')
+        print('RCV control', msg.topic)
 
     def publish(self, payload):
-        # payload is expected to have 'device' and 'telemetry'
-        dev = payload.get('device') or (payload.get('telemetry',{}).get('id')) or 'device-unknown'
+        # payload is expected to have 'device' and 'telemetry' or control
+        dev = payload.get('device') or (payload.get('telemetry',{}).get('id')) or (payload.get('control',{}).get('id')) or 'device-unknown'
+        if 'control' in payload:
+            topic = f'device/{dev}/power/control'
+            data = json.dumps(payload['control'])
+            self.client.publish(topic, data, qos=1)
+            print('PUB control', topic, data)
+            return
         topic = f'device/{dev}/power/telemetry'
         data = json.dumps(payload)
         self.client.publish(topic, data, qos=0)
-        print('PUB', topic, len(data))
+        print('PUB telemetry', topic, len(data))
 
 async def run_bridge(args):
     bridge = MqttBridge(broker=args.broker, port=args.port)

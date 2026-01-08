@@ -15,8 +15,16 @@ Examples:
 3) Start MQTT bridge (file):
    python firmware/mqtt_bridge.py --file telemetry.jsonl --broker test.mosquitto.org
 
+   or with TLS/auth:
+   python firmware/mqtt_bridge.py --file telemetry.jsonl --broker mqtt.example.com --port 8883 --mqtt-user user --mqtt-pass secret --cafile ca.pem
+
 4) Start MQTT bridge (ws):
    python firmware/mqtt_bridge.py --ws ws://localhost:8765 --broker test.mosquitto.org
+
+Control flow:
+- The React Power Panel sends control messages via WebSocket ({control:{...}}).
+- When running `mqtt_bridge.py --ws ws://...`, control messages are forwarded to MQTT topic `device/{id}/power/control`.
+- `mqtt_bridge.py` also subscribes to `device/+/power/control` and logs incoming control messages to `controls.jsonl`.
 
 Notes:
 - `mqtt_bridge.py` uses the public test Mosquitto broker by default; for production use your own broker and configure credentials.
