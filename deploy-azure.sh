@@ -14,6 +14,7 @@ echo "=================================="
 RESOURCE_GROUP="networkbuster-rg"
 REGISTRY_NAME=$(az deployment group show --resource-group $RESOURCE_GROUP --name main --query 'properties.outputs.containerRegistryLoginServer.value' -o tsv | cut -d'.' -f1)
 REGISTRY_URL=$(az deployment group show --resource-group $RESOURCE_GROUP --name main --query 'properties.outputs.containerRegistryLoginServer.value' -o tsv)
+BRAND_SUFFIX=" - AI style"
 
 echo -e "${GREEN}✓ Resource Group: $RESOURCE_GROUP${NC}"
 echo -e "${GREEN}✓ Registry: $REGISTRY_URL${NC}"
@@ -74,3 +75,5 @@ echo ""
 echo -e "${YELLOW}📊 Deployment URLs:${NC}"
 echo "Main Server: $(az containerapp show --name networkbuster-server --resource-group $RESOURCE_GROUP --query 'properties.configuration.ingress.fqdn' -o tsv)"
 echo "Overlay UI: $(az containerapp show --name networkbuster-overlay --resource-group $RESOURCE_GROUP --query 'properties.configuration.ingress.fqdn' -o tsv)"
+echo ""
+echo "Site: https://networkbuster.org$BRAND_SUFFIX"

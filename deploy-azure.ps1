@@ -8,6 +8,7 @@ param(
     [string]$DotNetProject = '',        # Path to dotnet project folder containing Dockerfile (optional)
     [string]$DotNetImage = 'networkbuster-dotnet-server',
     [string]$Domain = 'www.networkbuster.org',
+    [string]$BrandSuffix = ' — AI style',
     [switch]$MapDomain,                    # If supplied, attempt to map $Domain to resulting Container App (prints instructions if not possible)
     [switch]$SetupServiceBus               # If supplied, create Azure Service Bus namespace and topic for device registrations
 ) 
@@ -123,7 +124,7 @@ try {
             Write-Host "✓ DotNet Container App: $dotnetFqdn" -ForegroundColor Green
 
             if ($MapDomain) {
-                Write-Host ""; Write-Host "⚠️ Attempting to map domain '$Domain' to $dotnetAppName" -ForegroundColor Yellow
+                Write-Host ""; Write-Host "⚠️ Attempting to map domain '$($Domain)$BrandSuffix' to $dotnetAppName" -ForegroundColor Yellow
                 Write-Host "Please ensure DNS: create a CNAME record 'www' pointing to: $dotnetFqdn" -ForegroundColor Cyan
                 Write-Host "After DNS propagates, follow Azure docs to bind the custom domain and issue a certificate for the Container App." -ForegroundColor Cyan
                 Write-Host "Docs: https://learn.microsoft.com/azure/container-apps/custom-domains" -ForegroundColor Cyan
