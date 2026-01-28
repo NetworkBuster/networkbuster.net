@@ -236,6 +236,69 @@ predictions = pipeline.predict(live_sensor_data)
 
 ---
 
+## Device Classification Examples ✅
+
+> **Message:** Three ready-made classifier scaffolds are provided—Device Type, Task, and Health (anomaly) classifiers. Use these to bootstrap real device classification tasks or integrate them into the main AI pipeline.
+
+**Overview:** The `device_classifiers.py` module contains three classes:
+- `DeviceTypeClassifier` — supervised classifier for device categories (e.g., robot, sensor, actuator).
+- `TaskClassifier` — supervised classifier for automation task types (pick-and-place, welding, inspection, etc.).
+- `HealthClassifier` — unsupervised anomaly detector for device health (IsolationForest).
+
+### Quick start (examples)
+
+```python
+# Train all example classifiers with dummy data
+python train_device_classifiers.py --which all
+
+# Train only the health (anomaly) detector
+python train_device_classifiers.py --which health
+```
+
+### Device Type Classifier (walkthrough)
+
+1. **Collect labeled examples** — Gather feature vectors for each device class and label them (e.g., robot=0, sensor=1, actuator=2).
+2. **Preprocess** — Normalize and impute missing values.
+3. **Train** — Use `DeviceTypeClassifier().train(X, y)` and check validation accuracy.
+4. **Export** — Save the model with `save(path)` and ship alongside the runtime.
+
+```python
+from device_classifiers import DeviceTypeClassifier
+clf = DeviceTypeClassifier()
+clf.train(X_train, y_train)
+clf.save("checkpoints/device_type_classifier.joblib")
+```
+
+### Task Classifier (walkthrough)
+
+1. **Collect task-labeled traces** — Encode sequence or aggregated features representing task runs.
+2. **Train & validate** — Tune hyperparameters and inspect per-class metrics.
+3. **Deploy** — Export and serve as a microservice or embed into the controller.
+
+```python
+from device_classifiers import TaskClassifier
+clf = TaskClassifier()
+clf.train(X_train, y_train)
+clf.save("checkpoints/task_classifier.joblib")
+```
+
+### Health Classifier (walkthrough)
+
+1. **Collect normal operation data** — Train the model on healthy behavior to learn a baseline.
+2. **Train** — `HealthClassifier().train(X_normal)` where X_normal contains only nominal data.
+3. **Flag anomalies** — Use `predict(X)` or `predict_anomaly_score(X)` to identify outliers.
+
+```python
+from device_classifiers import HealthClassifier
+hc = HealthClassifier(contamination=0.02)
+ hc.train(X_normal)
+ scores = hc.predict_anomaly_score(X_live)
+```
+
+**Note:** These modules are scaffolds—replace RandomForest/IsolationForest with your production models, add feature extraction, and integrate the resulting saved models into the runtime environment.
+
+---
+
 
 ## Configuration Parameters
 
