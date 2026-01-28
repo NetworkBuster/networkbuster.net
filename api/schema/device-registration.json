@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DeviceRegistration",
+  "type": "object",
+  "properties": {
+    "deviceId": { "type": "string" },
+    "hardwareId": { "type": "string" },
+    "model": { "type": "string" },
+    "firmwareVersion": { "type": "string" },
+    "location": { "type": ["string", "object"] },
+    "ts": { "type": "string", "format": "date-time" },
+    "initialTelemetry": { "type": ["object", "null"] }
+  },
+  "required": ["hardwareId", "model"],
+  "additionalProperties": false
+}

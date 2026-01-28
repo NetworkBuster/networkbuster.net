@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="220" viewBox="0 0 720 220">
+  <style>.box{fill:#f8fafc;stroke:#0f172a;stroke-width:1.2}.label{font:13px sans-serif;fill:#0f172a}.small{font:11px sans-serif;fill:#374151}</style>
+  <rect x="40" y="30" width="140" height="40" rx="6" class="box" />
+  <text x="110" y="55" text-anchor="middle" class="label">Web UI</text>
+
+  <rect x="260" y="30" width="160" height="40" rx="6" class="box" />
+  <text x="340" y="55" text-anchor="middle" class="label">API Server</text>
+
+  <rect x="520" y="30" width="160" height="40" rx="6" class="box" />
+  <text x="600" y="55" text-anchor="middle" class="label">Feedback Store</text>
+
+  <path d="M180 50 L260 50" stroke="#0f172a" stroke-width="1.2" marker-end="url(#a)" />
+  <text x="220" y="40" class="small" text-anchor="middle">POST /api/recycle/feedback</text>
+  <path d="M420 50 L520 50" stroke="#0f172a" stroke-width="1.2" marker-end="url(#a)" />
+  <text x="470" y="40" class="small" text-anchor="middle">appendFeedback</text>
+
+  <rect x="30" y="150" width="660" height="40" rx="6" fill="#ecfeff" stroke="#0ea5a4" />
+  <text x="60" y="176" class="small">Note: Feedback stored in data/feedback for later review and model training</text>
+  <defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0f172a"/></marker></defs>
+</svg>
