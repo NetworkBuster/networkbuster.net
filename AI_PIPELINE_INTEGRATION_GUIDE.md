@@ -299,6 +299,37 @@ hc = HealthClassifier(contamination=0.02)
 
 ---
 
+## Continuous Learning & Logic Growth ✅
+
+> **Message:** Implementation of the "Exponential Logic Growth" engine. This module automates the feedback loop between deployed devices and the central pipeline, allowing logic to evolve and repurpose devices without manual intervention.
+
+**Overview:**
+The `continuous_learning.py` module runs as a background service. It monitors incoming data logs from devices, detects concept drift, and automatically triggers retraining (model evolution) when criteria are met.
+
+**Features:**
+- **Automated Ingestion:** Watches `data/incoming/` for JSON/NPY feedback packets.
+- **Drift Detection:** Evaluates current model performance on new streams.
+- **Logic Promotion:** If a retrained candidate model outperforms the current production model, it is promoted to the registry immediately for the next syncing cycle.
+- **Simultaneous Repurposing:** Detects patterns indicating devices are being used for new tasks and adapts the classification logic accordingly.
+
+### Quick Start
+
+1. **Start the Learning Engine:**
+
+```bash
+python continuous_learning.py
+```
+
+2. **Simulate Device Feedback:**
+(In a separate terminal, to generate synthetic traffic)
+
+```bash
+python simulate_device_feedback.py
+```
+
+3. **Observe Evolution:**
+The engine will ingest packets, detect new patterns, train a candidate "Generation X+1" model, and if superior, promote it to `checkpoints/`. Future devices pulling from `model_registry` will receive this smarter logic.
+
 
 ## Configuration Parameters
 
