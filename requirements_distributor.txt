@@ -1,5 +1,7 @@
-# Requirements for Software Distributor
+# Requirements for Software Distributor and Neural Network System
 # Install with: pip install -r requirements_distributor.txt
 
 pyinstaller>=5.0.0
-tkinter
+scikit-learn>=1.0.0
+joblib>=1.0.0
+numpy>=1.20.0

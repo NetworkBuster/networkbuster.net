@@ -22,7 +22,7 @@ from typing import List, Dict, Optional
 import logging
 
 # Internal imports
-from ai_training_pipeline import AITrainingPipeline, PipelineConfig, TrainingMetrics
+from ai_training_pipeline import AITrainingPipeline, PipelineConfig, TrainingMetrics, create_default_pipeline
 from model_registry import save_model, load_model, checkpoint_path, get_checkpoint_dir
 from device_classifiers import DeviceTypeClassifier, TaskClassifier, HealthClassifier
 
@@ -200,22 +200,37 @@ class ContinuousLearner:
         else:
             logger.info("Candidate model failed to improve. Discarding.")
 
-def run_continuous_learning_loop(interval_seconds=60):
+def run_continuous_learning_loop(interval_seconds=60, max_cycles=None):
     """Main loop process."""
     learner = ContinuousLearner()
     print("Continuous Learning Engine Online.")
     print("Watching for device feedback streams...")
     
+    cycles = 0
     try:
         while True:
+            if max_cycles is not None and cycles >= max_cycles:
+                print(f"Completed {max_cycles} cycles. Exiting.")
+                break
+                
             new_files = learner.scan_for_feedback()
             if new_files:
                 learner.ingest_and_evaluate(new_files)
-            time.sleep(interval_seconds)
+            
+            cycles += 1
+            if max_cycles is None or cycles < max_cycles:
+                time.sleep(interval_seconds)
+            
     except KeyboardInterrupt:
         print("Shutting down Continuous Learning Engine.")
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cycles", type=int, default=None, help="Number of cycles to run (default: infinite)")
+    parser.add_argument("--interval", type=int, default=5, help="Seconds between checks")
+    args = parser.parse_args()
+
     # Create dummy incoming data for demonstration if empty
     incoming = "data/incoming"
     if not os.path.exists(incoming):
@@ -234,4 +249,4 @@ if __name__ == "__main__":
         with open(dummy_packet, 'w') as f:
             json.dump(data, f)
             
-    run_continuous_learning_loop(interval_seconds=5)
+    run_continuous_learning_loop(interval_seconds=args.interval, max_cycles=args.cycles)
