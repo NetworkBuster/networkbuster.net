@@ -122,6 +122,8 @@ For creating a full installer with NSIS:
 3. Run: `makensis installer_script.nsi`
 4. Distribute the `SoftwareDistributor_Setup.exe`
 
+**Local installer bundle:** A local installer bundle was generated and added to the repository at `installers/SoftwareDistributor_bundle.zip`. It contains `SoftwareDistributor.exe` and `installer_script.nsi` so you can distribute the bundle directly or extract and run `makensis installer_script.nsi` inside the `installers/` folder to produce the final NSIS installer.
+
 ## Distribution Workflow
 
 ### For Software Publishers:

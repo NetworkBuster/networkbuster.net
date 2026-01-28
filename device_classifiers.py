@@ -41,13 +41,28 @@ class DeviceTypeClassifier:
         return {"accuracy": acc, "precision": precision, "recall": recall, "f1": f1}
 
     def save(self, path: str):
-        os.makedirs(os.path.dirname(path) or '.', exist_ok=True)
-        joblib.dump(self.model, path)
+        # Use model_registry as the canonical saver when possible
+        from model_registry import save_model
+        if path is None:
+            path = save_model('device_type_classifier', self.model)
+        else:
+            os.makedirs(os.path.dirname(path) or '.', exist_ok=True)
+            joblib.dump(self.model, path)
         print(f"Saved DeviceTypeClassifier to {path}")
 
-    def load(self, path: str):
-        self.model = joblib.load(path)
-        print(f"Loaded DeviceTypeClassifier from {path}")
+    def load(self, path: str = None):
+        # Use model_registry as the canonical loader when possible
+        from model_registry import load_model
+        try:
+            if path is None:
+                self.model = load_model('device_type_classifier')
+                print(f"Loaded DeviceTypeClassifier from registry checkpoint")
+            else:
+                self.model = joblib.load(path)
+                print(f"Loaded DeviceTypeClassifier from {path}")
+        except FileNotFoundError:
+            print("No checkpoint found for DeviceTypeClassifier")
+
 
 
 class TaskClassifier:
@@ -72,13 +87,25 @@ class TaskClassifier:
         return {"accuracy": acc, "precision": precision, "recall": recall, "f1": f1}
 
     def save(self, path: str):
-        os.makedirs(os.path.dirname(path) or '.', exist_ok=True)
-        joblib.dump(self.model, path)
+        from model_registry import save_model
+        if path is None:
+            path = save_model('task_classifier', self.model)
+        else:
+            os.makedirs(os.path.dirname(path) or '.', exist_ok=True)
+            joblib.dump(self.model, path)
         print(f"Saved TaskClassifier to {path}")
 
-    def load(self, path: str):
-        self.model = joblib.load(path)
-        print(f"Loaded TaskClassifier from {path}")
+    def load(self, path: str = None):
+        from model_registry import load_model
+        try:
+            if path is None:
+                self.model = load_model('task_classifier')
+                print(f"Loaded TaskClassifier from registry checkpoint")
+            else:
+                self.model = joblib.load(path)
+                print(f"Loaded TaskClassifier from {path}")
+        except FileNotFoundError:
+            print("No checkpoint found for TaskClassifier")
 
 
 class HealthClassifier:
@@ -103,13 +130,25 @@ class HealthClassifier:
         return self.model.predict(X)
 
     def save(self, path: str):
-        os.makedirs(os.path.dirname(path) or '.', exist_ok=True)
-        joblib.dump(self.model, path)
+        from model_registry import save_model
+        if path is None:
+            path = save_model('health_classifier', self.model)
+        else:
+            os.makedirs(os.path.dirname(path) or '.', exist_ok=True)
+            joblib.dump(self.model, path)
         print(f"Saved HealthClassifier to {path}")
 
-    def load(self, path: str):
-        self.model = joblib.load(path)
-        print(f"Loaded HealthClassifier from {path}")
+    def load(self, path: str = None):
+        from model_registry import load_model
+        try:
+            if path is None:
+                self.model = load_model('health_classifier')
+                print(f"Loaded HealthClassifier from registry checkpoint")
+            else:
+                self.model = joblib.load(path)
+                print(f"Loaded HealthClassifier from {path}")
+        except FileNotFoundError:
+            print("No checkpoint found for HealthClassifier")
 
 
 # Helper utilities
@@ -154,3 +193,10 @@ def device_model_builder_for_pipeline(config: PipelineConfig, task: str = "devic
     This function is intentionally simple: it returns a dict describing the classifier.
     """
     return {"task": task, "framework": config.framework, "status": "stub"}
+
+
+# Convenience function to restore all known models from the registry
+def restore_all_from_registry():
+    from model_registry import restore_all_models
+    names = ['device_type_classifier', 'task_classifier', 'health_classifier']
+    return restore_all_models(names)
