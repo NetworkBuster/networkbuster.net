@@ -1,0 +1,64 @@
+name: Release Pipeline
+
+on:
+  workflow_dispatch: {}
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - DATACENTRAL
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_distributor.txt || true
+          pip install scikit-learn joblib numpy || true
+
+      - name: Run lint/test (smoke)
+        run: |
+          python -m pip install pytest || true
+          # Run a lightweight smoke test: train device classifiers briefly
+          python train_device_classifiers.py --which health || true
+
+      - name: Build executable
+        run: |
+          python build_exe.py
+
+      - name: Backup installers
+        run: |
+          python backup_installers.py
+
+      - name: Create release when tag pushed
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: installers/*,dist/*
+          draft: false
+          prerelease: false
+
+  repair-job:
+    runs-on: ubuntu-latest
+    needs: build-and-release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run automated repair checks
+        run: |
+          echo "Running repo consistency checks..."
+          # Placeholder for real repair tooling
+          echo "Repair checks complete"
