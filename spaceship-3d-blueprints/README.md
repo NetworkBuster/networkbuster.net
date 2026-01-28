@@ -254,14 +254,46 @@ Active Services   Real-time Edge    Archive/Backup
 
 ## 📄 License & Usage
 
+### Patent Protection
+
+**PATENT PENDING:** The NetworkBuster Space Infrastructure designs and systems described in these blueprints are protected by patent applications filed January 28, 2026. See [PATENT.md](../PATENT.md) for complete patent information.
+
+**Patent Application:** PCT/US2026/XXXXX  
+**Status:** Filed and Pending  
+**Coverage:** System architecture, structural designs, thermal management, ISRU integration, and network topology
+
+### Usage Rights
+
 These blueprints are provided for:
 - ✅ Educational purposes
 - ✅ Research and development
 - ✅ Personal 3D printing/modeling
+- ✅ Academic study and analysis
 - ❌ Commercial reproduction without license
+- ❌ Manufacturing or construction without authorization
 - ❌ Unauthorized construction attempts 😄
 
-**Copyright © 2026 NetworkBuster Space Division**
+### Non-Reproduction Rights Grant
+
+**DataCentral Cloud LLC** has been granted non-reproduction rights as specified in the [LICENSE](../LICENSE) file. This allows DataCentral Cloud to:
+- Review blueprints for technical evaluation
+- Reference designs in internal planning documents
+- Conduct feasibility studies and cost analysis
+
+But explicitly EXCLUDES:
+- Commercial reproduction of designs
+- Manufacturing or construction based on blueprints
+- Distribution or sublicensing to third parties
+
+### Commercial Licensing
+
+For commercial licensing, manufacturing rights, or partnership opportunities:
+- **Email:** licensing@networkbuster.net
+- **Legal:** legal@networkbuster.net
+- **Website:** https://networkbuster.net/patents
+
+**Copyright © 2026 NetworkBuster Space Division**  
+**Patent Pending - All Rights Reserved**
 
 ---
 

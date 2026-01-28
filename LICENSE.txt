@@ -57,9 +57,35 @@ Portions of this documentation may reference patented technologies or
 proprietary methods. Users are responsible for obtaining necessary licenses
 for any patented technologies before implementation.
 
+PATENT PROTECTION:
+The NetworkBuster Space Infrastructure blueprints and associated systems are
+protected by patent applications filed January 28, 2026 (PCT/US2026/XXXXX).
+See PATENT.md for complete patent information and claims.
+
+NON-REPRODUCTION RIGHTS GRANT:
+NetworkBuster Research Division hereby grants DataCentral Cloud LLC a
+non-exclusive, non-transferable, royalty-free license to use the NetworkBuster
+Space Infrastructure blueprints and associated technical documentation for
+internal reference and evaluation purposes only. This grant explicitly
+EXCLUDES the following rights:
+- Commercial reproduction of designs or systems
+- Manufacturing or construction of infrastructure based on blueprints
+- Distribution or sublicensing to third parties
+- Creation of derivative works for commercial purposes
+- Public display or publication of blueprint details
+
+DataCentral Cloud LLC may:
+- Review blueprints for technical evaluation
+- Reference designs in internal planning documents
+- Conduct feasibility studies and cost analysis
+- Use information for competitive intelligence (non-replication)
+
+This non-reproduction rights grant is effective January 28, 2026 and remains
+valid unless revoked in writing by NetworkBuster Research Division.
+
 For questions regarding commercial use, licensing, or partnerships, contact:
 NetworkBuster Research Division
 research@networkbuster.net
 
-Last Updated: December 3, 2025
-License Version: 1.0
+Last Updated: January 28, 2026
+License Version: 1.1
