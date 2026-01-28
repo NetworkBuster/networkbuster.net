@@ -1,0 +1,73 @@
+{
+    "generatedAt": "2024-12-24T19:27:00Z",
+    "repository": "NetworkBuster/networkbuster.net",
+    "branches": [
+        {
+            "name": "bigtree",
+            "type": "default",
+            "status": "active",
+            "isHead": true,
+            "remote": "origin/bigtree"
+        },
+        {
+            "name": "main",
+            "type": "production",
+            "status": "stable",
+            "remote": "origin/main"
+        },
+        {
+            "name": "DATACENTRAL",
+            "type": "feature",
+            "status": "active",
+            "remote": "origin/DATACENTRAL"
+        },
+        {
+            "name": "ci/build-apk",
+            "type": "ci",
+            "status": "automated",
+            "remote": "origin/ci/build-apk"
+        },
+        {
+            "name": "copilot/check-processing-engine-status",
+            "type": "copilot",
+            "status": "automated",
+            "remote": "origin/copilot/check-processing-engine-status"
+        },
+        {
+            "name": "copilot/fix-issue-with-attachments",
+            "type": "copilot",
+            "status": "automated",
+            "remote": "origin/copilot/fix-issue-with-attachments"
+        },
+        {
+            "name": "copilot/learn-vercel-deployment",
+            "type": "copilot",
+            "status": "automated",
+            "remote": "origin/copilot/learn-vercel-deployment"
+        },
+        {
+            "name": "copilot/push-datacentra-upstream",
+            "type": "copilot",
+            "status": "automated",
+            "remote": "origin/copilot/push-datacentra-upstream"
+        },
+        {
+            "name": "copilot/push-to-datacentra",
+            "type": "copilot",
+            "status": "automated",
+            "remote": "origin/copilot/push-to-datacentra"
+        }
+    ],
+    "users": {
+        "cadil": {
+            "logPath": "G:\\cadil\\logs",
+            "programs": [
+                "update-wsl.ps1",
+                "scheduled-tasks"
+            ]
+        }
+    },
+    "totalBranches": 9,
+    "activeBranches": 3,
+    "copilotBranches": 5
+}
