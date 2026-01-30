@@ -33,9 +33,16 @@
     "start:api:universal": "node api/server-universal.js",
     "start:auth": "node auth-ui/v750/server.js",
     "dev": "node --watch server.js",
+<<<<<<< HEAD
     "dev:audio": "node --watch server-audio.js",
     "dev:auth": "node --watch auth-ui/v750/server.js",
     "dev:local": "powershell -ExecutionPolicy Bypass -File start-local-dev.ps1",
+=======
+    "proxy:3000": "PROXY_PORT=3000 node proxy-server.js",
+    "proxy:8080": "PROXY_PORT=8080 node proxy-server.js",
+    "proxy": "PROXY_PORT=3000 node proxy-server.js",
+    "all": "concurrently \"npm start\" \"npm run proxy:3000\"",
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
     "build": "npm install",
     "test": "echo 'No tests specified'",
     "docker:build": "docker build -t networkbuster:latest .",
@@ -88,11 +95,17 @@
   },
   "dependencies": {
     "express": "^5.2.1",
+<<<<<<< HEAD
     "compression": "^1.7.4",
     "helmet": "^7.1.0"
   },
   "devDependencies": {
     "vercel": "^50.1.0"
+=======
+    "http-proxy": "^1.18.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
   },
   "files": [
     "server.js",
@@ -106,5 +119,9 @@
   "preferGlobal": false,
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.2",
+    "vite": "^7.2.7"
   }
 }

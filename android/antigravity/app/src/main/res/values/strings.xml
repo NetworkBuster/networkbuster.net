@@ -1,0 +1,5 @@
+<resources>
+  <string name="app_name">Antigravity</string>
+  <string name="hello_world">Hello from Antigravity</string>
+  <string name="open_settings">Open settings</string>
+</resources>

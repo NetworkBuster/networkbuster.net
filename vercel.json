@@ -38,8 +38,12 @@
   ],
   "rewrites": [
     {
-      "source": "/:path*",
-      "destination": "/index.html"
+      "source": "/api/(.*)",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/health",
+      "destination": "/server.js"
     }
   ]
 }

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetworkBuster AI - Conversation History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header {
+            border-bottom: 2px solid rgba(168, 85, 247, 0.3);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #e9d5ff;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #a5b4fc;
+            font-size: 14px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(30, 58, 138, 0.3);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .stat-label {
+            color: #93c5fd;
+            font-size: 12px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .stat-value {
+            color: #e2e8f0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .filters {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(88, 28, 135, 0.3);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #e9d5ff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(168, 85, 247, 0.4);
+        }
+        
+        .filter-btn.active {
+            background: rgba(168, 85, 247, 0.6);
+            border-color: #a855f7;
+        }
+        
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .conversation-item {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(88, 28, 135, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .conversation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+        }
+        
+        .timestamp {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        .session-badge {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        
+        .question {
+            margin-bottom: 15px;
+        }
+        
+        .question-label {
+            color: #3b82f6;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .question-content {
+            background: rgba(30, 58, 138, 0.3);
+            border-left: 3px solid #3b82f6;
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .answer-label {
+            color: #a855f7;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .answer-content {
+            background: rgba(88, 28, 135, 0.3);
+            border-left: 3px solid #a855f7;
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .answer-content code {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #22d3ee;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .no-conversations {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+        }
+        
+        #searchInput {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 2px solid rgba(126, 34, 206, 0.3);
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        #searchInput:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+        }
+        
+        .export-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #7e22ce 0%, #581c87 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .export-btn:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+            box-shadow: 0 5px 20px rgba(168, 85, 247, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💬 Conversation History</h1>
+            <p>Complete archive of all AI interactions with context and answers</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Exchanges</div>
+                <div class="stat-value" id="totalConversations">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Today's Conversations</div>
+                <div class="stat-value" id="todayConversations">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Sessions</div>
+                <div class="stat-value" id="activeSessions">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Last Updated</div>
+                <div class="stat-value" id="lastUpdated" style="font-size: 16px;">--:--</div>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Search conversations..." />
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All Conversations</button>
+            <button class="filter-btn" data-filter="today">Today</button>
+            <button class="filter-btn" data-filter="week">This Week</button>
+            <button class="export-btn" onclick="exportConversations()">📥 Export JSON</button>
+        </div>
+        
+        <div class="conversation-list" id="conversationList">
+            <div class="no-conversations">
+                <h3>No conversations yet</h3>
+                <p>Start chatting with NetworkBuster AI to see your conversation history here.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let allConversations = [];
+        let filteredConversations = [];
+        
+        async function loadConversations() {
+            try {
+                const response = await fetch('/api/nbai/conversations');
+                const data = await response.json();
+                
+                if (data.conversations) {
+                    allConversations = data.conversations;
+                    filteredConversations = allConversations;
+                    
+                    // Update stats
+                    document.getElementById('totalConversations').textContent = data.total_count || 0;
+                    document.getElementById('todayConversations').textContent = data.today_count || 0;
+                    document.getElementById('activeSessions').textContent = data.session_count || 0;
+                    document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+                    
+                    renderConversations();
+                }
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+            }
+        }
+        
+        function renderConversations() {
+            const listContainer = document.getElementById('conversationList');
+            
+            if (filteredConversations.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="no-conversations">
+                        <h3>No conversations found</h3>
+                        <p>Try adjusting your filters or start a new conversation.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            listContainer.innerHTML = filteredConversations.map((conv, index) => `
+                <div class="conversation-item">
+                    <div class="conversation-header">
+                        <span class="timestamp">🕐 ${new Date(conv.timestamp).toLocaleString()}</span>
+                        <span class="session-badge">📅 ${conv.session}</span>
+                    </div>
+                    <div class="question">
+                        <div class="question-label">
+                            <span>👤 You asked:</span>
+                        </div>
+                        <div class="question-content">${escapeHtml(conv.user_message)}</div>
+                    </div>
+                    <div class="answer">
+                        <div class="answer-label">
+                            <span>🤖 NetworkBuster AI responded:</span>
+                        </div>
+                        <div class="answer-content">${conv.ai_response}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function filterConversations(filter) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            if (filter === 'all') {
+                filteredConversations = allConversations;
+            } else if (filter === 'today') {
+                filteredConversations = allConversations.filter(conv => {
+                    const convDate = new Date(conv.timestamp);
+                    return convDate >= today;
+                });
+            } else if (filter === 'week') {
+                filteredConversations = allConversations.filter(conv => {
+                    const convDate = new Date(conv.timestamp);
+                    return convDate >= weekAgo;
+                });
+            }
+            
+            renderConversations();
+        }
+        
+        function searchConversations(query) {
+            if (!query) {
+                filteredConversations = allConversations;
+            } else {
+                const lowerQuery = query.toLowerCase();
+                filteredConversations = allConversations.filter(conv => 
+                    conv.user_message.toLowerCase().includes(lowerQuery) ||
+                    conv.ai_response.toLowerCase().includes(lowerQuery)
+                );
+            }
+            renderConversations();
+        }
+        
+        function exportConversations() {
+            const dataStr = JSON.stringify({
+                exported: new Date().toISOString(),
+                total_conversations: allConversations.length,
+                conversations: allConversations
+            }, null, 2);
+            
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `networkbuster-conversations-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+        
+        // Event listeners
+        document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterConversations(this.dataset.filter);
+            });
+        });
+        
+        document.getElementById('searchInput').addEventListener('input', function() {
+            searchConversations(this.value);
+        });
+        
+        // Initial load
+        loadConversations();
+        
+        // Auto-refresh every 10 seconds
+        setInterval(loadConversations, 10000);
+    </script>
+</body>
+</html>

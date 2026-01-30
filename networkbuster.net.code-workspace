@@ -2,6 +2,7 @@
 	"folders": [
 		{
 			"path": "."
+<<<<<<< HEAD
 		},
 		{
 			"path": "F:/FileHistory"
@@ -22,4 +23,9 @@
 	"settings": {
 		"powershell.cwd": "FileHistory"
 	}
+=======
+		}
+	],
+	"settings": {}
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
 }

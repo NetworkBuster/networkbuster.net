@@ -1,0 +1,7 @@
+flowchart LR
+  A[Raw Data (csv/md)] --> B[transform-recycling-data.ps1]
+  B --> C[data/recycling.jsonl]
+  C --> D[Fine-tune / prompt examples]
+  D --> E[Model artifact]
+  E --> F[Deployed AI Client]
+  F -->|used by| G[/api/recycle/recommend]

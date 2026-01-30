@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>NetworkBuster Thumbnail Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            margin-bottom: 30px;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .thumb-link {
+            display: block;
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid #00ff00;
+            text-decoration: none;
+            color: #00ff00;
+            transition: all 0.3s;
+        }
+        .thumb-link:hover {
+            background: rgba(0, 255, 0, 0.2);
+            transform: scale(1.05);
+        }
+        .thumb-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .thumb-name {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌐 NetworkBuster Thumbnail Gallery</h1>
+        <p>Extracted Network Device Thumbnails</p>
+        <p>Generated: 2026-01-03 07:16:30</p>
+    </div>
+    <div class="gallery">
+        <a href="workstation.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">🖥️</div>
+            <div class="thumb-name">Primary Workstation</div>
+        </a>
+        <a href="router-wifi7.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">🌐</div>
+            <div class="thumb-name">WiFi 7 Mesh Router</div>
+        </a>
+        <a href="router-networkbuster.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">🔧</div>
+            <div class="thumb-name">NetworkBuster Router</div>
+        </a>
+        <a href="mesh-node-1.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">📡</div>
+            <div class="thumb-name">Mesh Node Alpha</div>
+        </a>
+        <a href="mesh-node-2.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">📡</div>
+            <div class="thumb-name">Mesh Node Beta</div>
+        </a>
+        <a href="mesh-node-3.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">📡</div>
+            <div class="thumb-name">Mesh Node Gamma</div>
+        </a>
+        <a href="service-web.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">⚡</div>
+            <div class="thumb-name">Web Server (3000)</div>
+        </a>
+        <a href="service-api.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">⚡</div>
+            <div class="thumb-name">API Server (3001)</div>
+        </a>
+        <a href="service-audio.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">⚡</div>
+            <div class="thumb-name">Audio Stream (3002)</div>
+        </a>
+        <a href="service-mission.html" class="thumb-link" target="_blank">
+            <div class="thumb-icon">⚡</div>
+            <div class="thumb-name">Mission Control (5000)</div>
+        </a>
+    </div>
+</body>
+</html>

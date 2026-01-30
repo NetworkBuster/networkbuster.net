@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="180" viewBox="0 0 820 180">
+  <style>.box{fill:#f0fdf4;stroke:#065f46;stroke-width:1.2}.label{font:13px sans-serif;fill:#064e3b}.small{font:11px sans-serif;fill:#065f46}</style>
+  <rect x="20" y="30" width="140" height="40" rx="6" class="box" />
+  <text x="90" y="55" text-anchor="middle" class="label">Raw data</text>
+
+  <rect x="190" y="30" width="180" height="40" rx="6" class="box" />
+  <text x="280" y="55" text-anchor="middle" class="label">transform-recycling-data.ps1</text>
+
+  <rect x="410" y="30" width="160" height="40" rx="6" class="box" />
+  <text x="490" y="55" text-anchor="middle" class="label">data/recycling.jsonl</text>
+
+  <rect x="600" y="30" width="160" height="40" rx="6" class="box" />
+  <text x="680" y="55" text-anchor="middle" class="label">Training / Fine-tune</text>
+
+  <path d="M160 50 L190 50" stroke="#065f46" stroke-width="1.2" marker-end="url(#a)" />
+  <path d="M370 50 L410 50" stroke="#065f46" stroke-width="1.2" marker-end="url(#a)" />
+  <path d="M570 50 L600 50" stroke="#065f46" stroke-width="1.2" marker-end="url(#a)" />
+  <defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#065f46"/></marker></defs>
+
+  <rect x="20" y="110" width="740" height="40" rx="6" fill="#fff7ed" stroke="#92400e" />
+  <text x="40" y="135" class="small">Artifacts: JSONL -> model -> deployed AI client used by /api/recycle/recommend</text>
+</svg>

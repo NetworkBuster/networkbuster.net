@@ -1,0 +1,10 @@
+# List of .git and git-related files
+
+.gitignore
+.github/workflows/sync-branches.yml
+.github/workflows/push-datacentra.yml
+.github/workflows/deploy.yml
+.github/workflows/deploy-azure.yml
+.github/README.md
+.github/deployment.config.json
+# (Add more as needed)

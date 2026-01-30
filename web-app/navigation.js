@@ -5,7 +5,11 @@
  */
 
 const SITE_CONFIG = {
+<<<<<<< HEAD
   baseUrl: 'http://localhost:3000',
+=======
+  baseUrl: 'https://networkbuster.net',
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
   localUrl: 'http://localhost:3000',
   name: 'NetworkBuster',
   version: '1.0.1'
@@ -29,10 +33,13 @@ const NAVIGATION = {
     blog: { path: '/blog/', label: 'Blog', icon: '📝' },
     authUI: { path: '/auth/', label: 'Auth Portal', icon: '🔐', port: 3003 },
     audioLab: { path: '/audio-lab', label: 'Audio Lab', icon: '🎵', port: 3002 },
+<<<<<<< HEAD
     flashUSB: { path: '/', label: 'Flash Upgrade', icon: '⚡', port: 3004 },
     chatbot: { path: '/api/chat/health', label: 'Chatbot AI', icon: '🤖', port: 3005 },
     security: { path: '/api/security/status', label: 'Security Monitor', icon: '🛡️', port: 3006 },
     timeline: { path: '/api/timeline/present', label: 'Timeline Tracker', icon: '⏰', port: 3007 },
+=======
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
     controlPanel: { path: '/control-panel', label: 'Control Panel', icon: '🎛️', port: 3000 },
     overlay: { path: '/overlay/', label: 'AI World Overlay', icon: '🌐' }
   },
@@ -52,7 +59,10 @@ const NAVIGATION = {
   lunar: {
     calculator: { path: '/#calculator', label: 'Calculator', icon: '🧮' },
     data: { path: '/#data', label: 'Data Center', icon: '💾' },
+<<<<<<< HEAD
     serverscramble: { path: '/serverscramble/', label: 'Server Scramble', icon: '⚡' },
+=======
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
     flashCommands: { path: '/flash-commands.html', label: 'Flash Commands', icon: '⚡' }
   },
 

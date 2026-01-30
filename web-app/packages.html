@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+<<<<<<< HEAD
 
+=======
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +11,7 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         :root {
+<<<<<<< HEAD
             --card-bg: rgba(255, 255, 255, 0.03);
             --card-border: rgba(255, 255, 255, 0.08);
         }
@@ -169,6 +173,30 @@
         <h1>Packages</h1>
         <p class="lead">Installers and manifests for every platform we ship. Use these links to reach the package
             recipes and manifests stored in the repo.</p>
+=======
+            --card-bg: rgba(255,255,255,0.03);
+            --card-border: rgba(255,255,255,0.08);
+        }
+        body { padding: 0; margin: 0; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: #050b14; color: #e9f2ff; }
+        .page { max-width: 1200px; margin: 0 auto; padding: 40px 20px 60px; }
+        h1 { margin: 0 0 12px 0; font-size: 32px; letter-spacing: 0.3px; }
+        p.lead { color: #9bb3d6; margin: 0 0 24px 0; max-width: 820px; }
+        .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; backdrop-filter: blur(6px); }
+        .card h3 { margin: 0 0 6px 0; font-size: 18px; }
+        .card p { margin: 0 0 10px 0; color: #a8bedf; min-height: 48px; }
+        .meta { font-size: 12px; color: #7f94b6; margin-bottom: 8px; }
+        .link-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .link-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--card-border); color: #e9f2ff; text-decoration: none; font-weight: 600; background: rgba(255,255,255,0.04); transition: transform 0.12s ease; }
+        .link-btn:hover { transform: translateY(-1px); border-color: rgba(88,213,255,0.6); color: #58d5ff; }
+        .badge { padding: 3px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; background: rgba(88,213,255,0.14); color: #58d5ff; border: 1px solid rgba(88,213,255,0.4); }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <h1>Packages</h1>
+        <p class="lead">Installers and manifests for every platform we ship. Use these links to reach the package recipes and manifests stored in the repo.</p>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
 
         <div class="grid">
             <div class="card" id="appimage">
@@ -177,12 +205,17 @@
                 <p>Self-contained Linux AppImage build script.</p>
                 <div class="meta">Path: packages/appimage/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/appimage">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/appimage/build-appimage.sh">Build
                         script</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/appimage">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/appimage/build-appimage.sh">Build script</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -192,11 +225,16 @@
                 <p>Arch Linux PKGBUILD recipe for NetworkBuster.</p>
                 <div class="meta">Path: packages/aur/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/aur">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/aur/PKGBUILD">PKGBUILD</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/aur">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/aur/PKGBUILD">PKGBUILD</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -206,6 +244,7 @@
                 <p>Chocolatey nuspec and install/uninstall scripts.</p>
                 <div class="meta">Path: packages/chocolatey/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/chocolatey">Repo
                         folder</a>
@@ -214,6 +253,11 @@
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/chocolatey/tools/chocolateyInstall.ps1">Install
                         script</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/chocolatey">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/chocolatey/networkbuster.nuspec">nuspec</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/chocolatey/tools/chocolateyInstall.ps1">Install script</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -223,11 +267,16 @@
                 <p>Debian control files for building .deb packages.</p>
                 <div class="meta">Path: packages/deb/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/deb">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/deb/control">control</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/deb">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/deb/control">control</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -237,11 +286,16 @@
                 <p>Docker registry configuration and sample image settings.</p>
                 <div class="meta">Path: packages/docker/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/docker">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/docker/config.json">config.json</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/docker">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/docker/config.json">config.json</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -251,11 +305,16 @@
                 <p>Flatpak manifest for sandboxed desktop builds.</p>
                 <div class="meta">Path: packages/flatpak/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/flatpak">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/flatpak/net.networkbuster.Server.json">Manifest</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/flatpak">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/flatpak/net.networkbuster.Server.json">Manifest</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -265,11 +324,16 @@
                 <p>Makefile and rc script for FreeBSD packaging.</p>
                 <div class="meta">Path: packages/freebsd/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/freebsd">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/freebsd/Makefile">Makefile</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/freebsd">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/freebsd/Makefile">Makefile</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -279,11 +343,16 @@
                 <p>Homebrew formula for macOS installs.</p>
                 <div class="meta">Path: packages/homebrew/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/homebrew">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/homebrew/networkbuster.rb">Formula</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/homebrew">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/homebrew/networkbuster.rb">Formula</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -293,11 +362,16 @@
                 <p>Launchd plist for running the server as a macOS service.</p>
                 <div class="meta">Path: packages/macos/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/macos">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/macos/com.networkbuster.plist">plist</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/macos">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/macos/com.networkbuster.plist">plist</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -307,12 +381,17 @@
                 <p>Spec file for RPM-based distributions.</p>
                 <div class="meta">Path: packages/rpm/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/rpm">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/rpm/networkbuster.spec">Spec
                         file</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/rpm">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/rpm/networkbuster.spec">Spec file</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -322,11 +401,16 @@
                 <p>Snapcraft recipe for building snaps.</p>
                 <div class="meta">Path: packages/snap/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/snap">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/snap/snapcraft.yaml">snapcraft.yaml</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/snap">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/snap/snapcraft.yaml">snapcraft.yaml</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
 
@@ -336,15 +420,24 @@
                 <p>Winget manifest for Windows package manager.</p>
                 <div class="meta">Path: packages/winget/</div>
                 <div class="link-row">
+<<<<<<< HEAD
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/winget">Repo
                         folder</a>
                     <a class="link-btn"
                         href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/winget/NetworkBuster.NetworkBuster.yaml">Manifest</a>
+=======
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/tree/bigtree/packages/winget">Repo folder</a>
+                    <a class="link-btn" href="https://github.com/NetworkBuster/networkbuster.net/blob/bigtree/packages/winget/NetworkBuster.NetworkBuster.yaml">Manifest</a>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
                 </div>
             </div>
         </div>
     </div>
 </body>
+<<<<<<< HEAD
 
 </html>
+=======
+</html>
+>>>>>>> ea2e95d829f48271cc22401b9ead352fbc794d1d
