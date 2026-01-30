@@ -1,28 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NetworkBuster Lunar Recycling System - Comprehensive documentation and technical specifications for lunar waste management">
+    <meta name="description"
+        content="NetworkBuster Lunar Recycling System - Comprehensive documentation and technical specifications for lunar waste management">
     <meta name="keywords" content="lunar recycling, space technology, NLRS, waste management, moon base">
     <title>NetworkBuster Lunar Recycling System - Documentation Hub</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="chatbot.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <div class="background-animation"></div>
-    
+
     <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="logo-section">
                 <div class="logo-icon">🌙</div>
                 <div class="logo-text">
-                    <h1>NetworkBuster</h1>
-                    <p>Lunar Recycling System</p>
+                    <a href="/" style="text-decoration: none; color: inherit;">
+                        <h1>NetworkBuster</h1>
+                        <p>Lunar Recycling System</p>
+                    </a>
                 </div>
             </div>
             <nav class="main-nav">
@@ -32,33 +39,45 @@
                 <a href="/projects.html" class="nav-link">🚀 Projects</a>
                 <a href="/technology.html" class="nav-link">⚡ Technology</a>
                 <a href="/documentation.html" class="nav-link">📖 Docs</a>
-                <button id="toggle-netbot" class="nav-link" style="margin-left:16px;cursor:pointer;background:#0f3460;color:#fff;border:none;padding:8px 16px;border-radius:8px;">🤖 Net Bot: <span id="netbot-status">On</span></button>
-                
-                <!-- Apps Dropdown -->
+                <button id="toggle-netbot" class="nav-link"
+                    style="margin-left:16px;cursor:pointer;background:#0f3460;color:#fff;border:none;padding:8px 16px;border-radius:8px;">🤖
+                    Net Bot: <span id="netbot-status">On</span></button>
+
+                <!-- Apps Dropdown (Servers) -->
                 <div class="nav-dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">🎮 Apps ▼</a>
+                    <a href="#" class="nav-link dropdown-toggle">🎮 Servers ▼</a>
                     <div class="dropdown-menu">
-                        <a href="/dashboard/" class="dropdown-item">📊 Dashboard</a>
-                        <a href="/control-panel" class="dropdown-item">🎛️ Control Panel</a>
-                        <a href="/audio-lab" class="dropdown-item">🎵 Audio Lab</a>
-                        <a href="/auth/" class="dropdown-item">🔐 Auth Portal</a>
-                        <a href="/overlay/" class="dropdown-item">🌐 AI World</a>
+                        <a href="/dashboard/" class="dropdown-item">📊 Dashboard (3000)</a>
+                        <a href="http://localhost:3001/api/health" class="dropdown-item">⚙️ API Server (3001)</a>
+                        <a href="/audio-lab" class="dropdown-item">🎵 Audio Lab (3002)</a>
+                        <a href="/auth/" class="dropdown-item">🔐 Auth Portal (3003)</a>
+                        <a href="http://localhost:3004" class="dropdown-item">⚡ Flash Upgrade (3004)</a>
+                        <a href="http://localhost:3005/api/chat/health" class="dropdown-item">🤖 Chatbot AI (3005)</a>
+                        <a href="http://localhost:3006/api/security/status" class="dropdown-item">🛡️ Security Monitor
+                            (3006)</a>
+                        <a href="http://localhost:3007/api/timeline/present" class="dropdown-item">⏰ Timeline Tracker
+                            (3007)</a>
                     </div>
                 </div>
-                
+
                 <!-- Tools Dropdown -->
                 <div class="nav-dropdown">
                     <a href="#" class="nav-link dropdown-toggle">🛠️ Tools ▼</a>
                     <div class="dropdown-menu">
-                        <a href="#calculator" class="dropdown-item">🧮 Calculator</a>
-                        <a href="#data" class="dropdown-item">💾 Data Center</a>
-                        <a href="/flash-commands.html" class="dropdown-item">⚡ Flash Commands</a>
+                        <a href="/serverscramble/" class="dropdown-item">⚡ Server Scramble</a>
+                        <a href="/#calculator" class="dropdown-item">🧮 Calculator</a>
+                        <a href="/#data" class="dropdown-item">💾 Data Center</a>
+                        <a href="/flash-commands.html" class="dropdown-item">📜 Flash Commands</a>
                         <a href="/packages.html" class="dropdown-item">📦 Packages</a>
                         <a href="/hud.html" class="dropdown-item">🛰️ Function HUD</a>
+                        <a href="/overlay/" class="dropdown-item">🌐 AI World Overlay</a>
                         <a href="/blog/" class="dropdown-item">📝 Blog</a>
+                        <a href="javascript:void(0)"
+                            onclick="alert('Run [npm run bios:boot] in terminal to reboot to BIOS.')"
+                            class="dropdown-item">🔧 BIOS Utility</a>
                     </div>
                 </div>
-                
+
                 <a href="/contact.html" class="nav-link">✉️ Contact</a>
             </nav>
         </div>
@@ -68,9 +87,11 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h2 class="hero-title">Sustainable Recycling for<br><span class="gradient-text">Lunar Environments</span></h2>
+                <h2 class="hero-title">Sustainable Recycling for<br><span class="gradient-text">Lunar
+                        Environments</span></h2>
                 <p class="hero-description">
-                    The NetworkBuster Lunar Recycling System (NLRS) is an autonomous recycling platform designed specifically 
+                    The NetworkBuster Lunar Recycling System (NLRS) is an autonomous recycling platform designed
+                    specifically
                     for lunar surface operations, enabling sustainable waste management in the harshest environment.
                 </p>
                 <div class="hero-stats">
@@ -94,6 +115,136 @@
             </div>
         </div>
     </section>
+
+    <!-- System Pulse (Live API Integration) -->
+    <section id="pulse" class="section" style="padding: 40px 0; background: rgba(0,0,0,0.2);">
+        <div class="container">
+            <h2 class="section-title" style="margin-bottom: 30px;">System Pulse <span
+                    style="font-size: 0.9rem; font-weight: 400; color: var(--text-dim); text-transform: none; margin-left: 10px;">Live
+                    Server Monitoring</span></h2>
+            <div class="pulse-grid" id="pulse-grid">
+                <!-- Status cards will be injected by script.js -->
+                <div class="pulse-card loading" data-server="dashboard">
+                    <h3>Dashboard</h3>
+                    <div class="pulse-status">Checking...</div>
+                    <div class="pulse-port">3000</div>
+                </div>
+                <div class="pulse-card loading" data-server="api">
+                    <h3>API Server</h3>
+                    <div class="pulse-status">Checking...</div>
+                    <div class="pulse-port">3001</div>
+                </div>
+                <div class="pulse-card loading" data-server="audio">
+                    <h3>Audio Lab</h3>
+                    <div class="pulse-status">Checking...</div>
+                    <div class="pulse-port">3002</div>
+                </div>
+                <div class="pulse-card loading" data-server="auth">
+                    <h3>Auth Portal</h3>
+                    <div class="pulse-status">Checking...</div>
+                    <div class="pulse-port">3003</div>
+                </div>
+                <div class="pulse-card loading" data-server="flash">
+                    <h3>Flash Upgrade</h3>
+                    <div class="pulse-status">Checking...</div>
+                    <div class="pulse-port">3004</div>
+                </div>
+                <div class="pulse-card loading" data-server="bot">
+                    <h3>Chatbot AI</h3>
+                    <div class="pulse-status">Checking...</div>
+                    <div class="pulse-port">3005</div>
+                </div>
+                <div class="pulse-card loading" data-server="security">
+                    <h3>Security Monitor</h3>
+                    <div class="pulse-status">Checking...</div>
+                    <div class="pulse-port">3006</div>
+                </div>
+                <div class="pulse-card loading" data-server="timeline">
+                    <h3>Timeline Tracker</h3>
+                    <div class="pulse-status">Checking...</div>
+                    <div class="pulse-port">3007</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .pulse-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .pulse-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pulse-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+        }
+
+        .pulse-status {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .pulse-port {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            opacity: 0.7;
+        }
+
+        .pulse-card.online {
+            border-color: #22c55e;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
+        }
+
+        .pulse-card.online .pulse-status {
+            color: #22c55e;
+        }
+
+        .pulse-card.offline {
+            border-color: #ef4444;
+            opacity: 0.7;
+        }
+
+        .pulse-card.offline .pulse-status {
+            color: #ef4444;
+        }
+
+        .pulse-card.loading .pulse-status {
+            color: var(--text-dim);
+        }
+
+        .pulse-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--text-dim);
+        }
+
+        .pulse-card.online::after {
+            background: #22c55e;
+        }
+
+        .pulse-card.offline::after {
+            background: #ef4444;
+        }
+    </style>
 
     <!-- System Overview -->
     <section id="overview" class="section">
@@ -226,7 +377,8 @@
                         <div class="env-card">
                             <h4>Temperature Extremes</h4>
                             <p><strong>Challenge:</strong> -173°C to +127°C</p>
-                            <p><strong>Solution:</strong> MLI blankets, active thermal control, phase-change materials</p>
+                            <p><strong>Solution:</strong> MLI blankets, active thermal control, phase-change materials
+                            </p>
                         </div>
                         <div class="env-card">
                             <h4>Radiation Hardening</h4>
@@ -236,12 +388,14 @@
                         <div class="env-card">
                             <h4>Low Gravity</h4>
                             <p><strong>Challenge:</strong> 1.62 m/s² (1/6 g)</p>
-                            <p><strong>Solution:</strong> Adapted separation, magnetic manipulation, centrifugal force</p>
+                            <p><strong>Solution:</strong> Adapted separation, magnetic manipulation, centrifugal force
+                            </p>
                         </div>
                         <div class="env-card">
                             <h4>Lunar Dust</h4>
                             <p><strong>Challenge:</strong> Abrasive, clingy particles</p>
-                            <p><strong>Solution:</strong> Electrostatic repulsion, sealed mechanisms, self-cleaning optics</p>
+                            <p><strong>Solution:</strong> Electrostatic repulsion, sealed mechanisms, self-cleaning
+                                optics</p>
                         </div>
                         <div class="env-card">
                             <h4>Power Management</h4>
@@ -318,14 +472,16 @@
                     <div class="chart-container">
                         <canvas id="tempChart"></canvas>
                     </div>
-                    <p class="data-description">14-day lunar cycle showing extreme temperature variations from -173°C to +127°C</p>
+                    <p class="data-description">14-day lunar cycle showing extreme temperature variations from -173°C to
+                        +127°C</p>
                 </div>
                 <div class="data-card">
                     <h3>Power Generation</h3>
                     <div class="chart-container">
                         <canvas id="powerChart"></canvas>
                     </div>
-                    <p class="data-description">Solar power availability over lunar day/night cycle with battery backup</p>
+                    <p class="data-description">Solar power availability over lunar day/night cycle with battery backup
+                    </p>
                 </div>
                 <div class="data-card">
                     <h3>Processing Throughput</h3>
@@ -438,17 +594,17 @@
     <!-- Floating Documentation Button for quick access -->
     <a href="/documentation.html" id="floating-docs-btn" title="Open Documentation">📖 Docs</a>
 
-        <script src="script.js"></script>
-        <script src="chatbot.js"></script>
-        <script>
+    <script src="script.js"></script>
+    <script src="chatbot.js"></script>
+    <script>
         // Net Bot Toggle Button Logic
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const toggleBtn = document.getElementById('toggle-netbot');
             const netbotChat = document.getElementById('netbot-chat');
             const netbotStatus = document.getElementById('netbot-status');
             let netbotOn = true;
             if (toggleBtn && netbotChat) {
-                toggleBtn.addEventListener('click', function() {
+                toggleBtn.addEventListener('click', function () {
                     netbotOn = !netbotOn;
                     if (netbotOn) {
                         netbotChat.style.display = '';
@@ -464,6 +620,7 @@
         const style = document.createElement('style');
         style.innerHTML = `#floating-docs-btn { position: fixed; bottom: 100px; right: 30px; background: #6366f1; color: #fff; padding: 14px 22px; border-radius: 50px; box-shadow: 0 4px 16px rgba(99,102,241,0.2); font-size: 1.2rem; z-index: 10001; text-decoration: none; transition: background 0.2s; } #floating-docs-btn:hover { background: #4f46e5; }`;
         document.head.appendChild(style);
-        </script>
+    </script>
 </body>
+
 </html>

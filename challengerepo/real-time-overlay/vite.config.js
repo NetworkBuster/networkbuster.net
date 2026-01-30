@@ -5,6 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
     plugins: [react()],
     base: '/overlay/',
+    resolve: {
+        alias: {
+            'hls.js': 'hls.js/dist/hls.js'
+        }
+    },
     build: {
         outDir: 'dist',
         assetsDir: 'assets',

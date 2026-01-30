@@ -139,11 +139,37 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === current) {
-                link.classList.add('active');
+            if (link.getAttribute('href').startsWith('#')) {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === current) {
+                    link.classList.add('active');
+                }
             }
         });
+    });
+
+    // Highlight active nav link based on current path
+    const currentPath = window.location.pathname;
+    const allLinks = document.querySelectorAll('.nav-link, .dropdown-item');
+    allLinks.forEach(link => {
+        const h = link.getAttribute('href');
+        if (!h) return;
+
+        // Clean paths for comparison
+        const linkPath = h.split('#')[0].split('?')[0];
+        const normalizedPath = currentPath === '/' ? '/index.html' : currentPath;
+        const normalizedLink = linkPath === '/' ? '/index.html' : linkPath;
+
+        if (normalizedPath === normalizedLink || normalizedPath.endsWith(normalizedLink)) {
+            if (!h.startsWith('#')) {
+                link.classList.add('active');
+                const parentDropdown = link.closest('.nav-dropdown');
+                if (parentDropdown) {
+                    const toggle = parentDropdown.querySelector('.dropdown-toggle');
+                    if (toggle) toggle.classList.add('active');
+                }
+            }
+        }
     });
 
     // Architecture card interactions
@@ -158,7 +184,111 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize charts (simple placeholders)
     initializeCharts();
+
+    // Start Live Pulse Monitoring
+    if (document.getElementById('pulse-grid')) {
+        updateAllServerStatuses();
+        setInterval(updateAllServerStatuses, 30000); // Update every 30 seconds
+    }
 });
+
+const SERVER_MAP = {
+    dashboard: { name: 'Dashboard', port: 3000, path: '/' },
+    api: { name: 'API Server', port: 3001, path: '/api/status' }, // Changed to status for better data
+    audio: { name: 'Audio Lab', port: 3002, path: '/api/audio/status' },
+    auth: { name: 'Auth Portal', port: 3003, path: '/api/auth/health' },
+    flash: { name: 'Flash Upgrade', port: 3004, path: '/' },
+    bot: { name: 'Chatbot AI', port: 3005, path: '/api/chat/health' },
+    security: { name: 'Security Monitor', port: 3006, path: '/api/security/status' },
+    timeline: { name: 'Timeline Tracker', port: 3007, path: '/api/timeline/present' }
+};
+
+async function checkServerStatus(serverKey) {
+    const server = SERVER_MAP[serverKey];
+    const url = `http://localhost:${server.port}${server.path}`;
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            signal: controller.signal,
+            mode: 'cors' // Use cors to read response body
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+            const data = await response.json().catch(() => ({})); // Attempt to parse JSON, default to empty object on failure
+            return { online: true, data };
+        }
+        return { online: false };
+    } catch (e) {
+        // Fallback for CORS/no-body issues, try with no-cors to at least detect if server is up
+        try {
+            const resp = await fetch(url, { mode: 'no-cors' });
+            // If no-cors succeeds, it means the server is reachable, even if we can't read its response
+            return { online: true, data: {} };
+        } catch (err) {
+            return { online: false };
+        }
+    }
+}
+
+async function updateServerUI(serverKey, result) {
+    const card = document.querySelector(`.pulse-card[data-server="${serverKey}"]`);
+    if (!card) return;
+
+    const isOnline = result.online;
+    card.classList.remove('loading', 'online', 'offline');
+    card.classList.add(isOnline ? 'online' : 'offline');
+
+    const statusEl = card.querySelector('.pulse-status');
+    const portEl = card.querySelector('.pulse-port');
+
+    if (isOnline) {
+        statusEl.textContent = 'ONLINE';
+
+        // Add live data if available
+        let extraInfo = '';
+        if (serverKey === 'api' && result.data.systemInfo) {
+            const mem = (result.data.systemInfo.memoryUsage.heapUsed / (1024 * 1024)).toFixed(1); // Convert bytes to MB
+            extraInfo = `<div style="font-size:0.75rem; color:var(--text-dim); margin-top:5px;">RAM: ${mem}MB</div>`;
+        } else if (serverKey === 'timeline' && result.data.snapshot) {
+            const branch = result.data.snapshot.git.branch || 'N/A';
+            extraInfo = `<div style="font-size:0.75rem; color:var(--text-dim); margin-top:5px;">Branch: ${branch}</div>`;
+        } else if (serverKey === 'bot' && result.data.status) {
+            extraInfo = `<div style="font-size:0.75rem; color:var(--text-dim); margin-top:5px;">State: ${result.data.status}</div>`;
+        }
+
+        // Clear old info and add new
+        const oldExtra = card.querySelector('.pulse-extra');
+        if (oldExtra) oldExtra.remove();
+
+        if (extraInfo) {
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'pulse-extra';
+            infoDiv.innerHTML = extraInfo;
+            card.appendChild(infoDiv);
+        }
+    } else {
+        statusEl.textContent = 'OFFLINE';
+        const oldExtra = card.querySelector('.pulse-extra');
+        if (oldExtra) oldExtra.remove();
+    }
+}
+
+async function updateAllServerStatuses() {
+    console.log('Refreshing system pulse with live data...');
+    const keys = Object.keys(SERVER_MAP);
+
+    // Process sequentially to update UI as results come in
+    for (const key of keys) {
+        const result = await checkServerStatus(key);
+        updateServerUI(key, result);
+    }
+}
 
 // Module details modal (simplified version)
 function showModuleDetails(module) {

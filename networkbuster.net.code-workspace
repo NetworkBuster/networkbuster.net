@@ -2,7 +2,24 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "F:/FileHistory"
+		},
+		{
+			"path": "F:/FINAL"
+		},
+		{
+			"path": "F:/NetworkBuster_Production"
+		},
+		{
+			"path": "F:/NETWORKBUSTERSETUP"
+		},
+		{
+			"path": "F:/SSD_Tools"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"powershell.cwd": "FileHistory"
+	}
 }

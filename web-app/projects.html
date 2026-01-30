@@ -1,55 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #333; }
-        header { background: linear-gradient(135deg, #0066cc, #004499); color: white; padding: 40px 20px; text-align: center; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        h1 { color: #0066cc; margin-bottom: 30px; }
-        .projects { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .project-card { background: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 4px solid #0066cc; }
-        footer { background: #f5f5f5; text-align: center; padding: 20px; margin-top: 60px; border-top: 1px solid #ddd; }
-    </style>
+    <title>Projects | NetworkBuster Lunar Recycling System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="chatbot.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
-    <header>
-        <h1>Our Projects</h1>
-        <p>Current and ongoing research initiatives</p>
+    <div class="background-animation"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo-section">
+                <div class="logo-icon">🌙</div>
+                <div class="logo-text">
+                    <a href="/" style="text-decoration: none;">
+                        <h1>NetworkBuster</h1>
+                    </a>
+                    <p>Lunar Recycling System</p>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <a href="/" class="nav-link">🏠 Home</a>
+                <a href="/about.html" class="nav-link">ℹ️ About</a>
+                <a href="/projects.html" class="nav-link active">🚀 Projects</a>
+                <a href="/technology.html" class="nav-link">⚡ Technology</a>
+                <a href="/documentation.html" class="nav-link">📖 Docs</a>
+                <button id="toggle-netbot" class="nav-link"
+                    style="margin-left:16px;cursor:pointer;background:#0f3460;color:#fff;border:none;padding:8px 16px;border-radius:8px;">🤖
+                    Net Bot: <span id="netbot-status">On</span></button>
+
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">🎮 Servers ▼</a>
+                    <div class="dropdown-menu">
+                        <a href="/dashboard/" class="dropdown-item">📊 Dashboard (3000)</a>
+                        <a href="http://localhost:3001/api/health" class="dropdown-item">⚙️ API Server (3001)</a>
+                        <a href="/audio-lab" class="dropdown-item">🎵 Audio Lab (3002)</a>
+                        <a href="/auth/" class="dropdown-item">🔐 Auth Portal (3003)</a>
+                        <a href="http://localhost:3004" class="dropdown-item">⚡ Flash Upgrade (3004)</a>
+                        <a href="http://localhost:3005/api/chat/health" class="dropdown-item">🤖 Chatbot AI (3005)</a>
+                        <a href="http://localhost:3006/api/security/status" class="dropdown-item">🛡️ Security Monitor
+                            (3006)</a>
+                        <a href="http://localhost:3007/api/timeline/present" class="dropdown-item">⏰ Timeline Tracker
+                            (3007)</a>
+                    </div>
+                </div>
+
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">🛠️ Tools ▼</a>
+                    <div class="dropdown-menu">
+                        <a href="/serverscramble/" class="dropdown-item">⚡ Server Scramble</a>
+                        <a href="/#calculator" class="dropdown-item">🧮 Calculator</a>
+                        <a href="/#data" class="dropdown-item">💾 Data Center</a>
+                        <a href="/flash-commands.html" class="dropdown-item">📜 Flash Commands</a>
+                        <a href="/packages.html" class="dropdown-item">📦 Packages</a>
+                        <a href="/hud.html" class="dropdown-item">🛰️ Function HUD</a>
+                        <a href="/overlay/" class="dropdown-item">🌐 AI World Overlay</a>
+                        <a href="/blog/" class="dropdown-item">📝 Blog</a>
+                    </div>
+                </div>
+
+                <a href="/contact.html" class="nav-link">✉️ Contact</a>
+            </nav>
+        </div>
     </header>
-    <div class="container">
-        <div class="projects">
-            <div class="project-card">
-                <h3>Real-Time Overlay System</h3>
-                <p>Advanced visualization system for real-time data from lunar and space operations. Provides intuitive interface for mission-critical data streams.</p>
+
+    <div class="container" style="margin-top: 60px;">
+        <section class="section">
+            <h2 class="section-title">Our Research Initiatives</h2>
+            <div class="architecture-grid">
+                <div class="arch-card">
+                    <div class="arch-icon">🌐</div>
+                    <h3>Real-Time Overlay System</h3>
+                    <p>Advanced visualization system for real-time data from lunar and space operations. Provides
+                        intuitive interface for mission-critical data streams.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-icon">🛡️</div>
+                    <h3>Autonomous Network Management</h3>
+                    <p>Self-healing network infrastructure that adapts to extreme environments. Critical for deep space
+                        and lunar base operations.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-icon">⚙️</div>
+                    <h3>Data Processing Pipeline</h3>
+                    <p>High-performance system for processing massive data streams from satellite networks and ground
+                        stations in real-time.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-icon">🔗</div>
+                    <h3>Communication Relay Network</h3>
+                    <p>Distributed communication system designed for reliable messaging across multiple space assets and
+                        lunar installations.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-icon">🛰️</div>
+                    <h3>Lunar Operations Control</h3>
+                    <p>Comprehensive platform for managing lunar surface equipment, resources, and personnel operations
+                        remotely.</p>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-icon">🤖</div>
+                    <h3>AI-Powered Diagnostics</h3>
+                    <p>Machine learning system for predictive maintenance and fault detection in space-grade equipment.
+                    </p>
+                </div>
             </div>
-            <div class="project-card">
-                <h3>Autonomous Network Management</h3>
-                <p>Self-healing network infrastructure that adapts to extreme environments. Critical for deep space and lunar base operations.</p>
-            </div>
-            <div class="project-card">
-                <h3>Data Processing Pipeline</h3>
-                <p>High-performance system for processing massive data streams from satellite networks and ground stations in real-time.</p>
-            </div>
-            <div class="project-card">
-                <h3>Communication Relay Network</h3>
-                <p>Distributed communication system designed for reliable messaging across multiple space assets and lunar installations.</p>
-            </div>
-            <div class="project-card">
-                <h3>Lunar Operations Control</h3>
-                <p>Comprehensive platform for managing lunar surface equipment, resources, and personnel operations remotely.</p>
-            </div>
-            <div class="project-card">
-                <h3>AI-Powered Diagnostics</h3>
-                <p>Machine learning system for predictive maintenance and fault detection in space-grade equipment.</p>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="text-align: center;">
+                <p>&copy; 2025 NetworkBuster Research Division. MIT License.</p>
             </div>
         </div>
-    </div>
-    <footer>
-        <p>&copy; 2025 NetworkBuster Research Division</p>
     </footer>
+
+    <div id="netbot-chat"></div>
+    <script src="script.js"></script>
+    <script src="chatbot.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('toggle-netbot');
+            const netbotChat = document.getElementById('netbot-chat');
+            const netbotStatus = document.getElementById('netbot-status');
+            let netbotOn = true;
+            if (toggleBtn && netbotChat) {
+                toggleBtn.addEventListener('click', function () {
+                    netbotOn = !netbotOn;
+                    if (netbotOn) {
+                        netbotChat.style.display = '';
+                        netbotStatus.textContent = 'On';
+                    } else {
+                        netbotChat.style.display = 'none';
+                        netbotStatus.textContent = 'Off';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

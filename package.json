@@ -7,7 +7,7 @@
   "homepage": "https://networkbuster.net",
   "repository": {
     "type": "git",
-    "url": "https://github.com/NetworkBuster/networkbuster.net.git"
+    "url": "http://localhost/networkbuster.net.git"
   },
   "bugs": {
     "url": "https://github.com/NetworkBuster/networkbuster.net/issues"

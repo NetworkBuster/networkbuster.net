@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NetworkBuster AI World - Immersive 3D overlay system with real-time monitoring">
     <title>AI World - NetworkBuster</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
         /* AI World Specific Styles */
         .aiworld-container {
@@ -22,7 +25,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
+            background:
                 radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.1) 0%, transparent 40%),
                 radial-gradient(circle at 80% 70%, rgba(255, 0, 60, 0.1) 0%, transparent 40%),
                 radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
@@ -31,8 +34,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
 
         .grid-overlay {
@@ -41,7 +51,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
+            background-image:
                 linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
             background-size: 50px 50px;
@@ -91,8 +101,15 @@
         }
 
         @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         .aiworld-nav {
@@ -300,13 +317,71 @@
         }
     </style>
 </head>
+
 <body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo-section">
+                <div class="logo-icon">🌙</div>
+                <div class="logo-text">
+                    <a href="/" style="text-decoration: none;">
+                        <h1>NetworkBuster</h1>
+                    </a>
+                    <p>Lunar Recycling System</p>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <a href="/" class="nav-link">🏠 Home</a>
+                <a href="/about.html" class="nav-link">ℹ️ About</a>
+                <a href="/projects.html" class="nav-link">🚀 Projects</a>
+                <a href="/technology.html" class="nav-link">⚡ Technology</a>
+                <a href="/documentation.html" class="nav-link">📖 Docs</a>
+                <button id="toggle-netbot" class="nav-link"
+                    style="margin-left:16px;cursor:pointer;background:#0f3460;color:#fff;border:none;padding:8px 16px;border-radius:8px;">🤖
+                    Net Bot: <span id="netbot-status">On</span></button>
+
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">🎮 Servers ▼</a>
+                    <div class="dropdown-menu">
+                        <a href="/dashboard/" class="dropdown-item">📊 Dashboard (3000)</a>
+                        <a href="http://localhost:3001/api/health" class="dropdown-item">⚙️ API Server (3001)</a>
+                        <a href="/audio-lab" class="dropdown-item">🎵 Audio Lab (3002)</a>
+                        <a href="/auth/" class="dropdown-item">🔐 Auth Portal (3003)</a>
+                        <a href="http://localhost:3004" class="dropdown-item">⚡ Flash Upgrade (3004)</a>
+                        <a href="http://localhost:3005/api/chat/health" class="dropdown-item">🤖 Chatbot AI (3005)</a>
+                        <a href="http://localhost:3006/api/security/status" class="dropdown-item">🛡️ Security Monitor
+                            (3006)</a>
+                        <a href="http://localhost:3007/api/timeline/present" class="dropdown-item">⏰ Timeline Tracker
+                            (3007)</a>
+                    </div>
+                </div>
+
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">🛠️ Tools ▼</a>
+                    <div class="dropdown-menu">
+                        <a href="/serverscramble/" class="dropdown-item">⚡ Server Scramble</a>
+                        <a href="/#calculator" class="dropdown-item">🧮 Calculator</a>
+                        <a href="/#data" class="dropdown-item">💾 Data Center</a>
+                        <a href="/flash-commands.html" class="dropdown-item">📜 Flash Commands</a>
+                        <a href="/packages.html" class="dropdown-item">📦 Packages</a>
+                        <a href="/hud.html" class="dropdown-item">🛰️ Function HUD</a>
+                        <a href="/overlay/" class="dropdown-item">🌐 AI World Overlay</a>
+                        <a href="/blog/" class="dropdown-item">📝 Blog</a>
+                    </div>
+                </div>
+
+                <a href="/contact.html" class="nav-link">✉️ Contact</a>
+            </nav>
+        </div>
+    </header>
+
     <div class="aiworld-container">
         <div class="aiworld-background"></div>
         <div class="grid-overlay"></div>
 
-        <!-- Header -->
-        <header class="aiworld-header">
+        <!-- AI World Header -->
+        <div class="aiworld-header" style="border-top: 1px solid rgba(0, 240, 255, 0.1);">
             <div class="aiworld-title">
                 <span style="font-size: 36px;">🤖</span>
                 <h1>AI WORLD</h1>
@@ -316,13 +391,9 @@
                 </div>
             </div>
             <nav class="aiworld-nav">
-                <a href="/">🏠 Home</a>
-                <a href="/dashboard/">📊 Dashboard</a>
-                <a href="/control-panel">🎛️ Control</a>
-                <a href="/audio-lab">🎵 Audio</a>
-                <a href="/auth/">🔐 Auth</a>
+                <span style="color: #64748b; font-size: 12px; letter-spacing: 1px;">IMMERSIVE MODE ACTIVE</span>
             </nav>
-        </header>
+        </div>
 
         <!-- Main Content -->
         <main class="aiworld-main">
@@ -530,7 +601,8 @@
                             <a href="/about.html" style="color: #94a3b8; display: block;">/about.html</a>
                             <a href="/projects.html" style="color: #94a3b8; display: block;">/projects.html</a>
                             <a href="/technology.html" style="color: #94a3b8; display: block;">/technology.html</a>
-                            <a href="/documentation.html" style="color: #94a3b8; display: block;">/documentation.html</a>
+                            <a href="/documentation.html"
+                                style="color: #94a3b8; display: block;">/documentation.html</a>
                             <a href="/contact.html" style="color: #94a3b8; display: block;">/contact.html</a>
                         </div>
                     </div>
@@ -560,7 +632,8 @@
                         <div style="font-size: 13px; line-height: 2;">
                             <a href="/#calculator" style="color: #94a3b8; display: block;">/#calculator</a>
                             <a href="/#data" style="color: #94a3b8; display: block;">/#data</a>
-                            <a href="/flash-commands.html" style="color: #94a3b8; display: block;">/flash-commands.html</a>
+                            <a href="/flash-commands.html"
+                                style="color: #94a3b8; display: block;">/flash-commands.html</a>
                         </div>
                     </div>
                 </div>
@@ -570,7 +643,8 @@
         <!-- Footer -->
         <footer class="aiworld-footer">
             <div>
-                <strong>NetworkBuster AI World</strong> &mdash; Base URL: <a href="https://networkbuster.net">networkbuster.net</a>
+                <strong>NetworkBuster AI World</strong> &mdash; Base URL: <a
+                    href="https://networkbuster.net">networkbuster.net</a>
             </div>
             <div>
                 Version 1.0.1 | Servers: Web (3000) • API (3001) • Audio (3002) • Auth (3003)
@@ -589,7 +663,7 @@
 
         // Button click handlers
         document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 if (!this.href) {
                     e.preventDefault();
                     alert('Feature coming soon!');
@@ -598,4 +672,5 @@
         });
     </script>
 </body>
+
 </html>
