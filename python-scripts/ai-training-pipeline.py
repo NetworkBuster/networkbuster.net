@@ -138,15 +138,31 @@ class TrainingDatasetManager:
             try:
                 blob_service_client.create_container(AITrainingPipelineConfig.DATASETS_CONTAINER)
                 logger.info(f"✅ Created container: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
-            except Exception:
-                logger.info(f"Container already exists: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
+            except ResourceNotFoundError:
+                logger.error(f"❌ Resource not found when creating container: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
+            except AzureError as e:
+                # Container likely already exists or permission issue
+                if "ContainerAlreadyExists" in str(e) or "already exists" in str(e).lower():
+                    logger.info(f"Container already exists: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
+                else:
+                    logger.warning(f"⚠️ Container creation issue: {e}")
+            except Exception as e:
+                logger.warning(f"⚠️ Unexpected error creating container: {e}")
             
             # Create models container
             try:
                 blob_service_client.create_container(AITrainingPipelineConfig.MODELS_CONTAINER)
                 logger.info(f"✅ Created container: {AITrainingPipelineConfig.MODELS_CONTAINER}")
-            except Exception:
-                logger.info(f"Container already exists: {AITrainingPipelineConfig.MODELS_CONTAINER}")
+            except ResourceNotFoundError:
+                logger.error(f"❌ Resource not found when creating container: {AITrainingPipelineConfig.MODELS_CONTAINER}")
+            except AzureError as e:
+                # Container likely already exists or permission issue
+                if "ContainerAlreadyExists" in str(e) or "already exists" in str(e).lower():
+                    logger.info(f"Container already exists: {AITrainingPipelineConfig.MODELS_CONTAINER}")
+                else:
+                    logger.warning(f"⚠️ Container creation issue: {e}")
+            except Exception as e:
+                logger.warning(f"⚠️ Unexpected error creating container: {e}")
             
             return True
         except Exception as e:
@@ -191,7 +207,9 @@ class TrainingDatasetManager:
         logger.info(f"Downloading dataset {blob_name} to {local_path}")
         try:
             # Ensure directory exists
-            os.makedirs(os.path.dirname(local_path), exist_ok=True)
+            dir_path = os.path.dirname(local_path)
+            if dir_path:  # Only create directory if path has a directory component
+                os.makedirs(dir_path, exist_ok=True)
             
             blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
             blob_client = blob_service_client.get_blob_client(
@@ -356,9 +374,9 @@ class TrainingOrchestrator:
                     logger.error(f"❌ Failed to process message: {e}")
         
         except AzureError as e:
-            logger.error(f"❌ Queue processing failed: {e}")
+            logger.error(f"❌ Azure Queue operation failed: {e}")
         except Exception as e:
-            logger.error(f"❌ Queue processing failed: {e}")
+            logger.error(f"❌ Unexpected queue processing error: {e}")
     
     async def execute_training_job(self, config_key: str) -> Dict:
         """Execute a single training job"""
