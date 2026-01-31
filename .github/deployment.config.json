@@ -21,8 +21,8 @@
   ],
   "deploymentRules": {
     "onPush": {
-      "main": "vercel --prod",
-      "bigtree": "vercel --prod --target staging"
+      "main": "echo 'Vercel deployment removed'",
+      "bigtree": "echo 'Vercel deployment removed'"
     },
     "onPullRequest": {
       "enabled": true,
