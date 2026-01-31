@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 try:
     from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
     from azure.storage.queue import QueueServiceClient, QueueClient
-    from azure.core.exceptions import ResourceNotFoundError, AzureError
+    from azure.core.exceptions import ResourceNotFoundError, ResourceExistsError, AzureError
     AZURE_SDK_AVAILABLE = True
 except ImportError:
     logger.warning("⚠️ Azure SDK not installed. Install with: pip install azure-storage-blob azure-storage-queue")
@@ -138,14 +138,10 @@ class TrainingDatasetManager:
             try:
                 blob_service_client.create_container(AITrainingPipelineConfig.DATASETS_CONTAINER)
                 logger.info(f"✅ Created container: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
-            except ResourceNotFoundError:
-                logger.error(f"❌ Resource not found when creating container: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
+            except ResourceExistsError:
+                logger.info(f"Container already exists: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
             except AzureError as e:
-                # Container likely already exists or permission issue
-                if "ContainerAlreadyExists" in str(e) or "already exists" in str(e).lower():
-                    logger.info(f"Container already exists: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
-                else:
-                    logger.warning(f"⚠️ Container creation issue: {e}")
+                logger.warning(f"⚠️ Container creation issue: {e}")
             except Exception as e:
                 logger.warning(f"⚠️ Unexpected error creating container: {e}")
             
@@ -153,14 +149,10 @@ class TrainingDatasetManager:
             try:
                 blob_service_client.create_container(AITrainingPipelineConfig.MODELS_CONTAINER)
                 logger.info(f"✅ Created container: {AITrainingPipelineConfig.MODELS_CONTAINER}")
-            except ResourceNotFoundError:
-                logger.error(f"❌ Resource not found when creating container: {AITrainingPipelineConfig.MODELS_CONTAINER}")
+            except ResourceExistsError:
+                logger.info(f"Container already exists: {AITrainingPipelineConfig.MODELS_CONTAINER}")
             except AzureError as e:
-                # Container likely already exists or permission issue
-                if "ContainerAlreadyExists" in str(e) or "already exists" in str(e).lower():
-                    logger.info(f"Container already exists: {AITrainingPipelineConfig.MODELS_CONTAINER}")
-                else:
-                    logger.warning(f"⚠️ Container creation issue: {e}")
+                logger.warning(f"⚠️ Container creation issue: {e}")
             except Exception as e:
                 logger.warning(f"⚠️ Unexpected error creating container: {e}")
             
