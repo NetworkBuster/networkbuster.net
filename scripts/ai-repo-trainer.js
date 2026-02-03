@@ -114,12 +114,22 @@ class AIRepoTrainer {
             if (entry.isDirectory()) {
                 await this.scanDir(fullPath, relPath, depth + 1);
             } else {
+                // Use entry.isFile() check and size from fs.promises.stat() for better performance
+                // For files, we get the size asynchronously to avoid blocking
+                let fileSize = 0;
+                try {
+                    const stats = await fs.promises.stat(fullPath);
+                    fileSize = stats.size;
+                } catch (err) {
+                    // If stat fails, just use 0 as fallback
+                    fileSize = 0;
+                }
                 this.files.push({
                     name: entry.name,
                     path: relPath,
                     fullPath,
                     ext: path.extname(entry.name),
-                    size: fs.statSync(fullPath).size
+                    size: fileSize
                 });
             }
         }

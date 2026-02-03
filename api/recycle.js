@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/recommend', async (req, res) => {
   const { userId, location, items = [], preferences = {} } = req.body || {};
   try {
-    const profile = userId ? profileStore.getProfile(userId) : null;
+    const profile = userId ? await profileStore.getProfile(userId) : null;
     const prefs = Object.assign({}, profile?.preferences || {}, preferences);
     const context = { location, profile: profile ? { id: userId } : null };
     const out = await aiClient.getRecommendations(items, context, prefs);
@@ -20,11 +20,11 @@ router.post('/recommend', async (req, res) => {
 });
 
 // POST /api/recycle/feedback
-router.post('/feedback', (req, res) => {
+router.post('/feedback', async (req, res) => {
   const { userId, item, action, rating, notes } = req.body || {};
   try {
     const fb = { userId: userId || 'anon', item, action, rating, notes, ts: new Date().toISOString() };
-    const filepath = profileStore.appendFeedback(fb);
+    const filepath = await profileStore.appendFeedback(fb);
     res.json({ ok: true, stored: filepath });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });

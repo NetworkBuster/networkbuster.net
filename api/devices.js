@@ -16,7 +16,7 @@ function validateRegistration(req, res, next) {
 }
 
 // POST /api/devices/register
-router.post('/register', validateRegistration, (req, res) => {
+router.post('/register', validateRegistration, async (req, res) => {
   const body = req.body;
 
   // canonical deviceId (if not provided generate one)
@@ -37,10 +37,10 @@ router.post('/register', validateRegistration, (req, res) => {
   };
 
   // persist (prototype: local file)
-  const saved = saveRegistration(record);
+  const saved = await saveRegistration(record);
 
   // enqueue message for ingestion
-  const msg = enqueue('device-registrations.v1', {
+  const msg = await enqueue('device-registrations.v1', {
     deviceId: saved.deviceId,
     hardwareIdHash: saved.hardwareIdHash,
     model: saved.model,
@@ -53,14 +53,14 @@ router.post('/register', validateRegistration, (req, res) => {
   });
 
   // mark status queued
-  transitionStatus(saved.deviceId, 'queued', { queuedAt: new Date().toISOString(), queueMessageId: msg.id });
+  await transitionStatus(saved.deviceId, 'queued', { queuedAt: new Date().toISOString(), queueMessageId: msg.id });
 
   res.status(202).json({ deviceId: saved.deviceId, status: 'queued', queueMessageId: msg.id });
 });
 
 // GET device status
-router.get('/:deviceId', (req, res) => {
-  const rec = getRegistration(req.params.deviceId);
+router.get('/:deviceId', async (req, res) => {
+  const rec = await getRegistration(req.params.deviceId);
   if (!rec) return res.status(404).json({ error: 'Device not found' });
   res.json(rec);
 });

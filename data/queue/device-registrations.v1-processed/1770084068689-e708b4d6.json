@@ -1,0 +1,9 @@
+{
+  "id": "1770084068689-e708b4d6",
+  "topic": "device-registrations.v1",
+  "timestamp": "2026-02-03T02:01:08.689Z",
+  "payload": {
+    "deviceId": "test-device-123",
+    "model": "TestModel"
+  }
+}

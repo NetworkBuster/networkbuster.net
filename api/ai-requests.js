@@ -12,7 +12,7 @@ import aiProviders from '../lib/aiProviders.js';
 const router = express.Router();
 
 // Device authentication middleware
-function authenticateDevice(req, res, next) {
+async function authenticateDevice(req, res, next) {
     // Check for device ID in header or query
     const deviceId = req.headers['x-device-id'] || req.query.deviceId;
     const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
@@ -26,7 +26,7 @@ function authenticateDevice(req, res, next) {
 
     // Device ID authentication
     if (deviceId) {
-        const device = getRegistration(deviceId);
+        const device = await getRegistration(deviceId);
         if (device) {
             req.deviceId = deviceId;
             req.device = device;
