@@ -1,8 +1,0 @@
-{
-  "deviceId": "test-device-123",
-  "status": "acknowledged",
-  "createdAt": "2026-02-03T02:01:08.683Z",
-  "hardwareId": "HW123",
-  "model": "TestModel",
-  "updatedAt": "2026-02-03T02:01:08.687Z"
-}
