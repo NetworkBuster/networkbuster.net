@@ -80,7 +80,7 @@ Notes & tips:
 - For CI rendering we provide `.github/workflows/render-diagrams.yml` which runs on GitHub runners and uploads PNG artifacts.
 
 ### Android `antigravity` module
-A small Kotlin Android module skeleton has been added at `android/antigravity/`. It includes Gradle files and a placeholder `MainActivity`. Add `google-services.json` to `android/antigravity/app/` if integrating Firebase (do not commit it; see `.gitignore`).
+A Kotlin Android module has been added at `android/antigravity/`. It includes Gradle files and a `MainActivity`. Updated to latest stable versions: Kotlin 2.0.21, Android Gradle Plugin 8.7.3, Android SDK 35, and Java 17. Add `google-services.json` to `android/antigravity/app/` if integrating Firebase (do not commit it; see `.gitignore`).
 
 ### Google Cloud SDK helpers
 Scripts added under `scripts/`:
