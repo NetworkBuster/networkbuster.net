@@ -25,6 +25,19 @@
 - 📝 **Blog** - Research updates and insights
 - 📚 **Documentation** - Complete technical guides and APIs
 
+### 🚗 Major Projects
+- **Mercedes-NVIDIA AI Drive Platform** - Next-generation autonomous driving system
+  - Level 3/4 autonomous driving capabilities
+  - NVIDIA Drive Thor/Orin integration (2000 TOPS)
+  - Real-time AI perception, prediction, and planning
+  - Cloud fleet management and OTA updates
+  - Full documentation at `mercedes-nvidia-ai-drive/`
+- **Spaceship 3D Blueprints** - Complete space infrastructure specifications
+  - Moonbase Alpha lunar data center
+  - Cloud One orbital station
+  - NBS-1 Data Voyager spacecraft
+  - Full specs at `spaceship-3d-blueprints/`
+
 ### Enterprise Features
 ✅ Real-time 3D visualization  
 ✅ Interactive dashboards  
