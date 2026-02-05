@@ -20,6 +20,10 @@ tools/
 # LFS build artifacts
 os/lfs/output/
 
+# Test-generated data
+data/devices/
+data/queue/
+
 # Local sensitive scripts (do not commit)
 scripts/dummy-sa.json
 scripts/gcloud-startup.ps1

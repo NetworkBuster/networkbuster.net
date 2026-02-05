@@ -1,5 +1,5 @@
-import { saveRegistration, transitionStatus, getRegistration } from '../lib/deviceStore.js';
-import { enqueue, dequeue } from '../lib/messageQueue.js';
+import { saveRegistration, transitionStatus, getRegistration } from '../../lib/deviceStore.js';
+import { enqueue, dequeue } from '../../lib/messageQueue.js';
 
 async function testStatusTransitions() {
   console.log('Testing status transitions...');

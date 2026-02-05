@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 const BASE = process.env.BASE || 'http://localhost:3001';
 
 async function run() {
