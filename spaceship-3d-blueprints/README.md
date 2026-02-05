@@ -31,6 +31,11 @@ spaceship-3d-blueprints/
 │   ├── thermal/            - Cooling systems
 │   └── power/              - Solar/battery systems
 │
+├── astronaut-care/         🏥 Medical & Health Systems
+│   ├── README.md           - Comprehensive care overview
+│   ├── ARTEMIS-3-MEDICAL-SPECS.md - Cardiac life support
+│   └── (future: equipment inventory, protocols)
+│
 └── README.md              ← You are here
 ```
 
