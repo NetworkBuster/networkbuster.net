@@ -7,6 +7,7 @@ function LieDetector() {
   const [lieDetected, setLieDetected] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
   const [isInJail, setIsInJail] = useState(false)
+  const [allTruthful, setAllTruthful] = useState(false)
 
   const questions = [
     {
@@ -42,6 +43,7 @@ function LieDetector() {
     setAnswers([])
     setLieDetected(false)
     setIsInJail(false)
+    setAllTruthful(false)
   }
 
   const handleAnswer = (answer) => {
@@ -65,10 +67,7 @@ function LieDetector() {
       setCurrentQuestion(currentQuestion + 1)
     } else {
       // All questions answered truthfully
-      setTimeout(() => {
-        alert('All questions answered truthfully! You are free to go.')
-        startGame()
-      }, 1000)
+      setAllTruthful(true)
     }
   }
 
@@ -89,7 +88,7 @@ function LieDetector() {
             <h2>CONSEQUENCE: JAIL</h2>
             <div className="mugshot">
               <div className="prisoner">👮‍♀️➡️🔒</div>
-              <div className="prisoner-id">Donna Middleton</div>
+              <div className="prisoner-id">Suspect #001</div>
               <div className="charge">Charge: Providing False Information</div>
             </div>
             <div className="sentence">
@@ -98,6 +97,32 @@ function LieDetector() {
             </div>
             <button className="btn-restart" onClick={startGame}>
               Retry Interrogation
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (allTruthful) {
+    return (
+      <div className="lie-detector-page">
+        <div className="lie-detector-intro">
+          <h1>✅ Test Completed</h1>
+          <div className="officer-badge">
+            <div className="badge-icon">👮‍♀️</div>
+            <div className="badge-info">
+              <h2>All Questions Answered Truthfully!</h2>
+              <h3>You are free to go</h3>
+              <p>Your integrity has been verified by Donna Middleton</p>
+            </div>
+          </div>
+          <div className="intro-content">
+            <p className="success-message" style={{color: '#2ecc71', fontSize: '1.5rem'}}>
+              ✓ Test Result: PASSED
+            </p>
+            <button className="btn-start" onClick={startGame}>
+              Take Test Again
             </button>
           </div>
         </div>
