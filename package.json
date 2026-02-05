@@ -1,6 +1,6 @@
 {
   "name": "networkbuster-server",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "type": "module",
   "description": "Production server for networkbuster apps",
   "main": "server.js",
@@ -76,6 +76,8 @@
     "build:overlay": "cd challengerepo/real-time-overlay && npm install && npm run build",
     "build:all": "npm run build:overlay",
     "dist:zip": "node scripts/make-release.js",
+    "dist:full": "node scripts/create-full-release.js",
+    "release:full": "node scripts/create-full-release.js",
     "dist:nsis": "powershell -ExecutionPolicy Bypass -File scripts/build-nsis.ps1",
     "release:create-shortcut": "powershell -ExecutionPolicy Bypass -File scripts/create-shortcut.ps1",
     "start:desktop": "start start-desktop.bat",
