@@ -1,0 +1,108 @@
+{
+  "project": {
+    "name": "Mercedes-NVIDIA AI Drive Platform",
+    "version": "2.0",
+    "status": "active",
+    "launch_date": "2026-03-01"
+  },
+  "hardware": {
+    "compute": {
+      "primary": {
+        "model": "NVIDIA Drive Thor",
+        "performance": "2000 TOPS",
+        "power": "250W peak",
+        "architecture": "5nm unified SoC"
+      },
+      "backup": {
+        "model": "NVIDIA Drive Orin",
+        "performance": "254 TOPS",
+        "power": "150W",
+        "certification": "ISO 26262 ASIL-D"
+      }
+    },
+    "sensors": {
+      "cameras": {
+        "front": 3,
+        "surround": 4,
+        "interior": 1,
+        "total_resolution": "32MP combined"
+      },
+      "radar": {
+        "long_range": 1,
+        "corner": 4,
+        "frequency": "77GHz"
+      },
+      "lidar": {
+        "count": 2,
+        "channels": 128,
+        "range": "200m"
+      },
+      "ultrasonic": {
+        "count": 12,
+        "range": "5m"
+      }
+    }
+  },
+  "software": {
+    "ai_models": {
+      "perception": ["YOLOv8", "SegFormer-B5", "PointPillars"],
+      "prediction": ["Transformer-trajectory", "Intent-CNN-LSTM"],
+      "planning": ["A-star", "MPC"],
+      "control": ["PID", "Pure-pursuit"]
+    },
+    "frameworks": ["TensorRT", "PyTorch", "CUDA"],
+    "os": "NVIDIA DriveOS (Linux-based)"
+  },
+  "cloud": {
+    "provider": "NetworkBuster + Azure",
+    "services": {
+      "hd_maps": {
+        "update_frequency": "real-time",
+        "accuracy": "10cm",
+        "latency": "<100ms"
+      },
+      "fleet_learning": {
+        "data_per_vehicle": "1GB/hour",
+        "processing": "real-time + batch"
+      },
+      "ota_updates": {
+        "frequency": "weekly",
+        "validation": "shadow mode"
+      }
+    }
+  },
+  "safety": {
+    "standards": ["ISO 26262 ASIL-D", "ISO/PAS 21448", "UN R155", "UN R156"],
+    "redundancy": {
+      "compute": "dual system",
+      "sensors": "overlapping coverage",
+      "power": "dual battery",
+      "control": "backup actuators"
+    },
+    "testing": {
+      "simulated_miles": 10000000,
+      "real_world_miles": 500000
+    }
+  },
+  "deployment": {
+    "regions": {
+      "active": ["Germany", "USA-CA", "USA-NV"],
+      "testing": ["China", "Japan"],
+      "planned": ["France", "UK", "Netherlands"]
+    },
+    "vehicles_deployed": 10500,
+    "autonomy_level": "Level 3 (production), Level 4 (testing)"
+  },
+  "performance": {
+    "latency": {
+      "sensor_to_actuation": "48ms",
+      "target": "<60ms"
+    },
+    "accuracy": {
+      "object_detection": 0.9997,
+      "lane_detection": 0.9999,
+      "planning_success": 0.9999
+    },
+    "uptime": 0.9995
+  }
+}
