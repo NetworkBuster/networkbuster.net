@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Thruster Planner UI</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px }
+    label { display:block; margin-top:8px }
+    input, select { padding:6px; width: 200px }
+    #preview { margin-top: 16px }
+  </style>
+</head>
+<body>
+  <h1>Thruster Planner</h1>
+  <form id="form">
+    <label>Initial mass (kg) <input name="initialMass" type="number" value="1000"></label>
+    <label>Propellant available (kg) <input name="propellantAvailable" type="number" value="200"></label>
+    <label>Isp (s) <input name="isp" type="number" value="300"></label>
+    <label>Max thrust (N) <input name="maxThrust" type="number" value="20000"></label>
+    <label>Max G (g) <input name="maxG" type="number" value="3"></label>
+    <label>Target Delta-V (m/s) <input name="targetDeltaV" type="number" value="100"></label>
+    <label>Format <select name="format"><option value="svg">SVG</option><option value="png">PNG</option></select></label>
+    <button type="submit">Generate</button>
+  </form>
+
+  <div id="preview"></div>
+
+  <script>
+    const form = document.getElementById('form');
+    const preview = document.getElementById('preview');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const obj = {};
+      for (const [k,v] of data.entries()) obj[k] = Number(v);
+      const format = data.get('format') || 'svg';
+      try {
+        const res = await fetch('/plan/visualize?format=' + format, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
+        if (!res.ok) { const j = await res.json(); preview.textContent = 'Error: ' + (j.error || res.status); return; }
+        if (format === 'svg') {
+          const svg = await res.text();
+          preview.innerHTML = svg;
+        } else {
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          preview.innerHTML = '<img src="'+url+'" alt="burn profile" />';
+        }
+      } catch (err) { preview.textContent = 'Request failed: ' + err.message }
+    });
+  </script>
+</body>
+</html>

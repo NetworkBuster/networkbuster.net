@@ -1,0 +1,102 @@
+openapi: 3.0.1
+info:
+  title: Thruster Planner API
+  description: Simulation-only API to request burn plans and visualizations. Not for operational use.
+  version: 0.1.0
+paths:
+  /plan:
+    post:
+      summary: Compute single and multi-segment plans
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+      responses:
+        '200':
+          description: Plan result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanResponse'
+  /plan/visualize:
+    post:
+      summary: Generate burn profile visualization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+      parameters:
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum: [svg,png]
+      responses:
+        '200':
+          description: SVG or PNG image
+          content:
+            image/svg+xml: {}
+            image/png: {}
+  /plan/optimize:
+    post:
+      summary: Find optimized variable-segment allocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+      parameters:
+        - in: query
+          name: cost
+          schema:
+            type: string
+            enum: [min_peakG,min_propellant,min_time]
+      responses:
+        '200':
+          description: Optimization result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptimizeResponse'
+components:
+  schemas:
+    PlanRequest:
+      type: object
+      properties:
+        initialMass:
+          type: number
+        propellantAvailable:
+          type: number
+        isp:
+          type: number
+        maxThrust:
+          type: number
+        maxG:
+          type: number
+        targetDeltaV:
+          type: number
+        preferredThrust:
+          type: number
+        maxSegments:
+          type: number
+    PlanResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        single:
+          type: object
+        multi:
+          type: object
+    OptimizeResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        optimized:
+          type: object
