@@ -422,6 +422,46 @@ app.get('/overlay', (req, res) => {
   res.sendFile(path.join(__dirname, 'challengerepo/real-time-overlay/dist/index.html'));
 });
 
+// Reverse proxy for local services (networkbuster app)
+app.use('/api/proxy/networkbuster', async (req, res) => {
+  try {
+    // find API key for networkbuster app
+    const admin = require('./thruster/admin.cjs');
+    const keyObj = (admin.listKeys() || []).find(k => k.name === 'networkbuster-app');
+    const apiKey = keyObj ? keyObj.key : undefined;
+
+    const targetBase = 'http://localhost:4000';
+    const pathSuffix = req.path || '/';
+    const targetUrl = `${targetBase}${pathSuffix}${req.url.includes('?') ? '' : ''}`;
+
+    // build fetch options
+    const headers = Object.assign({}, req.headers);
+    // override host-related headers
+    delete headers.host;
+    if (apiKey) headers['x-api-key'] = apiKey;
+
+    const fetchOpts = {
+      method: req.method,
+      headers,
+      // forward body for non-GET
+      body: ['GET', 'HEAD'].includes(req.method) ? undefined : req
+    };
+
+    const forwarded = await fetch(targetBase + req.path + (req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''), fetchOpts);
+    // copy status and headers
+    forwarded.headers.forEach((v, k) => {
+      // filter hop-by-hop
+      if (!['transfer-encoding', 'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'upgrade'].includes(k)) res.set(k, v);
+    });
+    res.status(forwarded.status);
+    const buffer = await forwarded.arrayBuffer();
+    return res.send(Buffer.from(buffer));
+  } catch (err) {
+    console.error('proxy error', err);
+    res.status(502).json({ ok: false, error: String(err) });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`\n🚀 Server running at http://localhost:${PORT}`);
   console.log(`🏠 Web app: http://localhost:${PORT}`);
