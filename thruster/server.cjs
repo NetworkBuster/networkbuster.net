@@ -281,6 +281,37 @@ app.get("/admin/requests", requireAdminKey, (req, res) => {
   }
 });
 
+// Admin keys management (admin only): create, list, revoke
+app.post('/admin/keys', requireAdminKey, (req, res) => {
+  try {
+    const body = Object.assign({}, req.body || {}, req.query || {});
+    if (!body.name) return res.status(400).json({ ok: false, error: 'name_required' });
+    const k = admin.generateKey(String(body.name));
+    res.json({ ok: true, key: k });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
+app.get('/admin/keys', requireAdminKey, (req, res) => {
+  try {
+    res.json({ ok: true, keys: admin.listKeys() });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
+app.delete('/admin/keys/:id', requireAdminKey, (req, res) => {
+  try {
+    const id = String(req.params.id);
+    const r = admin.revokeKey(id);
+    if (!r.ok) return res.status(400).json({ ok: false, error: r.error });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
 // Helper: parse numeric options from query/body
 function parseNumericOptions(obj) {
   const n = {};

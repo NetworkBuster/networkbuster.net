@@ -279,7 +279,8 @@ app.get('/api/content/sections', (req, res) => {
       { id: 'audio-lab', title: 'Audio Lab', path: '/audio-lab', icon: '🎵', type: 'app', port: 3002 },
       { id: 'auth-portal', title: 'Auth Portal', path: '/auth/', icon: '🔐', type: 'app', port: 3003 },
       { id: 'overlay', title: 'AI World Overlay', path: '/overlay/', icon: '🌐', type: 'app' },
-      { id: 'git-nav', title: 'Git Navigator', path: '/git-nav', icon: '📂', type: 'app', port: 3000 }
+      { id: 'git-nav', title: 'Git Navigator', path: '/git-nav', icon: '📂', type: 'app', port: 3000 },
+      { id: 'networkbuster', title: 'NetworkBuster App', path: '/networkbuster/', icon: '🚀', type: 'app', port: 4000 }
     ],
     tools: [
       { id: 'calculator', title: 'Calculator', path: '/#calculator', icon: '🧮', type: 'tool' },

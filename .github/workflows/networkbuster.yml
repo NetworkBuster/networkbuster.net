@@ -1,0 +1,28 @@
+name: Build NetworkBuster App
+
+on:
+  push:
+    paths:
+      - 'packages/networkbuster/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Build Docker image
+        run: |
+          cd packages/networkbuster
+          docker build -t networkbuster-app:latest .
+      - name: Upload image tar
+        run: |
+          docker save networkbuster-app:latest -o networkbuster-app.tar
+        # Optionally, upload artifact
+      - uses: actions/upload-artifact@v4
+        with:
+          name: networkbuster-image
+          path: networkbuster-app.tar

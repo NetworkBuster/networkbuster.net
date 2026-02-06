@@ -117,4 +117,26 @@ function listRequests() {
   return _readRequests();
 }
 
-module.exports = { requestAccess, approveRequest, listRequests, DATA_DIR };
+// API key management for apps/crew
+const KEYS_FILE = path.join(DATA_DIR, 'keys.json');
+if (!fs.existsSync(KEYS_FILE)) fs.writeFileSync(KEYS_FILE, JSON.stringify({}));
+function _readKeys() { return JSON.parse(fs.readFileSync(KEYS_FILE, 'utf8') || '{}'); }
+function _writeKeys(k) { fs.writeFileSync(KEYS_FILE, JSON.stringify(k, null, 2)); }
+function generateKey(name) {
+  const keys = _readKeys();
+  const id = _makeId();
+  const key = crypto.randomBytes(24).toString('hex');
+  keys[id] = { id, name, key, createdAt: Date.now() };
+  _writeKeys(keys);
+  return keys[id];
+}
+function listKeys() { return Object.values(_readKeys()); }
+function revokeKey(id) {
+  const keys = _readKeys();
+  if (!keys[id]) return { ok: false, error: 'not_found' };
+  delete keys[id];
+  _writeKeys(keys);
+  return { ok: true };
+}
+
+module.exports = { requestAccess, approveRequest, listRequests, generateKey, listKeys, revokeKey, DATA_DIR };
