@@ -312,6 +312,62 @@ app.delete('/admin/keys/:id', requireAdminKey, (req, res) => {
   }
 });
 
+// Admin team-role mapping endpoints
+app.post('/admin/teams', requireAdminKey, (req, res) => {
+  try {
+    const body = Object.assign({}, req.body || {}, req.query || {});
+    if (!body.team || !body.role) return res.status(400).json({ ok: false, error: 'team_and_role_required' });
+    const r = admin.linkTeamToRole(String(body.team), String(body.role));
+    res.json({ ok: true, mapping: r });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
+app.get('/admin/teams', requireAdminKey, (req, res) => {
+  try {
+    res.json({ ok: true, teams: admin.listTeams() });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
+app.delete('/admin/teams/:team', requireAdminKey, (req, res) => {
+  try {
+    const team = String(req.params.team);
+    const r = admin.unlinkTeam(team);
+    if (!r.ok) return res.status(400).json({ ok: false, error: r.error });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
+// Public bids endpoint (NetworkBuster bids)
+app.post('/networkbuster/bid', (req, res) => {
+  try {
+    const body = Object.assign({}, req.body || {}, req.query || {});
+    if (!body.name || !body.email || !body.body) return res.status(400).json({ ok: false, error: 'name_email_body_required' });
+    const b = admin.addBid({ name: String(body.name), email: String(body.email), body: String(body.body), metadata: body.metadata || {} });
+    // Optional webhook notify (if configured)
+    if (process.env.BIDS_WEBHOOK) {
+      fetch(process.env.BIDS_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }).catch(() => {});
+    }
+    res.json({ ok: true, bid: b });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
+// Admin: list bids
+app.get('/admin/bids', requireAdminKey, (req, res) => {
+  try {
+    res.json({ ok: true, bids: admin.listBids() });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
 // Helper: parse numeric options from query/body
 function parseNumericOptions(obj) {
   const n = {};

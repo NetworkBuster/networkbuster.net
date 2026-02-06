@@ -139,4 +139,35 @@ function revokeKey(id) {
   return { ok: true };
 }
 
-module.exports = { requestAccess, approveRequest, listRequests, generateKey, listKeys, revokeKey, DATA_DIR };
+// Team -> roles mapping
+const TEAMS_FILE = path.join(DATA_DIR, 'teams.json');
+if (!fs.existsSync(TEAMS_FILE)) fs.writeFileSync(TEAMS_FILE, JSON.stringify({}));
+function _readTeams() { return JSON.parse(fs.readFileSync(TEAMS_FILE, 'utf8') || '{}'); }
+function _writeTeams(t) { fs.writeFileSync(TEAMS_FILE, JSON.stringify(t, null, 2)); }
+function linkTeamToRole(teamName, role) {
+  const t = _readTeams();
+  t[teamName] = role;
+  _writeTeams(t);
+  return { teamName, role };
+}
+function listTeams() { const t = _readTeams(); return Object.keys(t).map(k => ({ team: k, role: t[k] })); }
+function unlinkTeam(teamName) { const t = _readTeams(); if (!t[teamName]) return { ok: false, error: 'not_found' }; delete t[teamName]; _writeTeams(t); return { ok: true }; }
+
+// Bids storage
+const BIDS_FILE = path.join(DATA_DIR, 'bids.json');
+if (!fs.existsSync(BIDS_FILE)) fs.writeFileSync(BIDS_FILE, JSON.stringify([]));
+function _readBids() { return JSON.parse(fs.readFileSync(BIDS_FILE, 'utf8') || '[]'); }
+function _writeBids(b) { fs.writeFileSync(BIDS_FILE, JSON.stringify(b, null, 2)); }
+function addBid(bid) {
+  if (!bid || !bid.name || !bid.email || !bid.body) throw new Error('missing_bid_fields');
+  const bids = _readBids();
+  const id = _makeId();
+  const now = Date.now();
+  const rec = Object.assign({ id, createdAt: now, status: 'pending' }, bid);
+  bids.push(rec);
+  _writeBids(bids);
+  return rec;
+}
+function listBids() { return _readBids(); }
+
+module.exports = { requestAccess, approveRequest, listRequests, generateKey, listKeys, revokeKey, linkTeamToRole, listTeams, unlinkTeam, addBid, listBids, DATA_DIR };
