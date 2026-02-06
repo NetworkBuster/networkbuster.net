@@ -91,10 +91,78 @@ function planBurn(opts) {
   };
 }
 
+/**
+ * Plan a multi-segment burn to meet targetDeltaV while minimizing peak G.
+ * Strategy: try 1..maxSegments segments, splitting deltaV evenly per segment.
+ * For each segment simulate mass change and ensure propellant availability and
+ * peak G limits. Prefer lower peak G.
+ *
+ * @param {object} opts - same as planBurn plus:
+ *   maxSegments: number (default 3)
+ *   allowUnequal: boolean (default false) - can implement later
+ * @returns {object} {possible, segments: [{deltaV, thrust, burnTimeSeconds, propellantUsed, startMass, endMass, peakG}], totals: {propellantUsed, burnTimeSeconds, peakG}}
+ */
+function planMultiSegmentBurn(opts) {
+  const maxSegments = opts.maxSegments || 3;
+  const perfs = [];
+
+  // try from 1 to maxSegments and pick the one with lowest peakG (while keeping reasonable total burn time)
+  let best = null;
+
+  for (let segments = 1; segments <= maxSegments; segments++) {
+    const segDelta = opts.targetDeltaV / segments;
+    let mass = opts.initialMass;
+    let remainingProp = opts.propellantAvailable;
+    const segs = [];
+    let feasible = true;
+    let peakGOverall = 0;
+    let totalBurn = 0;
+    let totalProp = 0;
+
+    for (let i = 0; i < segments; i++) {
+      const dV = segDelta;
+      // compute propellant needed for this deltaV starting at current mass
+      const mf = computeFinalMassForDeltaV(opts.isp, mass, dV);
+      const propNeeded = Math.max(0, mass - mf);
+      if (propNeeded - remainingProp > 1e-9) { feasible = false; break; }
+
+      // thrust limited by engine and maxG
+      const maxThrustByG = opts.maxG * mass * g0;
+      let thrust = Math.min(opts.maxThrust || Infinity, maxThrustByG);
+      if (opts.preferredThrust) thrust = Math.min(thrust, opts.preferredThrust);
+      if (thrust <= 0) { feasible = false; break; }
+
+      const mdot = thrust / (opts.isp * g0);
+      const burnTime = mdot > 0 ? propNeeded / mdot : Infinity;
+      const peakG = thrust / (mass * g0);
+
+      segs.push({ deltaV: dV, thrust, burnTimeSeconds: burnTime, propellantUsed: propNeeded, startMass: mass, endMass: mf, peakG });
+
+      mass = mf;
+      remainingProp -= propNeeded;
+      peakGOverall = Math.max(peakGOverall, peakG);
+      totalBurn += burnTime;
+      totalProp += propNeeded;
+    }
+
+    if (feasible) {
+      const candidate = { segments: segs, totals: { propellantUsed: totalProp, burnTimeSeconds: totalBurn, peakG: peakGOverall }, segmentsCount: segments };
+      // prefer lower peakG; if tie prefer fewer segments (quicker)
+      if (!best || candidate.totals.peakG < best.totals.peakG - 1e-9 || (Math.abs(candidate.totals.peakG - best.totals.peakG) < 1e-9 && candidate.totals.burnTimeSeconds < best.totals.burnTimeSeconds)) {
+        best = candidate;
+      }
+    }
+  }
+
+  if (!best) return { possible: false, reason: 'insufficient_propellant_or_constraints' };
+  return { possible: true, ...best };
+}
+
 module.exports = {
   computeDeltaV,
   computeFinalMassForDeltaV,
   propellantForDeltaV,
   planBurn,
+  planMultiSegmentBurn,
   g0
 };

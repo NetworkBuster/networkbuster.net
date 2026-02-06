@@ -80,10 +80,13 @@
     "bios:boot:bat": "boot-to-bios.bat",
     "start:all": "concurrently \"npm run start\" \"npm run security\" \"npm run timeline\"",
     "build:overlay": "cd challengerepo/real-time-overlay && npm install && npm run build",
-    "build:thruster-artifacts": "node thruster/generateArtifacts.js",
+    "build:thruster-artifacts": "node thruster/generateArtifacts.cjs",
+    "start:thruster-api": "node thruster/server.cjs",
     "test": "node tests/unit/test-device-status-transitions.js",
-    "test:thruster": "node tests/unit/test-thruster-combustion.js",
-    "test:thruster-artifacts": "node tests/unit/test-thruster-artifacts.js",
+    "test:thruster": "node tests/unit/test-thruster-combustion.cjs",
+    "test:thruster-artifacts": "node tests/unit/test-thruster-artifacts.cjs",
+    "test:thruster-multiseg": "node tests/unit/test-thruster-multiseg.cjs",
+    "test:thruster-api": "node tests/integration/test-thruster-api.cjs",
     "build:all": "npm run build:overlay"
   },
   "engines": {
