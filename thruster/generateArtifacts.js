@@ -69,13 +69,43 @@ async function run() {
         // non-fatal
     }
 
+    // 3b) Generate simple telemetry.csv (safe, non-actionable)
+    const telemetryPath = path.join(outDir, 'telemetry.csv');
+    try {
+        const telemetryHeader = 'timestamp,platform,arch,cpu_count,free_mem,total_mem,git_available\n';
+        const cpuCount = os.cpus ? os.cpus().length : 1;
+        const freeMem = os.freemem ? os.freemem() : 0;
+        const totalMem = os.totalmem ? os.totalmem() : 0;
+        const telemetryLine = `${new Date().toISOString()},${process.platform},${process.arch},${cpuCount},${freeMem},${totalMem},${isGitAvailable()}\n`;
+        await fs.promises.writeFile(telemetryPath, telemetryHeader + telemetryLine, 'utf8');
+    } catch (e) {
+        // non-fatal
+    }
+
+    // 3c) Create a manifest.json with file metadata (size, sha256)
+    const crypto = require('crypto');
+    const manifest = [];
+
+    const files = await fs.promises.readdir(outDir);
+    for (const f of files) {
+        const fp = path.join(outDir, f);
+        const stat = await fs.promises.stat(fp);
+        if (stat.isFile()) {
+            const buf = await fs.promises.readFile(fp);
+            const sha = crypto.createHash('sha256').update(buf).digest('hex');
+            manifest.push({ file: f, size: stat.size, sha256: sha });
+        }
+    }
+    const manifestPath = path.join(outDir, 'manifest.json');
+    await fs.promises.writeFile(manifestPath, JSON.stringify({ generated: new Date().toISOString(), files: manifest }, null, 2), 'utf8');
+
     // 4) Package artifacts into zip
     const zipPath = path.join(base, `${runId}.zip`);
     await packageDir(outDir, zipPath);
 
     console.log('Artifacts created:', outDir);
     console.log('Packaged:', zipPath);
-    return { outDir, zipPath };
+    return { outDir, zipPath, manifestPath, telemetryPath };
 }
 
 if (require.main === module) {

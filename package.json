@@ -83,6 +83,7 @@
     "build:thruster-artifacts": "node thruster/generateArtifacts.js",
     "test": "node tests/unit/test-device-status-transitions.js",
     "test:thruster": "node tests/unit/test-thruster-combustion.js",
+    "test:thruster-artifacts": "node tests/unit/test-thruster-artifacts.js",
     "build:all": "npm run build:overlay"
   },
   "engines": {
