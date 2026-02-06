@@ -175,4 +175,4 @@ if (require.main === module) {
   })();
 }
 
-module.exports = { buildProfileData, generateSVG, saveBurnProfileSVG, renderBurnProfilePNG };
+module.exports = { buildProfileData, generateSVG, saveBurnProfileSVG, renderBurnProfilePNG, buildProfileSVGString };

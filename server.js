@@ -1,9 +1,14 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 import os from 'os';
 import { execSync, exec } from 'child_process';
 import { promisify } from 'util';
+
+// CommonJS helpers for existing .cjs modules
+const require = createRequire(import.meta.url);
+const { publishBurnV2 } = require('./thruster/visualizeBurn.cjs');
 
 const execAsync = promisify(exec);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -370,6 +375,42 @@ app.use('/blog', express.static(path.join(__dirname, 'blog')));
 app.use('/dashboard', express.static(path.join(__dirname, 'dashboard/dist')));        
 app.use('/overlay', express.static(path.join(__dirname, 'challengerepo/real-time-overlay/dist')));
 app.use('/', express.static(path.join(__dirname, 'web-app')));
+
+// --------------------------------------------
+// Thruster publish endpoint: publish burn v2
+// --------------------------------------------
+app.post('/api/thruster/publish', async (req, res) => {
+  try {
+    const body = Object.assign({}, req.body || {}, req.query || {});
+    // opts must include initialMass, propellantAvailable, isp, maxThrust, maxG, targetDeltaV
+    const required = ['initialMass', 'propellantAvailable', 'isp', 'maxThrust', 'maxG', 'targetDeltaV'];
+    for (const r of required) if (!Object.prototype.hasOwnProperty.call(body, r)) return res.status(400).json({ ok: false, error: `missing_${r}` });
+
+    // allow absolute Windows path or folder name under THRUSTER_SAVE_DIR
+    let saveDir = body.saveDir || body.save_dir || body.save || null;
+    if (saveDir && (saveDir.toString().startsWith('D:') || saveDir.startsWith('C:') || saveDir.startsWith('/') )) {
+      // use as absolute path
+    } else if (!saveDir) {
+      // default to D: on Windows or thruster-data on other platforms
+      saveDir = process.platform === 'win32' ? 'D:\\thruster' : null; // null will let saveToPath use default
+    }
+
+    const opts = {
+      initialMass: Number(body.initialMass),
+      propellantAvailable: Number(body.propellantAvailable),
+      isp: Number(body.isp),
+      maxThrust: Number(body.maxThrust),
+      maxG: Number(body.maxG),
+      targetDeltaV: Number(body.targetDeltaV)
+    };
+
+    const baseName = body.baseName || null;
+    const result = await publishBurnV2(opts, saveDir, baseName, { width: Number(body.width || 800), height: Number(body.height || 420), title: body.title || 'Burn Profile v2' });
+    res.json(Object.assign({ ok: true }, result));
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
 
 // SPA fallbacks
 app.get('/dashboard', (req, res) => {
