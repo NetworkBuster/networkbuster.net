@@ -87,6 +87,8 @@
     "test:thruster-artifacts": "node tests/unit/test-thruster-artifacts.cjs",
     "test:thruster-multiseg": "node tests/unit/test-thruster-multiseg.cjs",
     "test:thruster-api": "node tests/integration/test-thruster-api.cjs",
+    "test:thruster-visualize": "node tests/unit/test-thruster-visualize.cjs",
+    "start:thruster-ui": "npx http-server thruster/ui -p 3802 -c-1",
     "build:all": "npm run build:overlay"
   },
   "engines": {

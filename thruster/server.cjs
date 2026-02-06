@@ -33,26 +33,44 @@ app.get('/plan', (req, res) => {
   }
 });
 
-// Visualize endpoint: returns SVG or PNG
+// Visualize endpoint: returns SVG or PNG (in-memory, no temp files)
 app.post('/plan/visualize', async (req, res) => {
   const opts = parseNumericOptions(req.body || req.query);
   const format = (req.query.format || req.body.format || 'svg').toLowerCase();
   const title = req.body.title || req.query.title || 'Burn Profile';
   try {
-    const outDir = 'build/thruster-artifacts';
-    const svgPath = `${outDir}/burn-${Date.now()}.svg`;
-    const pngPath = `${outDir}/burn-${Date.now()}.png`;
-    await saveBurnProfileSVG(opts, svgPath, title);
+    const svg = buildProfileSVGString(opts, title);
     if (format === 'png') {
-      const png = await renderBurnProfilePNG(opts, svgPath, pngPath, title);
-      if (png) {
-        const data = await fs.promises.readFile(png);
+      const buf = await require('./visualizeBurn.cjs').renderBurnProfilePNG(opts, null, null, title)
+        .then(() => convertSvgStringToPngBuffer(svg, { width: opts.width, height: opts.height }))
+        .catch(() => null);
+      if (buf) {
         res.set('Content-Type', 'image/png');
-        return res.send(data);
+        return res.send(buf);
       }
       // fallback to svg
     }
-    const svg = await fs.promises.readFile(svgPath, 'utf8');
+    res.set('Content-Type', 'image/svg+xml');
+    res.send(svg);
+  } catch (err) {
+    res.status(400).json({ ok: false, error: err.message });
+  }
+});
+
+// Orbit visualization endpoint
+app.post('/visualize/orbit', async (req, res) => {
+  const opts = parseNumericOptions(req.body || req.query);
+  const format = (req.query.format || req.body.format || 'svg').toLowerCase();
+  try {
+    const { generateOrbitSVG, svgToPngBuffer } = require('./visualizeOrbit.cjs');
+    const svg = generateOrbitSVG(opts);
+    if (format === 'png') {
+      const buf = await svgToPngBuffer(opts).catch(() => null);
+      if (buf) {
+        res.set('Content-Type', 'image/png');
+        return res.send(buf);
+      }
+    }
     res.set('Content-Type', 'image/svg+xml');
     res.send(svg);
   } catch (err) {
