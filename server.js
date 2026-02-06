@@ -2,7 +2,10 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import os from 'os';
+import { execSync, exec } from 'child_process';
+import { promisify } from 'util';
 
+const execAsync = promisify(exec);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -115,6 +118,215 @@ app.get('/api/components', (req, res) => {
       api: { status: 'running', path: '/api', port: PORT }
     },
     timestamp: new Date().toISOString()
+});
+
+// ============================================
+// GIT NAVIGATION API ENDPOINTS
+// ============================================
+
+// Get git repository status
+app.get('/api/git/status', async (req, res) => {
+  try {
+    const gitDir = path.join(__dirname, '.git');
+    const isGitRepo = require('fs').existsSync(gitDir);
+
+    if (!isGitRepo) {
+      return res.json({ error: 'Not a git repository', isGitRepo: false });
+    }
+
+    const status = execSync('git status --porcelain', { cwd: __dirname }).toString().trim();
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: __dirname }).toString().trim();
+    const commit = execSync('git rev-parse HEAD', { cwd: __dirname }).toString().trim();
+
+    const files = status.split('\n').filter(line => line.trim()).map(line => {
+      const status = line.substring(0, 2);
+      const file = line.substring(3);
+      return { status, file };
+    });
+
+    res.json({
+      isGitRepo: true,
+      branch,
+      commit: commit.substring(0, 7),
+      files,
+      hasChanges: files.length > 0,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message, isGitRepo: false });
+  }
+});
+
+// Get git branches
+app.get('/api/git/branches', async (req, res) => {
+  try {
+    const branches = execSync('git branch -a', { cwd: __dirname }).toString().trim();
+    const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: __dirname }).toString().trim();
+
+    const branchList = branches.split('\n').map(branch => {
+      const isCurrent = branch.startsWith('*');
+      const name = branch.replace('*', '').trim();
+      return { name, current: isCurrent };
+    });
+
+    res.json({
+      branches: branchList,
+      current: currentBranch,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get git commits
+app.get('/api/git/commits', async (req, res) => {
+  try {
+    const limit = req.query.limit || 10;
+    const commits = execSync('git log --oneline -' + limit, { cwd: __dirname }).toString().trim();
+
+    const commitList = commits.split('\n').map(line => {
+      const [hash, ...messageParts] = line.split(' ');
+      return {
+        hash,
+        message: messageParts.join(' '),
+        shortHash: hash.substring(0, 7)
+      };
+    });
+
+    res.json({
+      commits: commitList,
+      count: commitList.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get git file tree
+app.get('/api/git/files', async (req, res) => {
+  try {
+    const tree = execSync('git ls-tree -r --name-only HEAD', { cwd: __dirname }).toString().trim();
+    const files = tree.split('\n').filter(file => file.trim());
+
+    // Group files by directory
+    const fileTree = {};
+    files.forEach(file => {
+      const parts = file.split('/');
+      let current = fileTree;
+
+      parts.forEach((part, index) => {
+        if (index === parts.length - 1) {
+          // File
+          if (!current._files) current._files = [];
+          current._files.push(part);
+        } else {
+          // Directory
+          if (!current[part]) current[part] = {};
+          current = current[part];
+        }
+      });
+    });
+
+    res.json({
+      files: fileTree,
+      totalFiles: files.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get git diff
+app.get('/api/git/diff', async (req, res) => {
+  try {
+    const diff = execSync('git diff', { cwd: __dirname }).toString();
+    res.json({
+      diff,
+      hasChanges: diff.length > 0,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// CONTENT CONNECTIONS API ENDPOINTS
+// ============================================
+
+// Get content sections
+app.get('/api/content/sections', (req, res) => {
+  const sections = {
+    main: [
+      { id: 'home', title: 'Home', path: '/', icon: '🏠', type: 'page' },
+      { id: 'about', title: 'About', path: '/about.html', icon: 'ℹ️', type: 'page' },
+      { id: 'projects', title: 'Projects', path: '/projects.html', icon: '🚀', type: 'page' },
+      { id: 'technology', title: 'Technology', path: '/technology.html', icon: '⚡', type: 'page' },
+      { id: 'documentation', title: 'Documentation', path: '/documentation.html', icon: '📖', type: 'page' },
+      { id: 'contact', title: 'Contact', path: '/contact.html', icon: '✉️', type: 'page' }
+    ],
+    apps: [
+      { id: 'dashboard', title: 'Dashboard', path: '/dashboard/', icon: '📊', type: 'app', port: 3000 },
+      { id: 'control-panel', title: 'Control Panel', path: '/control-panel', icon: '🎛️', type: 'app', port: 3000 },
+      { id: 'audio-lab', title: 'Audio Lab', path: '/audio-lab', icon: '🎵', type: 'app', port: 3002 },
+      { id: 'auth-portal', title: 'Auth Portal', path: '/auth/', icon: '🔐', type: 'app', port: 3003 },
+      { id: 'overlay', title: 'AI World Overlay', path: '/overlay/', icon: '🌐', type: 'app' },
+      { id: 'git-nav', title: 'Git Navigator', path: '/git-nav', icon: '📂', type: 'app', port: 3000 }
+    ],
+    tools: [
+      { id: 'calculator', title: 'Calculator', path: '/#calculator', icon: '🧮', type: 'tool' },
+      { id: 'data-center', title: 'Data Center', path: '/#data', icon: '💾', type: 'tool' },
+      { id: 'flash-commands', title: 'Flash Commands', path: '/flash-commands.html', icon: '⚡', type: 'tool' },
+      { id: 'packages', title: 'Packages', path: '/packages.html', icon: '📦', type: 'tool' },
+      { id: 'function-hud', title: 'Function HUD', path: '/hud.html', icon: '🛰️', type: 'tool' },
+      { id: 'blog', title: 'Blog', path: '/blog/', icon: '📝', type: 'tool' }
+    ],
+    api: [
+      { id: 'health', title: 'Health Check', path: '/api/health', icon: '❤️', type: 'api', method: 'GET' },
+      { id: 'status', title: 'System Status', path: '/api/status', icon: '📊', type: 'api', method: 'GET' },
+      { id: 'logs', title: 'System Logs', path: '/api/logs', icon: '📜', type: 'api', method: 'GET' },
+      { id: 'git-status', title: 'Git Status', path: '/api/git/status', icon: '📂', type: 'api', method: 'GET' },
+      { id: 'git-branches', title: 'Git Branches', path: '/api/git/branches', icon: '🌿', type: 'api', method: 'GET' },
+      { id: 'git-commits', title: 'Git Commits', path: '/api/git/commits', icon: '📋', type: 'api', method: 'GET' }
+    ]
+  };
+
+  res.json({
+    sections,
+    totalSections: Object.keys(sections).length,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Get content connections (relationships between sections)
+app.get('/api/content/connections', (req, res) => {
+  const connections = {
+    'home': ['about', 'projects', 'technology', 'documentation', 'contact'],
+    'about': ['home', 'projects', 'technology'],
+    'projects': ['home', 'about', 'technology', 'documentation'],
+    'technology': ['home', 'projects', 'documentation', 'git-nav'],
+    'documentation': ['home', 'technology', 'projects', 'git-nav'],
+    'contact': ['home', 'about'],
+    'dashboard': ['control-panel', 'data-center', 'function-hud'],
+    'control-panel': ['dashboard', 'health', 'status', 'logs'],
+    'audio-lab': ['dashboard', 'control-panel'],
+    'auth-portal': ['dashboard', 'control-panel'],
+    'overlay': ['dashboard', 'audio-lab'],
+    'git-nav': ['technology', 'documentation', 'git-status', 'git-branches', 'git-commits'],
+    'calculator': ['data-center', 'function-hud'],
+    'data-center': ['calculator', 'dashboard', 'function-hud'],
+    'flash-commands': ['control-panel', 'function-hud'],
+    'packages': ['documentation', 'git-nav'],
+    'function-hud': ['calculator', 'data-center', 'dashboard'],
+    'blog': ['documentation', 'about']
+  };
+
+  res.json({
+    connections,
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -132,10 +344,26 @@ app.post('/api/toggle/:feature', (req, res) => {
   });
 });
 
-// Control panel route (embedded HTML with operational buttons)
-app.get('/control-panel', (req, res) => {
-  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>NetworkBuster Control Panel</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}.container{max-width:1200px;margin:0 auto}.header{text-align:center;color:#fff;margin-bottom:30px}.header h1{font-size:2.5em;margin-bottom:10px}.status-bar{background:rgba(255,255,255,.95);padding:20px;border-radius:10px;margin-bottom:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}.status-item{padding:15px;background:#f8f9fa;border-radius:8px;border-left:4px solid #667eea}.status-label{font-size:.9em;color:#666;margin-bottom:5px;font-weight:600}.status-value{font-size:1.5em;color:#333;font-weight:bold}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:30px}.control-section{background:rgba(255,255,255,.95);padding:25px;border-radius:10px}.section-title{font-size:1.2em;font-weight:700;color:#333;margin-bottom:20px}.button-group{display:flex;flex-direction:column;gap:10px}button{padding:12px 20px;border:none;border-radius:6px;font-size:1em;font-weight:600;cursor:pointer;transition:all 0.3s;color:#fff}.btn-success{background:#48bb78}.btn-success:hover{background:#38a169;transform:translateY(-2px)}.btn-primary{background:#667eea}.btn-primary:hover{background:#5568d3;transform:translateY(-2px)}.btn-info{background:#4299e1}.btn-info:hover{background:#3182ce;transform:translateY(-2px)}.btn-warning{background:#ed8936}.btn-warning:hover{background:#dd6b20;transform:translateY(-2px)}.btn-danger{background:#f56565}.btn-danger:hover{background:#e53e3e;transform:translateY(-2px)}.alert{padding:12px 16px;border-radius:6px;margin-bottom:15px}.alert-success{background:#c6f6d5;color:#22543d}.alert-error{background:#fed7d7;color:#742a2a}.alert-info{background:#bee3f8;color:#2c5282}.logs-container{background:rgba(255,255,255,.95);padding:25px;border-radius:10px}.logs-list{background:#1a202c;color:#a0aec0;padding:15px;border-radius:6px;max-height:300px;overflow-y:auto;font-family:monospace;font-size:.9em;line-height:1.6}</style></head><body><div class="container"><div class="header"><h1>⚙️ NetworkBuster Control Panel</h1><p>Operational Dashboard & System Controls</p></div><div class="status-bar"><div class="status-item"><div class="status-label">Status</div><div class="status-value" id="statusValue">Running</div></div><div class="status-item"><div class="status-label">Uptime</div><div class="status-value" id="uptimeValue">0s</div></div><div class="status-item"><div class="status-label">Requests</div><div class="status-value" id="requestsValue">0</div></div><div class="status-item"><div class="status-label">Last Action</div><div class="status-value" id="lastActionValue">None</div></div></div><div id="alerts"></div><div class="controls"><div class="control-section"><div class="section-title">⚙️ Application Control</div><div class="button-group"><button class="btn-success" onclick="checkHealth()">✓ Health Check</button><button class="btn-info" onclick="getComponentStatus()">📊 Components</button><button class="btn-warning" onclick="getSystemStatus()">💻 System Info</button><button class="btn-danger" onclick="restartApp()">🔄 Restart</button></div></div><div class="control-section"><div class="section-title">🎯 Navigation</div><div class="button-group"><button class="btn-primary" onclick="openPath('/')">🏠 Home</button><button class="btn-primary" onclick="openPath('/dashboard')">📈 Dashboard</button><button class="btn-primary" onclick="openPath('/overlay')">🎨 Overlay</button><button class="btn-primary" onclick="openPath('/blog')">📝 Blog</button></div></div><div class="control-section"><div class="section-title">🔧 Features</div><div class="button-group"><button class="btn-primary" onclick="toggleFeature('analytics')">📊 Analytics</button><button class="btn-primary" onclick="toggleFeature('notifications')">🔔 Notifications</button><button class="btn-primary" onclick="toggleFeature('darkMode')">🌙 Dark Mode</button><button class="btn-primary" onclick="toggleFeature('debug')">🐛 Debug</button></div></div><div class="control-section"><div class="section-title">📋 Maintenance</div><div class="button-group"><button class="btn-info" onclick="viewLogs()">📜 View Logs</button><button class="btn-warning" onclick="clearLogs()">🗑️ Clear Logs</button><button class="btn-danger" onclick="clearCache()">💾 Cache</button><button class="btn-success" onclick="exportLogs()">📥 Export</button></div></div></div><div class="logs-container"><div style="display:flex;justify-content:space-between;margin-bottom:15px"><h3>📜 System Logs</h3><button class="btn-warning" onclick="viewLogs()" style="width:auto">Refresh</button></div><div class="logs-list" id="logsList">Loading logs...</div></div></div><script>function showAlert(m,t='info'){const a=document.getElementById('alerts');const e=document.createElement('div');e.className='alert alert-'+t;e.textContent=m;a.appendChild(e);setTimeout(()=>e.remove(),5000)}function updateStatus(){fetch('/api/status').then(r=>r.json()).then(d=>{document.getElementById('statusValue').textContent=d.status;document.getElementById('uptimeValue').textContent=formatUptime(d.uptime);document.getElementById('requestsValue').textContent=d.requestCount;document.getElementById('lastActionValue').textContent=d.lastAction||'None'}).catch(e=>console.error(e))}function formatUptime(s){const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);const sec=s%60;if(h>0)return h+'h '+m+'m';return m+'m '+sec+'s'}function checkHealth(){fetch('/api/health').then(r=>r.json()).then(d=>{showAlert('✓ Healthy! Uptime: '+formatUptime(d.uptime),'success');updateStatus()}).catch(e=>showAlert('Health check failed','error'))}function getSystemStatus(){fetch('/api/status').then(r=>r.json()).then(d=>{const mu=Math.round(d.systemInfo.memoryUsage.heapUsed/1024/1024);showAlert('Platform: '+d.systemInfo.platform+' | CPUs: '+d.systemInfo.cpus+' | Memory: '+mu+'MB','info')}).catch(e=>showAlert('Failed','error'))}function getComponentStatus(){fetch('/api/components').then(r=>r.json()).then(d=>{const c=Object.keys(d.components).join(', ');showAlert('✓ Online: '+c,'success')}).catch(e=>showAlert('Failed','error'))}function restartApp(){if(confirm('Restart application?')){fetch('/api/restart',{method:'POST'}).then(r=>r.json()).then(d=>showAlert('⚠️ '+d.message,'warning')).catch(e=>showAlert('Failed','error'))}}function toggleFeature(f){fetch('/api/toggle/'+f,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:true})}).then(r=>r.json()).then(d=>showAlert(d.message,'success')).catch(e=>showAlert('Failed','error'))}function viewLogs(){fetch('/api/logs').then(r=>r.json()).then(d=>{const l=document.getElementById('logsList');if(d.logs.length===0){l.innerHTML='No logs'}else{l.innerHTML=d.logs.map(x=>'<div>'+x+'</div>').join('')}l.scrollTop=l.scrollHeight}).catch(e=>console.error(e))}function clearLogs(){if(confirm('Clear logs?')){fetch('/api/logs/clear',{method:'POST'}).then(r=>r.json()).then(d=>{showAlert('✓ Cleared','success');viewLogs()}).catch(e=>showAlert('Failed','error'))}}function clearCache(){localStorage.clear();showAlert('✓ Cache cleared','success')}function exportLogs(){fetch('/api/logs').then(r=>r.json()).then(d=>{const t=d.logs.join('\\n');const b=new Blob([t],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='logs.txt';a.click();showAlert('✓ Exported','success')}).catch(e=>showAlert('Failed','error'))}function openPath(p){location.href=p}setInterval(updateStatus,5000);updateStatus();viewLogs()</script></body></html>`);
-});
+// Git Navigator route (temporarily disabled)
+// app.get('/git-nav', (req, res) => {
+//   res.send(`<h1>Git Navigator</h1><p>Coming soon...</p>`);
+// });
+
+// Control panel route (temporarily removed for debugging)
+// app.get('/control-panel', (req, res) => {
+//   res.send(`<!DOCTYPE html>
+// <html>
+// <head>
+//     <meta charset="UTF-8">
+//     <meta name="viewport" content="width=device-width, initial-scale=1">
+//     <title>NetworkBuster Control Panel</title>
+// </head>
+// <body>
+//     <h1>Control Panel</h1>
+//     <p>Operational Dashboard</p>
+// </body>
+// </html>`);
+// });
 
 // Serve static files
 app.use('/blog', express.static(path.join(__dirname, 'blog')));

@@ -20,6 +20,7 @@ const NAVIGATION = {
     projects: { path: '/projects.html', label: 'Projects', icon: '🚀' },
     technology: { path: '/technology.html', label: 'Technology', icon: '⚡' },
     documentation: { path: '/documentation.html', label: 'Docs', icon: '📖' },
+    connections: { path: '/content-connections.html', label: 'Connections', icon: '🔗' },
     contact: { path: '/contact.html', label: 'Contact', icon: '✉️' }
   },
 
@@ -30,7 +31,8 @@ const NAVIGATION = {
     authUI: { path: '/auth/', label: 'Auth Portal', icon: '🔐', port: 3003 },
     audioLab: { path: '/audio-lab', label: 'Audio Lab', icon: '🎵', port: 3002 },
     controlPanel: { path: '/control-panel', label: 'Control Panel', icon: '🎛️', port: 3000 },
-    overlay: { path: '/overlay/', label: 'AI World Overlay', icon: '🌐' }
+    overlay: { path: '/overlay/', label: 'AI World Overlay', icon: '🌐' },
+    gitNav: { path: '/git-nav', label: 'Git Navigator', icon: '📂', port: 3000 }
   },
 
   // API Endpoints
@@ -48,6 +50,7 @@ const NAVIGATION = {
   lunar: {
     calculator: { path: '/#calculator', label: 'Calculator', icon: '🧮' },
     data: { path: '/#data', label: 'Data Center', icon: '💾' },
+    functionHub: { path: '/function-hub.html', label: 'Function Hub', icon: '⚙️' },
     flashCommands: { path: '/flash-commands.html', label: 'Flash Commands', icon: '⚡' }
   },
 
