@@ -78,13 +78,19 @@ app.post('/visualize/orbit', async (req, res) => {
   }
 });
 
-// Optimize variable-segment deltaV per cost. Accepts cost='min_propellant'|'min_time'|'min_peakG'
+// Optimize variable-segment deltaV per cost. Accepts cost='min_propellant'|'min_time'|'min_peakG' and method='grid'|'heuristic'
 app.post('/plan/optimize', (req, res) => {
   const opts = parseNumericOptions(req.body || req.query);
   const cost = (req.body.cost || req.query.cost || 'min_peakG');
+  const method = (req.body.method || req.query.method || 'grid');
   try {
-    const optimized = planOptimizedMultiSegment(opts, { cost });
-    res.json({ ok: true, optimized });
+    let optimized = null;
+    if (method === 'heuristic') {
+      optimized = planOptimizedMultiSegmentHeuristic(opts, { cost, steps: Number(req.body.steps || req.query.steps || 12), iterations: Number(req.body.iterations || req.query.iterations || 2000) });
+    } else {
+      optimized = planOptimizedMultiSegment(opts, { cost, steps: Number(req.body.steps || req.query.steps || 6) });
+    }
+    res.json({ ok: true, optimized, method });
   } catch (err) {
     res.status(400).json({ ok: false, error: err.message });
   }

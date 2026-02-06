@@ -158,11 +158,179 @@ function planMultiSegmentBurn(opts) {
   return { possible: true, ...best };
 }
 
+/**
+ * Plan optimized multi-segment deltaV allocation using a small discrete search.
+ * Supports cost functions: 'min_peakG', 'min_propellant', 'min_time'.
+ * This is a conservative, small-grid search for prototyping (not for flight use).
+ */
+function planOptimizedMultiSegment(opts, options = {}) {
+  const cost = options.cost || 'min_peakG';
+  const maxSegments = opts.maxSegments || 3;
+  const steps = options.steps || 6; // discretize target deltaV into `steps` quanta per allocation
+  const target = opts.targetDeltaV;
+
+  function genAlloc(nSegments, steps) {
+    const out = [];
+    function helper(k, remaining, acc) {
+      if (k === 1) return out.push([...acc, remaining]);
+      for (let i = 0; i <= remaining; i++) helper(k - 1, remaining - i, [...acc, i]);
+    }
+    helper(nSegments, steps, []);
+    return out.map(parts => parts.map(p => (p / steps) * target));
+  }
+
+  function evaluateAllocation(alloc) {
+    let mass = opts.initialMass;
+    let remProp = opts.propellantAvailable;
+    let totalProp = 0;
+    let totalTime = 0;
+    let peakG = 0;
+    const segs = [];
+
+    for (const dV of alloc) {
+      if (dV <= 0) { segs.push(null); continue; }
+      const mf = computeFinalMassForDeltaV(opts.isp, mass, dV);
+      const propNeeded = Math.max(0, mass - mf);
+      if (propNeeded - remProp > 1e-9) return null;
+      const maxThrustByG = opts.maxG * mass * g0;
+      let thrust = Math.min(opts.maxThrust || Infinity, maxThrustByG);
+      if (opts.preferredThrust) thrust = Math.min(thrust, opts.preferredThrust);
+      if (thrust <= 0) return null;
+      const mdot = thrust / (opts.isp * g0);
+      const burnTime = mdot > 0 ? propNeeded / mdot : Infinity;
+      const segPeakG = thrust / (mass * g0);
+      segs.push({ deltaV: dV, startMass: mass, endMass: mf, propellantUsed: propNeeded, burnTimeSeconds: burnTime, thrust, peakG: segPeakG });
+      mass = mf;
+      remProp -= propNeeded;
+      totalProp += propNeeded;
+      totalTime += burnTime;
+      peakG = Math.max(peakG, segPeakG);
+    }
+
+    let score;
+    if (cost === 'min_propellant') score = totalProp;
+    else if (cost === 'min_time') score = totalTime;
+    else score = peakG;
+
+    return { segs, totals: { propellantUsed: totalProp, burnTimeSeconds: totalTime, peakG }, score };
+  }
+
+  let best = null;
+  for (let s = 1; s <= maxSegments; s++) {
+    const allocs = genAlloc(s, steps);
+    for (const alloc of allocs) {
+      if (!alloc.some(v => v > 1e-12)) continue;
+      const evaled = evaluateAllocation(alloc);
+      if (!evaled) continue;
+      if (!best || evaled.score < best.score - 1e-9 || (Math.abs(evaled.score - best.score) < 1e-9 && evaled.totals.burnTimeSeconds < best.totals.burnTimeSeconds)) {
+        best = { segments: evaled.segs, totals: evaled.totals, score: evaled.score, segmentsCount: s, allocation: alloc };
+      }
+    }
+  }
+
+  if (!best) return { possible: false, reason: 'no_feasible_allocation' };
+  return { possible: true, ...best };
+}
+
+/**
+ * Heuristic optimizer using random perturbations + hill-climb with temperature (simulated annealing style).
+ * Returns a feasible allocation optimized for the given cost function.
+ */
+function planOptimizedMultiSegmentHeuristic(opts, options = {}) {
+  const cost = options.cost || 'min_peakG';
+  const maxSegments = opts.maxSegments || 3;
+  const steps = options.steps || 12; // resolution for initial seed
+  const target = opts.targetDeltaV;
+  const iterations = options.iterations || 2000;
+  const tempStart = options.tempStart || 1.0;
+  const tempEnd = options.tempEnd || 0.001;
+
+  function evalAlloc(alloc) {
+    let mass = opts.initialMass;
+    let remProp = opts.propellantAvailable;
+    let totalProp = 0;
+    let totalTime = 0;
+    let peakG = 0;
+    const segs = [];
+    for (const dV of alloc) {
+      if (dV <= 0) { segs.push(null); continue; }
+      const mf = computeFinalMassForDeltaV(opts.isp, mass, dV);
+      const propNeeded = Math.max(0, mass - mf);
+      if (propNeeded - remProp > 1e-9) return null;
+      const maxThrustByG = opts.maxG * mass * g0;
+      let thrust = Math.min(opts.maxThrust || Infinity, maxThrustByG);
+      if (opts.preferredThrust) thrust = Math.min(thrust, opts.preferredThrust);
+      if (thrust <= 0) return null;
+      const mdot = thrust / (opts.isp * g0);
+      const burnTime = mdot > 0 ? propNeeded / mdot : Infinity;
+      const segPeakG = thrust / (mass * g0);
+      segs.push({ deltaV: dV, startMass: mass, endMass: mf, propellantUsed: propNeeded, burnTimeSeconds: burnTime, thrust, peakG: segPeakG });
+      mass = mf;
+      remProp -= propNeeded;
+      totalProp += propNeeded;
+      totalTime += burnTime;
+      peakG = Math.max(peakG, segPeakG);
+    }
+    let score = (cost === 'min_propellant') ? totalProp : (cost === 'min_time' ? totalTime : peakG);
+    return { segs, totals: { propellantUsed: totalProp, burnTimeSeconds: totalTime, peakG }, score };
+  }
+
+  // seed: equal split allocations and keep best
+  function seedAlloc(s) {
+    const base = target / s;
+    return Array.from({ length: s }, () => base);
+  }
+
+  function mutateAlloc(alloc) {
+    // random small transfer between two segments (keeps sum constant)
+    const s = alloc.length;
+    const i = Math.floor(Math.random() * s);
+    let j = Math.floor(Math.random() * s);
+    while (j === i && s > 1) j = Math.floor(Math.random() * s);
+    const delta = (Math.random() - 0.5) * (target / (s * 8));
+    const next = alloc.slice();
+    next[i] = Math.max(0, next[i] + delta);
+    next[j] = Math.max(0, next[j] - delta);
+    return next;
+  }
+
+  let best = null;
+  // initialize with seeds for different segment counts
+  for (let s = 1; s <= maxSegments; s++) {
+    const alloc = seedAlloc(s);
+    const evaled = evalAlloc(alloc);
+    if (!evaled) continue;
+    const candidate = { alloc, evaled };
+    if (!best || evaled.score < best.evaled.score) best = candidate;
+
+    // run annealing starting from this seed
+    let current = candidate;
+    let temp = tempStart;
+    for (let it = 0; it < iterations; it++) {
+      const tFrac = it / iterations;
+      temp = tempStart * Math.pow(tempEnd / tempStart, tFrac);
+      const trialAlloc = mutateAlloc(current.alloc);
+      const trialEval = evalAlloc(trialAlloc);
+      if (!trialEval) continue;
+      const d = trialEval.score - current.evaled.score;
+      if (d < 0 || Math.exp(-d / (temp + 1e-12)) > Math.random()) {
+        current = { alloc: trialAlloc, evaled: trialEval };
+      }
+      if (current.evaled.score < best.evaled.score - 1e-12) best = current;
+    }
+  }
+
+  if (!best) return { possible: false, reason: 'no_feasible_allocation' };
+  return { possible: true, segments: best.evaled.segs, totals: best.evaled.totals, allocation: best.alloc, score: best.evaled.score };
+}
+
 module.exports = {
   computeDeltaV,
   computeFinalMassForDeltaV,
   propellantForDeltaV,
   planBurn,
   planMultiSegmentBurn,
+  planOptimizedMultiSegment,
+  planOptimizedMultiSegmentHeuristic,
   g0
 };
