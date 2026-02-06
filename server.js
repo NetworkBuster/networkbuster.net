@@ -431,31 +431,55 @@ app.use('/api/proxy/networkbuster', async (req, res) => {
     const apiKey = keyObj ? keyObj.key : undefined;
 
     const targetBase = 'http://localhost:4000';
-    const pathSuffix = req.path || '/';
-    const targetUrl = `${targetBase}${pathSuffix}${req.url.includes('?') ? '' : ''}`;
+    // explicit prefix strip so we forward the correct path
+    const prefix = '/api/proxy/networkbuster';
+    const forwardPath = (req.originalUrl && req.originalUrl.startsWith(prefix)) ? req.originalUrl.slice(prefix.length) : (req.path || '/');
+    const query = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
 
     // build fetch options
     const headers = Object.assign({}, req.headers);
-    // override host-related headers
     delete headers.host;
     if (apiKey) headers['x-api-key'] = apiKey;
 
     const fetchOpts = {
       method: req.method,
       headers,
-      // forward body for non-GET
       body: ['GET', 'HEAD'].includes(req.method) ? undefined : req
     };
 
-    const forwarded = await fetch(targetBase + req.path + (req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''), fetchOpts);
-    // copy status and headers
-    forwarded.headers.forEach((v, k) => {
-      // filter hop-by-hop
-      if (!['transfer-encoding', 'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'upgrade'].includes(k)) res.set(k, v);
-    });
-    res.status(forwarded.status);
-    const buffer = await forwarded.arrayBuffer();
-    return res.send(Buffer.from(buffer));
+    const forwardUrl = targetBase + (forwardPath || '/') + query;
+    console.log('proxy ->', forwardUrl, 'method', req.method);
+
+    // simulation mode check: environment OR query param
+    const simulateEnv = (process.env.THRUSTER_PROXY_MODE === 'simulate') || (process.env.THRUSTER_PROXY_SIMULATE === '1');
+    const simulateReq = (req.query && (req.query.simulate === '1' || req.query.simulate === 'true'));
+    const simulate = simulateEnv || simulateReq;
+
+    if (simulate) {
+      // return a safe simulated response for testing/offline
+      res.set('x-proxy-simulated', '1');
+      return res.json({ ok: true, simulated: true, proxiedUrl: forwardUrl, method: req.method, note: 'simulation mode active' });
+    }
+
+    try {
+      const forwarded = await fetch(forwardUrl, fetchOpts);
+      // echo the forward URL for debugging
+      res.set('x-proxied-url', forwardUrl);
+      // copy status and headers
+      forwarded.headers.forEach((v, k) => {
+        if (!['transfer-encoding', 'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'upgrade'].includes(k)) res.set(k, v);
+      });
+      res.status(forwarded.status);
+      const buffer = await forwarded.arrayBuffer();
+      return res.send(Buffer.from(buffer));
+    } catch (err) {
+      console.error('proxy fetch error', err);
+      if (simulateEnv) {
+        res.set('x-proxy-simulated', '1');
+        return res.json({ ok: true, simulated: true, proxiedUrl: forwardUrl, method: req.method, note: 'simulation fallback due to fetch error' });
+      }
+      res.status(502).json({ ok: false, error: 'proxy_fetch_error', detail: String(err) });
+    }
   } catch (err) {
     console.error('proxy error', err);
     res.status(502).json({ ok: false, error: String(err) });
