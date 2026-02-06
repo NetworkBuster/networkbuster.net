@@ -324,6 +324,171 @@ function planOptimizedMultiSegmentHeuristic(opts, options = {}) {
   return { possible: true, segments: best.evaled.segs, totals: best.evaled.totals, allocation: best.alloc, score: best.evaled.score };
 }
 
+// Simple Nelder-Mead implementation for continuous optimization
+function nelderMead(fn, x0, options = {}) {
+  const n = x0.length;
+  const maxIter = options.maxIter || 500;
+  const tol = options.tol || 1e-6;
+  const alpha = 1; // reflection
+  const gamma = 2; // expansion
+  const rho = 0.5; // contraction
+  const sigma = 0.5; // shrink
+
+  // helper: sort simplex
+  function sortSimplex(simplex, vals) {
+    const idx = [...Array(simplex.length).keys()].sort((a, b) => vals[a] - vals[b]);
+    return { simplex: idx.map(i => simplex[i]), vals: idx.map(i => vals[i]) };
+  }
+
+  // initialize simplex around x0
+  const simplex = [x0.slice()];
+  for (let i = 0; i < n; i++) {
+    const xi = x0.slice();
+    xi[i] = xi[i] + (xi[i] === 0 ? 0.01 : xi[i] * 0.05) + 1e-8;
+    simplex.push(xi);
+  }
+  let vals = simplex.map(x => fn(x));
+
+  for (let iter = 0; iter < maxIter; iter++) {
+    const sorted = sortSimplex(simplex, vals);
+    let s = sorted.simplex;
+    let f = sorted.vals;
+    // centroid of best n points (exclude worst)
+    const centroid = Array(n).fill(0);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) centroid[j] += s[i][j];
+    }
+    for (let j = 0; j < n; j++) centroid[j] /= n;
+
+    // reflection
+    const worst = s[n];
+    const xr = centroid.map((c, i) => c + alpha * (c - worst[i]));
+    const fr = fn(xr);
+    if (fr < f[0]) {
+      // expansion
+      const xe = centroid.map((c, i) => c + gamma * (xr[i] - c));
+      const fe = fn(xe);
+      if (fe < fr) {
+        s[n] = xe; f[n] = fe;
+      } else {
+        s[n] = xr; f[n] = fr;
+      }
+    } else if (fr < f[n - 1]) {
+      s[n] = xr; f[n] = fr;
+    } else {
+      // contraction
+      const xc = centroid.map((c, i) => c + rho * (worst[i] - c));
+      const fc = fn(xc);
+      if (fc < f[n]) {
+        s[n] = xc; f[n] = fc;
+      } else {
+        // shrink
+        for (let i = 1; i <= n; i++) {
+          s[i] = s[0].map((x0i, j) => s[0][j] + sigma * (s[i][j] - s[0][j]));
+          f[i] = fn(s[i]);
+        }
+      }
+    }
+
+    // replace simplex and vals
+    simplex.length = 0; simplex.push(...s);
+    vals = f;
+
+    // termination: check std dev of function values
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length);
+    if (sd < tol) break;
+  }
+
+  // return best
+  let bestIdx = 0; for (let i = 1; i < vals.length; i++) if (vals[i] < vals[bestIdx]) bestIdx = i;
+  return { x: simplex[bestIdx], fx: vals[bestIdx] };
+}
+
+/**
+ * Continuous optimizer over allocations using Nelder-Mead on an unconstrained vector.
+ * Maps real vector y -> positive weights via softmax, then scales to target.
+ */
+function planOptimizedMultiSegmentContinuous(opts, options = {}) {
+  const cost = options.cost || 'min_peakG';
+  const maxSegments = opts.maxSegments || 3;
+  const target = opts.targetDeltaV;
+  // objective: given real vector y, compute allocation and evaluate score
+  function makeEval(s) {
+    return function(y) {
+      // map y -> allocations (softmax)
+      const ex = y.map(v => Math.exp(v));
+      const sum = ex.reduce((a, b) => a + b, 0) + 1e-12;
+      const alloc = ex.map(v => (v / sum) * target);
+
+      // evaluate allocation similar to evaluateAllocation
+      let mass = opts.initialMass;
+      let remProp = opts.propellantAvailable;
+      let totalProp = 0;
+      let totalTime = 0;
+      let peakG = 0;
+      for (const dV of alloc) {
+        if (dV <= 0) continue;
+        const mf = computeFinalMassForDeltaV(opts.isp, mass, dV);
+        const propNeeded = Math.max(0, mass - mf);
+        if (propNeeded - remProp > 1e-9) return 1e9 + propNeeded; // infeasible heavy penalty
+        const maxThrustByG = opts.maxG * mass * g0;
+        let thrust = Math.min(opts.maxThrust || Infinity, maxThrustByG);
+        if (opts.preferredThrust) thrust = Math.min(thrust, opts.preferredThrust);
+        if (thrust <= 0) return 1e9 + Math.abs(thrust);
+        const mdot = thrust / (opts.isp * g0);
+        const burnTime = mdot > 0 ? propNeeded / mdot : Infinity;
+        const segPeakG = thrust / (mass * g0);
+        mass = mf;
+        remProp -= propNeeded;
+        totalProp += propNeeded;
+        totalTime += burnTime;
+        peakG = Math.max(peakG, segPeakG);
+      }
+      if (cost === 'min_propellant') return totalProp;
+      if (cost === 'min_time') return totalTime;
+      return peakG;
+    };
+  }
+
+  let bestGlobal = null;
+  for (let s = 1; s <= maxSegments; s++) {
+    // initial y0 zeros -> uniform allocations
+    const y0 = Array(s).fill(0);
+    const res = nelderMead(makeEval(s), y0, { maxIter: options.maxIter || 400, tol: options.tol || 1e-6 });
+    // recover allocation
+    const ex = res.x.map(v => Math.exp(v));
+    const sum = ex.reduce((a, b) => a + b, 0) + 1e-12;
+    const alloc = ex.map(v => (v / sum) * target);
+
+    // evaluate full allocation for details
+    let mass = opts.initialMass;
+    let remProp = opts.propellantAvailable;
+    const segs = [];
+    let totalProp = 0;
+    let totalTime = 0;
+    let peakG = 0;
+    for (const dV of alloc) {
+      const mf = computeFinalMassForDeltaV(opts.isp, mass, dV);
+      const propNeeded = Math.max(0, mass - mf);
+      const maxThrustByG = opts.maxG * mass * g0;
+      let thrust = Math.min(opts.maxThrust || Infinity, maxThrustByG);
+      if (opts.preferredThrust) thrust = Math.min(thrust, opts.preferredThrust);
+      const mdot = thrust / (opts.isp * g0);
+      const burnTime = mdot > 0 ? propNeeded / mdot : Infinity;
+      const segPeakG = thrust / (mass * g0);
+      segs.push({ deltaV: dV, startMass: mass, endMass: mf, propellantUsed: propNeeded, burnTimeSeconds: burnTime, thrust, peakG: segPeakG });
+      mass = mf; remProp -= propNeeded; totalProp += propNeeded; totalTime += burnTime; peakG = Math.max(peakG, segPeakG);
+    }
+    const score = (options.cost === 'min_propellant') ? totalProp : (options.cost === 'min_time' ? totalTime : peakG);
+    const candidate = { segments: segs, totals: { propellantUsed: totalProp, burnTimeSeconds: totalTime, peakG }, score, allocation: alloc, segmentsCount: s };
+    if (!bestGlobal || candidate.score < bestGlobal.score) bestGlobal = candidate;
+  }
+
+  if (!bestGlobal) return { possible: false, reason: 'no_feasible_allocation' };
+  return { possible: true, ...bestGlobal };
+}
+
 module.exports = {
   computeDeltaV,
   computeFinalMassForDeltaV,
@@ -332,5 +497,6 @@ module.exports = {
   planMultiSegmentBurn,
   planOptimizedMultiSegment,
   planOptimizedMultiSegmentHeuristic,
+  planOptimizedMultiSegmentContinuous,
   g0
 };
