@@ -80,6 +80,9 @@
     "bios:boot:bat": "boot-to-bios.bat",
     "start:all": "concurrently \"npm run start\" \"npm run security\" \"npm run timeline\"",
     "build:overlay": "cd challengerepo/real-time-overlay && npm install && npm run build",
+    "build:thruster-artifacts": "node thruster/generateArtifacts.js",
+    "test": "node tests/unit/test-device-status-transitions.js",
+    "test:thruster": "node tests/unit/test-thruster-combustion.js",
     "build:all": "npm run build:overlay"
   },
   "engines": {
@@ -89,7 +92,9 @@
   "dependencies": {
     "express": "^5.2.1",
     "compression": "^1.7.4",
-    "helmet": "^7.1.0"
+    "helmet": "^7.1.0",
+    "jimp": "^0.22.10",
+    "archiver": "^5.3.1"
   },
   "files": [
     "server.js",

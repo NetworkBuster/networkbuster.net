@@ -1,0 +1,29 @@
+name: Build Thruster Artifacts
+
+on:
+  push:
+    paths:
+      - 'thruster/**'
+      - 'api/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install deps
+        run: npm ci
+      - name: Run thruster tests
+        run: npm run test:thruster
+      - name: Build Thruster Artifacts
+        run: npm run build:thruster-artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: thruster-artifacts
+          path: build/thruster-artifacts
