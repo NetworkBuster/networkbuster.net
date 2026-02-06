@@ -1,5 +1,6 @@
-const fetch = (typeof global.fetch === 'function') ? global.fetch : require('node-fetch');
-const { planMultiSegmentBurn } = require('./thrusterPhysics.cjs');
+const fetch =
+  typeof global.fetch === "function" ? global.fetch : require("node-fetch");
+const { planMultiSegmentBurn } = require("./thrusterPhysics.cjs");
 
 /**
  * Simulate separation after a drift period.
@@ -9,19 +10,30 @@ const { planMultiSegmentBurn } = require('./thrusterPhysics.cjs');
  */
 function separateAfterDrift(opts, options = {}) {
   const driftSeconds = Number(options.driftSeconds || 0);
-  if (driftSeconds <= 0) return { separated: false, reason: 'invalid_drift_seconds' };
-  const onlyIfEven = options.onlyIfEven === undefined ? true : Boolean(options.onlyIfEven);
+  if (driftSeconds <= 0)
+    return { separated: false, reason: "invalid_drift_seconds" };
+  const onlyIfEven =
+    options.onlyIfEven === undefined ? true : Boolean(options.onlyIfEven);
   const separationDeltaV = Number(options.separationDeltaV || 0);
-  const detachedMass = (options.detachedMass === undefined) ? (opts.initialMass * 0.1) : Number(options.detachedMass);
+  const detachedMass =
+    options.detachedMass === undefined
+      ? opts.initialMass * 0.1
+      : Number(options.detachedMass);
 
   // basic validation
-  if (!opts || Number(opts.initialMass) <= 0 || Number(opts.targetDeltaV) <= 0) return { separated: false, reason: 'invalid_plan_opts' };
+  if (!opts || Number(opts.initialMass) <= 0 || Number(opts.targetDeltaV) <= 0)
+    return { separated: false, reason: "invalid_plan_opts" };
 
   const plan = planMultiSegmentBurn(opts);
-  if (!plan || !plan.possible) return { separated: false, reason: 'no_feasible_plan', plan };
+  if (!plan || !plan.possible)
+    return { separated: false, reason: "no_feasible_plan", plan };
 
-  if (onlyIfEven && (plan.segmentsCount % 2 !== 0)) {
-    return { separated: false, reason: 'segments_not_even', segmentsCount: plan.segmentsCount };
+  if (onlyIfEven && plan.segmentsCount % 2 !== 0) {
+    return {
+      separated: false,
+      reason: "segments_not_even",
+      segmentsCount: plan.segmentsCount,
+    };
   }
 
   // Simplified kinematics: final velocity (stack) = targetDeltaV (m/s). Start v=0.
@@ -38,21 +50,32 @@ function separateAfterDrift(opts, options = {}) {
     separatedStage: {
       mass: detachedMass,
       velocity: separatedStageVelocity,
-      position: driftDistance
+      position: driftDistance,
     },
     remainingStage: {
       mass: opts.initialMass - detachedMass,
       velocity: finalVelocity,
-      position: driftDistance
-    }
+      position: driftDistance,
+    },
   };
 
   const timeSeries = [
     { t: 0, stackVelocity: 0, stackPosition: 0 },
-    { t: driftSeconds, stackVelocity: finalVelocity, stackPosition: driftDistance, separatedStageVelocity, separatedStagePosition: driftDistance }
+    {
+      t: driftSeconds,
+      stackVelocity: finalVelocity,
+      stackPosition: driftDistance,
+      separatedStageVelocity,
+      separatedStagePosition: driftDistance,
+    },
   ];
 
-  const result = { separated: true, planSummary: plan.totals || null, summary, timeSeries };
+  const result = {
+    separated: true,
+    planSummary: plan.totals || null,
+    summary,
+    timeSeries,
+  };
 
   // optional notification (captain job) - POST JSON to notifyWebhook
   if (options.notifyWebhook) {
@@ -60,20 +83,31 @@ function separateAfterDrift(opts, options = {}) {
     try {
       const u = new URL(options.notifyWebhook);
       if (!/^https?:$/.test(u.protocol)) {
-        result.notifyResult = { ok: false, error: 'unsupported_protocol' };
+        result.notifyResult = { ok: false, error: "unsupported_protocol" };
         return result;
       }
     } catch (e) {
-      result.notifyResult = { ok: false, error: 'invalid_url' };
+      result.notifyResult = { ok: false, error: "invalid_url" };
       return result;
     }
 
     // fire-and-forget, but return result (attempt)
     return fetch(options.notifyWebhook, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'separation', summary })
-    }).then(resp => resp.text().then(body => ({ ok: resp.ok, status: resp.status, body }))).then(nres => Object.assign(result, { notifyResult: nres })).catch(err => Object.assign(result, { notifyResult: { ok: false, error: String(err) } }));
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "separation", summary }),
+    })
+      .then((resp) =>
+        resp
+          .text()
+          .then((body) => ({ ok: resp.ok, status: resp.status, body })),
+      )
+      .then((nres) => Object.assign(result, { notifyResult: nres }))
+      .catch((err) =>
+        Object.assign(result, {
+          notifyResult: { ok: false, error: String(err) },
+        }),
+      );
   }
 
   return Promise.resolve(result);

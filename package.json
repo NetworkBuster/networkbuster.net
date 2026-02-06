@@ -37,7 +37,7 @@
     "dev:auth": "node --watch auth-ui/v750/server.js",
     "dev:local": "powershell -ExecutionPolicy Bypass -File start-local-dev.ps1",
     "build": "npm install",
-    "test": "echo 'No tests specified'",
+    "test": "node tests/unit/test-device-status-transitions.js",
     "docker:build": "docker build -t networkbuster:latest .",
     "docker:run": "docker run -p 3000:3000 networkbuster:latest",
     "docker:auth:build": "docker build -f auth-ui/v750/Dockerfile -t networkbuster-auth:v750 .",
@@ -82,7 +82,6 @@
     "build:overlay": "cd challengerepo/real-time-overlay && npm install && npm run build",
     "build:thruster-artifacts": "node thruster/generateArtifacts.cjs",
     "start:thruster-api": "node thruster/server.cjs",
-    "test": "node tests/unit/test-device-status-transitions.js",
     "test:thruster": "node tests/unit/test-thruster-combustion.cjs",
     "test:thruster-artifacts": "node tests/unit/test-thruster-artifacts.cjs",
     "test:thruster-multiseg": "node tests/unit/test-thruster-multiseg.cjs",
@@ -96,15 +95,16 @@
     "npm": ">=10.0.0"
   },
   "dependencies": {
-    "express": "^5.2.1",
-    "compression": "^1.7.4",
-    "helmet": "^7.1.0",
-    "jimp": "^0.22.10",
     "archiver": "^5.3.1",
-    "express-rate-limit": "^7.0.0"
+    "compression": "^1.7.4",
+    "express": "^5.2.1",
+    "express-rate-limit": "^7.0.0",
+    "helmet": "^7.1.0",
+    "jimp": "^0.22.10"
   },
   "devDependencies": {
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "prettier": "^3.8.1"
   },
   "files": [
     "server.js",

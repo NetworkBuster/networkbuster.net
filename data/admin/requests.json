@@ -1,0 +1,38 @@
+[
+  {
+    "id": "9780aea00873",
+    "githubUser": "test-crew",
+    "publicKey": "ssh-rsa AAAAB3NzaTestKey",
+    "reason": "unit test",
+    "contact": "test@example.com",
+    "status": "approved",
+    "createdAt": 1770365634672,
+    "approvedBy": "tester",
+    "approvedAt": 1770365634677,
+    "scriptPath": "C:\\Users\\daypi\\OneDrive\\Desktop\\networkbuster.net\\data\\admin\\scripts\\add_admin_9780aea00873.sh"
+  },
+  {
+    "id": "49d7c2c9b887",
+    "githubUser": "test-crew",
+    "publicKey": "ssh-rsa AAAAB3NzaTestKey",
+    "reason": "unit test",
+    "contact": "test@example.com",
+    "status": "approved",
+    "createdAt": 1770365794510,
+    "approvedBy": "tester",
+    "approvedAt": 1770365794513,
+    "scriptPath": "C:\\Users\\daypi\\OneDrive\\Desktop\\networkbuster.net\\data\\admin\\scripts\\add_admin_49d7c2c9b887.sh"
+  },
+  {
+    "id": "67f6a780a186",
+    "githubUser": "test-admin",
+    "publicKey": "ssh-rsa AAAAB3TestKey",
+    "reason": "integration test",
+    "contact": "",
+    "status": "approved",
+    "createdAt": 1770365996503,
+    "approvedBy": "web-admin",
+    "approvedAt": 1770365996528,
+    "scriptPath": "C:\\Users\\daypi\\OneDrive\\Desktop\\networkbuster.net\\data\\admin\\scripts\\add_admin_67f6a780a186.sh"
+  }
+]

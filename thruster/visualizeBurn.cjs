@@ -1,16 +1,17 @@
 // thruster/visualizeBurn.cjs
 // Generate a simple SVG burn profile (thrust, acceleration, mass vs time)
 
-const fs = require('fs');
-const path = require('path');
-const { convertSvgToPng } = require('./publishGraph.cjs');
-const { planBurn } = require('./thrusterPhysics.cjs');
+const fs = require("fs");
+const path = require("path");
+const { convertSvgToPng } = require("./publishGraph.cjs");
+const { planBurn } = require("./thrusterPhysics.cjs");
 const g0 = 9.80665;
 
 function buildProfileData(opts) {
   // opts: initialMass, isp, maxThrust, maxG, targetDeltaV, propellantAvailable, preferredThrust
   const plan = planBurn(opts);
-  if (!plan.possible) throw new Error(`Plan not possible: ${plan.reason || 'unknown'}`);
+  if (!plan.possible)
+    throw new Error(`Plan not possible: ${plan.reason || "unknown"}`);
 
   const mdot = plan.thrust / (opts.isp * g0);
   const duration = plan.burnTimeSeconds;
@@ -39,10 +40,10 @@ function _scale(arr, min, max) {
   const aMin = Math.min(...arr);
   const aMax = Math.max(...arr);
   if (aMax - aMin < 1e-12) return arr.map(() => (min + max) / 2);
-  return arr.map(v => min + ((v - aMin) / (aMax - aMin)) * (max - min));
+  return arr.map((v) => min + ((v - aMin) / (aMax - aMin)) * (max - min));
 }
 
-function generateSVG(profile, title = 'Burn Profile', opts = {}) {
+function generateSVG(profile, title = "Burn Profile", opts = {}) {
   const width = opts.width || 800;
   const height = opts.height || 420;
   const margin = { top: 40, right: 80, bottom: 40, left: 60 };
@@ -50,7 +51,7 @@ function generateSVG(profile, title = 'Burn Profile', opts = {}) {
   const plotH = height - margin.top - margin.bottom;
 
   const times = profile.times;
-  const xs = times.map(t => margin.left + (t / profile.duration) * plotW);
+  const xs = times.map((t) => margin.left + (t / profile.duration) * plotW);
 
   // scale thrust and accel separately to same plot height
   const thrustScaled = _scale(profile.thrust, margin.top + plotH, margin.top);
@@ -58,7 +59,7 @@ function generateSVG(profile, title = 'Burn Profile', opts = {}) {
   const massScaled = _scale(profile.mass, margin.top + plotH, margin.top);
 
   function polylineFrom(xs, ys) {
-    return xs.map((x, i) => `${x.toFixed(2)},${ys[i].toFixed(2)}`).join(' ');
+    return xs.map((x, i) => `${x.toFixed(2)},${ys[i].toFixed(2)}`).join(" ");
   }
 
   const thrustPoints = polylineFrom(xs, thrustScaled);
@@ -83,10 +84,12 @@ function generateSVG(profile, title = 'Burn Profile', opts = {}) {
   <rect x="0" y="0" width="${width}" height="${height}" fill="#fff" />
   <text x="${margin.left}" y="${margin.top - 12}" class="title">${title}</text>
   <!-- grid lines -->
-  ${[0,0.25,0.5,0.75,1].map(f => {
-    const y = margin.top + f * plotH;
-    return `<line class="grid" x1="${margin.left}" y1="${y}" x2="${margin.left + plotW}" y2="${y}"/>`;
-  }).join('\n  ')}
+  ${[0, 0.25, 0.5, 0.75, 1]
+    .map((f) => {
+      const y = margin.top + f * plotH;
+      return `<line class="grid" x1="${margin.left}" y1="${y}" x2="${margin.left + plotW}" y2="${y}"/>`;
+    })
+    .join("\n  ")}
 
   <!-- axes -->
   <line class="axis" x1="${margin.left}" y1="${margin.top + plotH}" x2="${margin.left + plotW}" y2="${margin.top + plotH}"/>
@@ -117,7 +120,7 @@ async function saveBurnProfileSVG(opts, outSvgPath, title) {
   const profile = buildProfileData(opts);
   const svg = generateSVG(profile, title, opts);
   await fs.promises.mkdir(path.dirname(outSvgPath), { recursive: true });
-  await fs.promises.writeFile(outSvgPath, svg, 'utf8');
+  await fs.promises.writeFile(outSvgPath, svg, "utf8");
   return outSvgPath;
 }
 
@@ -125,7 +128,10 @@ async function renderBurnProfilePNG(opts, outSvgPath, outPngPath, title) {
   const svgPath = await saveBurnProfileSVG(opts, outSvgPath, title);
   // convert to PNG
   try {
-    const out = await convertSvgToPng(svgPath, outPngPath, { width: opts.width || 800, height: opts.height || 420 });
+    const out = await convertSvgToPng(svgPath, outPngPath, {
+      width: opts.width || 800,
+      height: opts.height || 420,
+    });
     return out;
   } catch (e) {
     // conversion failed
@@ -134,12 +140,18 @@ async function renderBurnProfilePNG(opts, outSvgPath, outPngPath, title) {
 }
 
 // Exported helper to build profile and return inline SVG string (no disk writes)
-function buildProfileSVGString(opts, title = 'Burn Profile', svgOpts = {}) {
+function buildProfileSVGString(opts, title = "Burn Profile", svgOpts = {}) {
   const profile = buildProfileData(opts);
   return generateSVG(profile, title, svgOpts);
 }
 
-module.exports = { buildProfileData, generateSVG, saveBurnProfileSVG, renderBurnProfilePNG, buildProfileSVGString };
+module.exports = {
+  buildProfileData,
+  generateSVG,
+  saveBurnProfileSVG,
+  renderBurnProfilePNG,
+  buildProfileSVGString,
+};
 
 // CLI
 if (require.main === module) {
@@ -147,8 +159,8 @@ if (require.main === module) {
     try {
       const argv = process.argv.slice(2);
       // Usage: node visualizeBurn.cjs <outSvg> [outPng]
-      const outSvg = argv[0] || 'build/thruster-artifacts/burn-profile.svg';
-      const outPng = argv[1] || 'build/thruster-artifacts/burn-profile.png';
+      const outSvg = argv[0] || "build/thruster-artifacts/burn-profile.svg";
+      const outPng = argv[1] || "build/thruster-artifacts/burn-profile.png";
 
       // Example plan options
       const opts = {
@@ -157,16 +169,16 @@ if (require.main === module) {
         isp: 300,
         maxThrust: 20000,
         maxG: 3,
-        targetDeltaV: 100
+        targetDeltaV: 100,
       };
 
-      await saveBurnProfileSVG(opts, outSvg, 'Example Burn Profile');
-      console.log('Saved SVG to', outSvg);
+      await saveBurnProfileSVG(opts, outSvg, "Example Burn Profile");
+      console.log("Saved SVG to", outSvg);
       try {
         await renderBurnProfilePNG(opts, outSvg, outPng);
-        console.log('Saved PNG to', outPng);
+        console.log("Saved PNG to", outPng);
       } catch (e) {
-        console.warn('PNG conversion failed:', e.message);
+        console.warn("PNG conversion failed:", e.message);
       }
     } catch (err) {
       console.error(err);
@@ -175,4 +187,10 @@ if (require.main === module) {
   })();
 }
 
-module.exports = { buildProfileData, generateSVG, saveBurnProfileSVG, renderBurnProfilePNG, buildProfileSVGString };
+module.exports = {
+  buildProfileData,
+  generateSVG,
+  saveBurnProfileSVG,
+  renderBurnProfilePNG,
+  buildProfileSVGString,
+};

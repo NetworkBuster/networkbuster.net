@@ -1,0 +1,18 @@
+{
+  "action": "separation",
+  "summary": {
+    "driftSeconds": 2,
+    "driftDistance": 200,
+    "finalVelocity": 100,
+    "separatedStage": {
+      "mass": 100,
+      "velocity": 100,
+      "position": 200
+    },
+    "remainingStage": {
+      "mass": 900,
+      "velocity": 100,
+      "position": 200
+    }
+  }
+}

@@ -5,10 +5,10 @@
  * Past-Future-Present Reference System for State Management
  */
 
-import express from 'express';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import express from "express";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -18,11 +18,11 @@ app.use(express.json());
 
 // Timeline State Management
 const timelineState = {
-  past: [],      // Historical events and states
+  past: [], // Historical events and states
   present: null, // Current state snapshot
-  future: [],    // Predicted/scheduled events
-  version: '1.0.0',
-  initialized: Date.now()
+  future: [], // Predicted/scheduled events
+  version: "1.0.0",
+  initialized: Date.now(),
 };
 
 // Timeline Event Structure
@@ -34,12 +34,12 @@ class TimelineEvent {
     this.data = data;
     this.metadata = {
       ...metadata,
-      capturedAt: new Date().toISOString()
+      capturedAt: new Date().toISOString(),
     };
     this.context = {
-      past: null,    // Reference to previous state
+      past: null, // Reference to previous state
       present: this, // Self reference
-      future: null   // Predicted next state
+      future: null, // Predicted next state
     };
   }
 }
@@ -56,7 +56,7 @@ class StateSnapshot {
   }
 
   captureSystemState() {
-    const os = require('os');
+    const os = require("os");
     return {
       platform: os.platform(),
       arch: os.arch(),
@@ -64,9 +64,9 @@ class StateSnapshot {
       memory: {
         total: os.totalmem(),
         free: os.freemem(),
-        used: os.totalmem() - os.freemem()
+        used: os.totalmem() - os.freemem(),
       },
-      uptime: os.uptime()
+      uptime: os.uptime(),
     };
   }
 
@@ -75,21 +75,27 @@ class StateSnapshot {
       version: timelineState.version,
       uptime: Date.now() - timelineState.initialized,
       eventsRecorded: timelineState.past.length,
-      futureEventsScheduled: timelineState.future.length
+      futureEventsScheduled: timelineState.future.length,
     };
   }
 
   captureGitState() {
     try {
-      const { execSync } = require('child_process');
+      const { execSync } = require("child_process");
       return {
-        branch: execSync('git branch --show-current', { encoding: 'utf-8' }).trim(),
-        commit: execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim(),
-        shortCommit: execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim(),
-        isDirty: execSync('git status --porcelain', { encoding: 'utf-8' }).trim().length > 0
+        branch: execSync("git branch --show-current", {
+          encoding: "utf-8",
+        }).trim(),
+        commit: execSync("git rev-parse HEAD", { encoding: "utf-8" }).trim(),
+        shortCommit: execSync("git rev-parse --short HEAD", {
+          encoding: "utf-8",
+        }).trim(),
+        isDirty:
+          execSync("git status --porcelain", { encoding: "utf-8" }).trim()
+            .length > 0,
       };
     } catch {
-      return { error: 'Git not available or not a git repository' };
+      return { error: "Git not available or not a git repository" };
     }
   }
 
@@ -100,10 +106,10 @@ class StateSnapshot {
         heapUsed: memUsage.heapUsed,
         heapTotal: memUsage.heapTotal,
         external: memUsage.external,
-        rss: memUsage.rss
+        rss: memUsage.rss,
       },
       processUptime: process.uptime(),
-      cpuUsage: process.cpuUsage()
+      cpuUsage: process.cpuUsage(),
     };
   }
 }
@@ -140,13 +146,13 @@ function addToTimeline(event) {
 function predictFutureState(currentEvent) {
   // Analyze patterns from recent past
   const recentEvents = timelineState.past.slice(-100);
-  
+
   // Pattern detection
   const patterns = {
     deployment: /deploy|build|release/i,
     security: /security|threat|alert/i,
     performance: /performance|optimization|speed/i,
-    error: /error|fail|crash/i
+    error: /error|fail|crash/i,
   };
 
   let prediction = null;
@@ -154,38 +160,42 @@ function predictFutureState(currentEvent) {
   // Check for deployment patterns
   if (patterns.deployment.test(currentEvent.type)) {
     prediction = {
-      type: 'predicted_validation',
+      type: "predicted_validation",
       confidence: 0.85,
       timestamp: Date.now() + 300000, // 5 minutes from now
-      description: 'Validation and monitoring phase expected',
-      recommendation: 'Monitor logs and metrics for 5-10 minutes'
+      description: "Validation and monitoring phase expected",
+      recommendation: "Monitor logs and metrics for 5-10 minutes",
     };
   }
 
   // Check for security patterns
   if (patterns.security.test(currentEvent.type)) {
-    const recentSecurityEvents = recentEvents.filter(e => patterns.security.test(e.type));
+    const recentSecurityEvents = recentEvents.filter((e) =>
+      patterns.security.test(e.type),
+    );
     if (recentSecurityEvents.length > 5) {
       prediction = {
-        type: 'predicted_escalation',
+        type: "predicted_escalation",
         confidence: 0.75,
         timestamp: Date.now() + 60000, // 1 minute from now
-        description: 'Potential security escalation detected',
-        recommendation: 'Increase monitoring, prepare incident response'
+        description: "Potential security escalation detected",
+        recommendation: "Increase monitoring, prepare incident response",
       };
     }
   }
 
   // Check for error patterns
   if (patterns.error.test(currentEvent.type)) {
-    const errorRate = recentEvents.filter(e => patterns.error.test(e.type)).length / recentEvents.length;
+    const errorRate =
+      recentEvents.filter((e) => patterns.error.test(e.type)).length /
+      recentEvents.length;
     if (errorRate > 0.1) {
       prediction = {
-        type: 'predicted_outage',
+        type: "predicted_outage",
         confidence: 0.65,
         timestamp: Date.now() + 120000, // 2 minutes from now
-        description: 'High error rate may lead to service degradation',
-        recommendation: 'Review error logs, consider rollback'
+        description: "High error rate may lead to service degradation",
+        recommendation: "Review error logs, consider rollback",
       };
     }
   }
@@ -197,7 +207,7 @@ function predictFutureState(currentEvent) {
 function scheduleFutureEvent(prediction) {
   // Remove predictions that have become the present
   const now = Date.now();
-  timelineState.future = timelineState.future.filter(f => f.timestamp > now);
+  timelineState.future = timelineState.future.filter((f) => f.timestamp > now);
 
   // Add new prediction
   timelineState.future.push(prediction);
@@ -208,27 +218,32 @@ function scheduleFutureEvent(prediction) {
 
 // Timeline Analysis
 function analyzeTimeline(startTime, endTime) {
-  const events = timelineState.past.filter(e => 
-    (!startTime || e.timestamp >= startTime) &&
-    (!endTime || e.timestamp <= endTime)
+  const events = timelineState.past.filter(
+    (e) =>
+      (!startTime || e.timestamp >= startTime) &&
+      (!endTime || e.timestamp <= endTime),
   );
 
   const analysis = {
     period: {
       start: startTime || events[0]?.timestamp || Date.now(),
       end: endTime || Date.now(),
-      duration: (endTime || Date.now()) - (startTime || events[0]?.timestamp || Date.now())
+      duration:
+        (endTime || Date.now()) -
+        (startTime || events[0]?.timestamp || Date.now()),
     },
     statistics: {
       totalEvents: events.length,
-      uniqueTypes: new Set(events.map(e => e.type)).size,
-      averageEventInterval: events.length > 1 
-        ? (events[events.length - 1].timestamp - events[0].timestamp) / events.length
-        : 0
+      uniqueTypes: new Set(events.map((e) => e.type)).size,
+      averageEventInterval:
+        events.length > 1
+          ? (events[events.length - 1].timestamp - events[0].timestamp) /
+            events.length
+          : 0,
     },
     patterns: detectPatterns(events),
     trends: analyzeTrends(events),
-    predictions: generatePredictions(events)
+    predictions: generatePredictions(events),
   };
 
   return analysis;
@@ -236,23 +251,23 @@ function analyzeTimeline(startTime, endTime) {
 
 // Detect Patterns
 function detectPatterns(events) {
-  const eventTypes = events.map(e => e.type);
+  const eventTypes = events.map((e) => e.type);
   const patterns = [];
 
   // Check for repeating sequences
   for (let len = 2; len <= 5; len++) {
     const sequences = new Map();
     for (let i = 0; i <= eventTypes.length - len; i++) {
-      const seq = eventTypes.slice(i, i + len).join('->');
+      const seq = eventTypes.slice(i, i + len).join("->");
       sequences.set(seq, (sequences.get(seq) || 0) + 1);
     }
-    
+
     sequences.forEach((count, seq) => {
       if (count > 2) {
         patterns.push({
           pattern: seq,
           occurrences: count,
-          confidence: count / (eventTypes.length - len + 1)
+          confidence: count / (eventTypes.length - len + 1),
         });
       }
     });
@@ -264,21 +279,28 @@ function detectPatterns(events) {
 // Analyze Trends
 function analyzeTrends(events) {
   if (events.length < 10) {
-    return { trend: 'insufficient_data' };
+    return { trend: "insufficient_data" };
   }
 
   const halfPoint = Math.floor(events.length / 2);
   const firstHalf = events.slice(0, halfPoint);
   const secondHalf = events.slice(halfPoint);
 
-  const firstHalfTypes = new Set(firstHalf.map(e => e.type));
-  const secondHalfTypes = new Set(secondHalf.map(e => e.type));
+  const firstHalfTypes = new Set(firstHalf.map((e) => e.type));
+  const secondHalfTypes = new Set(secondHalf.map((e) => e.type));
 
   return {
-    trend: secondHalf.length > firstHalf.length ? 'increasing_activity' : 'stable',
-    newEventTypes: [...secondHalfTypes].filter(t => !firstHalfTypes.has(t)),
-    droppedEventTypes: [...firstHalfTypes].filter(t => !secondHalfTypes.has(t)),
-    activityChange: ((secondHalf.length - firstHalf.length) / firstHalf.length * 100).toFixed(2) + '%'
+    trend:
+      secondHalf.length > firstHalf.length ? "increasing_activity" : "stable",
+    newEventTypes: [...secondHalfTypes].filter((t) => !firstHalfTypes.has(t)),
+    droppedEventTypes: [...firstHalfTypes].filter(
+      (t) => !secondHalfTypes.has(t),
+    ),
+    activityChange:
+      (
+        ((secondHalf.length - firstHalf.length) / firstHalf.length) *
+        100
+      ).toFixed(2) + "%",
   };
 }
 
@@ -301,10 +323,10 @@ function generatePredictions(events) {
   // Predict next event
   const lastEvent = events[events.length - 1];
   predictions.push({
-    type: 'next_event_prediction',
+    type: "next_event_prediction",
     expectedTime: lastEvent.timestamp + avgInterval,
     confidence: 0.7,
-    reasoning: 'Based on average event interval'
+    reasoning: "Based on average event interval",
   });
 
   // Predict pattern completion
@@ -312,10 +334,10 @@ function generatePredictions(events) {
   if (patterns.length > 0) {
     const topPattern = patterns[0];
     predictions.push({
-      type: 'pattern_completion',
+      type: "pattern_completion",
       pattern: topPattern.pattern,
       confidence: topPattern.confidence,
-      reasoning: 'Pattern detected in historical data'
+      reasoning: "Pattern detected in historical data",
     });
   }
 
@@ -327,11 +349,11 @@ function generatePredictions(events) {
 // ============================================
 
 // Record Event
-app.post('/api/timeline/event', (req, res) => {
+app.post("/api/timeline/event", (req, res) => {
   const { type, data, metadata } = req.body;
-  
+
   if (!type) {
-    return res.status(400).json({ error: 'Event type is required' });
+    return res.status(400).json({ error: "Event type is required" });
   }
 
   const event = new TimelineEvent(type, data, metadata);
@@ -342,75 +364,78 @@ app.post('/api/timeline/event', (req, res) => {
     event: {
       id: event.id,
       type: event.type,
-      timestamp: event.timestamp
+      timestamp: event.timestamp,
     },
     context: {
       past: event.context.past ? event.context.past.id : null,
-      future: event.context.future
-    }
+      future: event.context.future,
+    },
   });
 });
 
 // Get Current State
-app.get('/api/timeline/present', (req, res) => {
+app.get("/api/timeline/present", (req, res) => {
   const snapshot = new StateSnapshot();
-  
+
   res.json({
     present: timelineState.present,
     snapshot: snapshot,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 });
 
 // Get Past Events
-app.get('/api/timeline/past', (req, res) => {
+app.get("/api/timeline/past", (req, res) => {
   const limit = parseInt(req.query.limit) || 100;
   const offset = parseInt(req.query.offset) || 0;
   const type = req.query.type;
 
   let events = timelineState.past;
-  
+
   if (type) {
-    events = events.filter(e => e.type === type);
+    events = events.filter((e) => e.type === type);
   }
 
   res.json({
     events: events.slice(offset, offset + limit).reverse(),
     total: events.length,
     limit,
-    offset
+    offset,
   });
 });
 
 // Get Future Predictions
-app.get('/api/timeline/future', (req, res) => {
+app.get("/api/timeline/future", (req, res) => {
   const now = Date.now();
-  const activePredictions = timelineState.future.filter(f => f.timestamp > now);
+  const activePredictions = timelineState.future.filter(
+    (f) => f.timestamp > now,
+  );
 
   res.json({
     predictions: activePredictions,
     count: activePredictions.length,
-    nextPrediction: activePredictions[0] || null
+    nextPrediction: activePredictions[0] || null,
   });
 });
 
 // Get Full Timeline
-app.get('/api/timeline/full', (req, res) => {
+app.get("/api/timeline/full", (req, res) => {
   const startTime = req.query.start ? parseInt(req.query.start) : null;
   const endTime = req.query.end ? parseInt(req.query.end) : null;
 
   res.json({
-    past: timelineState.past.filter(e => 
-      (!startTime || e.timestamp >= startTime) &&
-      (!endTime || e.timestamp <= endTime)
+    past: timelineState.past.filter(
+      (e) =>
+        (!startTime || e.timestamp >= startTime) &&
+        (!endTime || e.timestamp <= endTime),
     ),
     present: timelineState.present,
-    future: timelineState.future
+    future: timelineState.future,
   });
 });
 
 // Analyze Timeline
-app.get('/api/timeline/analyze', (req, res) => {
+app.get("/api/timeline/analyze", (req, res) => {
   const startTime = req.query.start ? parseInt(req.query.start) : null;
   const endTime = req.query.end ? parseInt(req.query.end) : null;
 
@@ -420,61 +445,65 @@ app.get('/api/timeline/analyze', (req, res) => {
 });
 
 // Timeline Statistics
-app.get('/api/timeline/stats', (req, res) => {
+app.get("/api/timeline/stats", (req, res) => {
   const now = Date.now();
-  const last24h = timelineState.past.filter(e => now - e.timestamp < 86400000);
-  const lastHour = timelineState.past.filter(e => now - e.timestamp < 3600000);
+  const last24h = timelineState.past.filter(
+    (e) => now - e.timestamp < 86400000,
+  );
+  const lastHour = timelineState.past.filter(
+    (e) => now - e.timestamp < 3600000,
+  );
 
   res.json({
     total: {
       events: timelineState.past.length,
-      predictions: timelineState.future.length
+      predictions: timelineState.future.length,
     },
     recent: {
       last24Hours: last24h.length,
-      lastHour: lastHour.length
+      lastHour: lastHour.length,
     },
     uptime: Date.now() - timelineState.initialized,
-    version: timelineState.version
+    version: timelineState.version,
   });
 });
 
 // Export Timeline Data
-app.get('/api/timeline/export', (req, res) => {
-  const format = req.query.format || 'json';
+app.get("/api/timeline/export", (req, res) => {
+  const format = req.query.format || "json";
   const data = {
     exported: new Date().toISOString(),
     timeline: {
       past: timelineState.past,
       present: timelineState.present,
-      future: timelineState.future
+      future: timelineState.future,
     },
     metadata: {
       version: timelineState.version,
       initialized: timelineState.initialized,
-      totalEvents: timelineState.past.length
-    }
+      totalEvents: timelineState.past.length,
+    },
   };
 
-  if (format === 'json') {
+  if (format === "json") {
     res.json(data);
-  } else if (format === 'csv') {
+  } else if (format === "csv") {
     const csv = convertToCSV(timelineState.past);
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename=timeline.csv');
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", "attachment; filename=timeline.csv");
     res.send(csv);
   } else {
-    res.status(400).json({ error: 'Unsupported format' });
+    res.status(400).json({ error: "Unsupported format" });
   }
 });
 
 // Clear Timeline (Admin)
-app.post('/api/timeline/clear', (req, res) => {
+app.post("/api/timeline/clear", (req, res) => {
   const backup = {
     past: timelineState.past,
     present: timelineState.present,
     future: timelineState.future,
-    clearedAt: Date.now()
+    clearedAt: Date.now(),
   };
 
   timelineState.past = [];
@@ -484,17 +513,17 @@ app.post('/api/timeline/clear', (req, res) => {
   res.json({
     success: true,
     cleared: backup.past.length,
-    backup: backup
+    backup: backup,
   });
 });
 
 // Health Check
-app.get('/api/timeline/health', (req, res) => {
+app.get("/api/timeline/health", (req, res) => {
   res.json({
-    status: 'healthy',
-    service: 'timeline-tracker',
-    emoji: '⏰',
-    uptime: Date.now() - timelineState.initialized
+    status: "healthy",
+    service: "timeline-tracker",
+    emoji: "⏰",
+    uptime: Date.now() - timelineState.initialized,
   });
 });
 
@@ -503,18 +532,18 @@ app.get('/api/timeline/health', (req, res) => {
 // ============================================
 
 function convertToCSV(events) {
-  const headers = ['ID', 'Type', 'Timestamp', 'ISO Time', 'Data'];
-  const rows = events.map(e => [
+  const headers = ["ID", "Type", "Timestamp", "ISO Time", "Data"];
+  const rows = events.map((e) => [
     e.id,
     e.type,
     e.timestamp,
     new Date(e.timestamp).toISOString(),
-    JSON.stringify(e.data)
+    JSON.stringify(e.data),
   ]);
 
   return [headers, ...rows]
-    .map(row => row.map(cell => `"${cell}"`).join(','))
-    .join('\n');
+    .map((row) => row.map((cell) => `"${cell}"`).join(","))
+    .join("\n");
 }
 
 // ============================================
@@ -522,16 +551,18 @@ function convertToCSV(events) {
 // ============================================
 
 // Capture startup event
-addToTimeline(new TimelineEvent('system_startup', {
-  service: 'timeline-tracker',
-  port: PORT,
-  version: timelineState.version
-}));
+addToTimeline(
+  new TimelineEvent("system_startup", {
+    service: "timeline-tracker",
+    port: PORT,
+    version: timelineState.version,
+  }),
+);
 
 // Capture periodic snapshots
 setInterval(() => {
   const snapshot = new StateSnapshot();
-  addToTimeline(new TimelineEvent('periodic_snapshot', snapshot));
+  addToTimeline(new TimelineEvent("periodic_snapshot", snapshot));
 }, 300000); // Every 5 minutes
 
 // ============================================

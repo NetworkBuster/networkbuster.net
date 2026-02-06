@@ -5,19 +5,39 @@
  * Trigger: Option 2 after build 1, then Option 4 after build 3
  */
 
-import { spawn, execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+import { spawn, execSync } from "child_process";
+import fs from "fs";
+import path from "path";
 
-const PROJECT_PATH = 'C:\\Users\\daypi\\OneDrive\\Desktop\\networkbuster.net';
+const PROJECT_PATH = "C:\\Users\\daypi\\OneDrive\\Desktop\\networkbuster.net";
 
 class BuildPipeline {
   constructor() {
     this.builds = [
-      { num: 1, name: 'Web Server Build', cmd: 'node', args: ['server-universal.js'] },
-      { num: 2, name: 'API Server Build', cmd: 'node', args: ['api/server-universal.js'] },
-      { num: 3, name: 'Audio Server Build', cmd: 'node', args: ['server-audio.js'] },
-      { num: 4, name: 'Auth Server Build', cmd: 'node', args: ['auth-ui/v750/server.js'] }
+      {
+        num: 1,
+        name: "Web Server Build",
+        cmd: "node",
+        args: ["server-universal.js"],
+      },
+      {
+        num: 2,
+        name: "API Server Build",
+        cmd: "node",
+        args: ["api/server-universal.js"],
+      },
+      {
+        num: 3,
+        name: "Audio Server Build",
+        cmd: "node",
+        args: ["server-audio.js"],
+      },
+      {
+        num: 4,
+        name: "Auth Server Build",
+        cmd: "node",
+        args: ["auth-ui/v750/server.js"],
+      },
     ];
 
     this.currentBuild = 0;
@@ -38,17 +58,17 @@ class BuildPipeline {
       return false;
     }
 
-    this.log(`\n${'═'.repeat(60)}`);
+    this.log(`\n${"═".repeat(60)}`);
     this.log(`🔨 Starting Build ${buildNum}: ${build.name}`);
-    this.log(`${'═'.repeat(60)}`);
+    this.log(`${"═".repeat(60)}`);
 
     return new Promise((resolve) => {
       const proc = spawn(build.cmd, build.args, {
         cwd: PROJECT_PATH,
-        stdio: 'inherit'
+        stdio: "inherit",
       });
 
-      proc.on('close', (code) => {
+      proc.on("close", (code) => {
         if (code === 0) {
           this.log(`✅ Build ${buildNum} successful`);
           resolve(true);
@@ -58,7 +78,7 @@ class BuildPipeline {
         }
       });
 
-      proc.on('error', (err) => {
+      proc.on("error", (err) => {
         this.log(`❌ Build ${buildNum} error: ${err.message}`);
         resolve(false);
       });
@@ -66,17 +86,17 @@ class BuildPipeline {
   }
 
   async triggerPowerOption(option) {
-    this.log(`\n${'═'.repeat(60)}`);
+    this.log(`\n${"═".repeat(60)}`);
     this.log(`⚡ Triggering Power Option ${option}`);
-    this.log(`${'═'.repeat(60)}`);
+    this.log(`${"═".repeat(60)}`);
 
     return new Promise((resolve) => {
-      const proc = spawn('node', ['power-manager.js', option.toString()], {
+      const proc = spawn("node", ["power-manager.js", option.toString()], {
         cwd: PROJECT_PATH,
-        stdio: 'inherit'
+        stdio: "inherit",
       });
 
-      proc.on('close', (code) => {
+      proc.on("close", (code) => {
         if (code === 0) {
           this.log(`✅ Power Option ${option} triggered successfully`);
           resolve(true);
@@ -86,7 +106,7 @@ class BuildPipeline {
         }
       });
 
-      proc.on('error', (err) => {
+      proc.on("error", (err) => {
         this.log(`⚠️ Power Option ${option} error: ${err.message}`);
         resolve(true); // Continue anyway
       });
@@ -107,7 +127,7 @@ class BuildPipeline {
   }
 
   async runFullPipeline() {
-    this.log('🚀 Starting full build & power pipeline...\n');
+    this.log("🚀 Starting full build & power pipeline...\n");
 
     // Build 1 → Option 2
     const build1 = await this.runBuild(1);
@@ -127,15 +147,15 @@ class BuildPipeline {
     // Build 4
     await this.runBuild(4);
 
-    this.log(`\n${'═'.repeat(60)}`);
-    this.log('✅ Pipeline complete!');
-    this.log(`${'═'.repeat(60)}\n`);
+    this.log(`\n${"═".repeat(60)}`);
+    this.log("✅ Pipeline complete!");
+    this.log(`${"═".repeat(60)}\n`);
 
     this.saveBuildLog();
   }
 
   async runBuildsOnly() {
-    this.log('🏗️ Running builds only...\n');
+    this.log("🏗️ Running builds only...\n");
 
     for (let i = 1; i <= 4; i++) {
       const success = await this.runBuild(i);
@@ -143,40 +163,43 @@ class BuildPipeline {
         this.log(`⚠️ Build ${i} failed, continuing...`);
       }
       // Small delay between builds
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     this.saveBuildLog();
   }
 
   async runPowerManagementOnly() {
-    this.log('⚡ Running power management only...\n');
+    this.log("⚡ Running power management only...\n");
 
-    this.log('Option 2: Boot Command Injection');
+    this.log("Option 2: Boot Command Injection");
     await this.triggerPowerOption(2);
 
-    this.log('\nOption 4: Server Power Management');
+    this.log("\nOption 4: Server Power Management");
     await this.triggerPowerOption(4);
 
     this.saveBuildLog();
   }
 
   checkServerStatus() {
-    this.log('\n📊 Checking server status...\n');
+    this.log("\n📊 Checking server status...\n");
 
     const servers = [
-      { port: 3000, name: 'Web Server' },
-      { port: 3001, name: 'API Server' },
-      { port: 3002, name: 'Audio Server' },
-      { port: 3003, name: 'Auth Server' }
+      { port: 3000, name: "Web Server" },
+      { port: 3001, name: "API Server" },
+      { port: 3002, name: "Audio Server" },
+      { port: 3003, name: "Auth Server" },
     ];
 
-    servers.forEach(server => {
+    servers.forEach((server) => {
       try {
-        const response = execSync(`curl -s http://localhost:${server.port}/api/health`, {
-          encoding: 'utf8',
-          timeout: 2000
-        });
+        const response = execSync(
+          `curl -s http://localhost:${server.port}/api/health`,
+          {
+            encoding: "utf8",
+            timeout: 2000,
+          },
+        );
         const health = JSON.parse(response);
         console.log(`✅ ${server.name} (${server.port}): RUNNING`);
       } catch (err) {
@@ -186,8 +209,8 @@ class BuildPipeline {
   }
 
   saveBuildLog() {
-    const logPath = path.join(PROJECT_PATH, '.build-pipeline.log');
-    fs.writeFileSync(logPath, this.buildLog.join('\n'));
+    const logPath = path.join(PROJECT_PATH, ".build-pipeline.log");
+    fs.writeFileSync(logPath, this.buildLog.join("\n"));
     this.log(`\n📝 Build log saved: ${logPath}`);
   }
 
@@ -215,7 +238,7 @@ class BuildPipeline {
 const option = parseInt(process.argv[2]) || 1;
 const pipeline = new BuildPipeline();
 
-pipeline.execute(option).catch(err => {
-  console.error('Pipeline error:', err);
+pipeline.execute(option).catch((err) => {
+  console.error("Pipeline error:", err);
   process.exit(1);
 });

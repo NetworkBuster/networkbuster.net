@@ -1,11 +1,11 @@
-// Unit test for thruster artifact generation
+// Unit test for thruster artifact generation (CJS)
 const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
 const { run } = require("../../thruster/generateArtifacts");
 
 async function test() {
-  console.log("Running thruster artifacts generator test...");
+  console.log("Running thruster artifacts generator test (CJS)...");
   const res = await run();
   assert.ok(res.outDir && fs.existsSync(res.outDir), "outDir should exist");
   assert.ok(res.zipPath && fs.existsSync(res.zipPath), "zip should exist");
@@ -22,7 +22,7 @@ async function test() {
     const txt = fs.readFileSync(res.telemetryPath, "utf8");
     assert.ok(txt.includes("timestamp"), "telemetry CSV should contain header");
   }
-  console.log("Thruster artifact tests passed.");
+  console.log("Thruster artifact tests passed (CJS).");
 }
 
 test().catch((err) => {

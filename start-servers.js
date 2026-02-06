@@ -6,9 +6,9 @@
  * Works on Windows, macOS, and Linux
  */
 
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { spawn } from "child_process";
+import { fileURLToPath } from "url";
+import path from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,20 +22,20 @@ console.log(`
 
 const servers = [
   {
-    name: 'Web Server',
-    file: 'server-universal.js',
-    port: 3000
+    name: "Web Server",
+    file: "server-universal.js",
+    port: 3000,
   },
   {
-    name: 'API Server',
-    file: 'api/server-universal.js',
-    port: 3001
+    name: "API Server",
+    file: "api/server-universal.js",
+    port: 3001,
   },
   {
-    name: 'Audio Server',
-    file: 'server-audio.js',
-    port: 3002
-  }
+    name: "Audio Server",
+    file: "server-audio.js",
+    port: 3002,
+  },
 ];
 
 const processes = [];
@@ -43,20 +43,22 @@ const processes = [];
 // Start each server
 servers.forEach((server, index) => {
   setTimeout(() => {
-    console.log(`\n[${index + 1}/3] Starting ${server.name} on port ${server.port}...`);
-    
-    const proc = spawn('node', [server.file], {
-      stdio: 'inherit',
-      cwd: process.cwd()
+    console.log(
+      `\n[${index + 1}/3] Starting ${server.name} on port ${server.port}...`,
+    );
+
+    const proc = spawn("node", [server.file], {
+      stdio: "inherit",
+      cwd: process.cwd(),
     });
 
     processes.push(proc);
 
-    proc.on('error', (err) => {
+    proc.on("error", (err) => {
       console.error(`ERROR starting ${server.name}:`, err.message);
     });
 
-    proc.on('exit', (code) => {
+    proc.on("exit", (code) => {
       console.log(`\n[${server.name}] Process exited with code ${code}`);
     });
   }, index * 2000);
@@ -91,25 +93,25 @@ Press Ctrl+C to stop all servers.
 }, 8000);
 
 // Handle shutdown
-process.on('SIGINT', () => {
-  console.log('\n\nShutting down all servers...');
-  processes.forEach(proc => {
+process.on("SIGINT", () => {
+  console.log("\n\nShutting down all servers...");
+  processes.forEach((proc) => {
     if (!proc.killed) {
-      proc.kill('SIGTERM');
+      proc.kill("SIGTERM");
     }
   });
 
   setTimeout(() => {
-    console.log('All servers stopped.');
+    console.log("All servers stopped.");
     process.exit(0);
   }, 1000);
 });
 
-process.on('SIGTERM', () => {
-  console.log('\nReceived SIGTERM, shutting down...');
-  processes.forEach(proc => {
+process.on("SIGTERM", () => {
+  console.log("\nReceived SIGTERM, shutting down...");
+  processes.forEach((proc) => {
     if (!proc.killed) {
-      proc.kill('SIGTERM');
+      proc.kill("SIGTERM");
     }
   });
   process.exit(0);

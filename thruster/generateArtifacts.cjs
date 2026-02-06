@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// generateArtifacts.js
+// generateArtifacts.cjs
 // Generate thruster artifacts: status snapshot, optionally converted SVGs, and package them
 
 const fs = require("fs");
@@ -9,9 +9,9 @@ const { promisify } = require("util");
 const exec = promisify(require("child_process").exec);
 const archiver = require("archiver");
 
-const { combustionStatus, isGitAvailable } = require("./combustion");
-const { convertSvgToPng } = require("./publishGraph");
-const { saveToPath } = require("./saveToD");
+const { combustionStatus, isGitAvailable } = require("./combustion.cjs");
+const { convertSvgToPng } = require("./publishGraph.cjs");
+const { saveToPath } = require("./saveToD.cjs");
 
 async function makeDir(dir) {
   await fs.promises.mkdir(dir, { recursive: true });
@@ -70,7 +70,6 @@ async function run() {
     try {
       await convertSvgToPng(exampleSvg, pngOut, { width: 512, height: 512 });
     } catch (e) {
-      // fallback: copy source svg
       await fs.promises.copyFile(
         exampleSvg,
         path.join(outDir, "mvnd-logo.svg"),

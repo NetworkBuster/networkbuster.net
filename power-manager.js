@@ -6,50 +6,50 @@
  * Option 4: Server Power Management + Config Backup
  */
 
-import os from 'os';
-import fs from 'fs';
-import path from 'path';
-import { execSync, spawn } from 'child_process';
+import os from "os";
+import fs from "fs";
+import path from "path";
+import { execSync, spawn } from "child_process";
 
-const PROJECT_PATH = 'C:\\Users\\daypi\\OneDrive\\Desktop\\networkbuster.net';
-const FLASH_DRIVE_PATH = 'D:\\';
-const BACKUP_PATH = 'D:\\networkbuster-cloud\\backups';
-const COMMAND_LOG = path.join(PROJECT_PATH, '.power-commands.log');
+const PROJECT_PATH = "C:\\Users\\daypi\\OneDrive\\Desktop\\networkbuster.net";
+const FLASH_DRIVE_PATH = "D:\\";
+const BACKUP_PATH = "D:\\networkbuster-cloud\\backups";
+const COMMAND_LOG = path.join(PROJECT_PATH, ".power-commands.log");
 
 class PowerManager {
   constructor(option = 2) {
     this.option = option;
     this.commands = [];
     this.servers = [
-      { port: 3000, name: 'Web Server' },
-      { port: 3001, name: 'API Server' },
-      { port: 3002, name: 'Audio Server' },
-      { port: 3003, name: 'Auth UI' }
+      { port: 3000, name: "Web Server" },
+      { port: 3001, name: "API Server" },
+      { port: 3002, name: "Audio Server" },
+      { port: 3003, name: "Auth UI" },
     ];
   }
 
-  log(msg, type = 'info') {
+  log(msg, type = "info") {
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] [${type.toUpperCase()}] ${msg}`;
     console.log(logEntry);
 
     // Save to log file
-    fs.appendFileSync(COMMAND_LOG, logEntry + '\n', { flag: 'a' });
+    fs.appendFileSync(COMMAND_LOG, logEntry + "\n", { flag: "a" });
   }
 
   // Option 2: Power Event Listener + Boot Command Injection
   initializePowerListener() {
-    this.log('Initializing Power Event Listener (Option 2)', 'info');
+    this.log("Initializing Power Event Listener (Option 2)", "info");
 
-    if (process.platform === 'win32') {
+    if (process.platform === "win32") {
       this.setupWindowsPowerListener();
-    } else if (process.platform === 'linux') {
+    } else if (process.platform === "linux") {
       this.setupLinuxPowerListener();
     }
   }
 
   setupWindowsPowerListener() {
-    this.log('Setting up Windows power event monitoring', 'info');
+    this.log("Setting up Windows power event monitoring", "info");
 
     // Monitor power state via WMI
     const powerScript = `
@@ -74,23 +74,30 @@ Write-Host "Power event listener started"
 $watcher.Stop()
 `;
 
-    fs.writeFileSync(path.join(PROJECT_PATH, 'power-listener.ps1'), powerScript);
-    this.log('Power listener script created', 'success');
+    fs.writeFileSync(
+      path.join(PROJECT_PATH, "power-listener.ps1"),
+      powerScript,
+    );
+    this.log("Power listener script created", "success");
 
     // Start listener in background
     try {
-      spawn('powershell', ['-ExecutionPolicy', 'Bypass', '-File', 'power-listener.ps1'], {
-        detached: true,
-        stdio: 'ignore'
-      }).unref();
-      this.log('Power listener started in background', 'success');
+      spawn(
+        "powershell",
+        ["-ExecutionPolicy", "Bypass", "-File", "power-listener.ps1"],
+        {
+          detached: true,
+          stdio: "ignore",
+        },
+      ).unref();
+      this.log("Power listener started in background", "success");
     } catch (err) {
-      this.log(`Failed to start power listener: ${err.message}`, 'error');
+      this.log(`Failed to start power listener: ${err.message}`, "error");
     }
   }
 
   setupLinuxPowerListener() {
-    this.log('Setting up Linux power event monitoring', 'info');
+    this.log("Setting up Linux power event monitoring", "info");
 
     const linuxScript = `#!/bin/bash
 # Monitor power events on Linux
@@ -98,143 +105,152 @@ $watcher.Stop()
 echo "Power listener started"
 `;
 
-    fs.writeFileSync(path.join(PROJECT_PATH, 'power-listener.sh'), linuxScript, { mode: 0o755 });
-    this.log('Power listener script created', 'success');
+    fs.writeFileSync(
+      path.join(PROJECT_PATH, "power-listener.sh"),
+      linuxScript,
+      { mode: 0o755 },
+    );
+    this.log("Power listener script created", "success");
   }
 
   // Inject boot commands to USB flashdrive
   injectBootCommands() {
-    this.log('Injecting boot commands to USB flashdrive', 'info');
+    this.log("Injecting boot commands to USB flashdrive", "info");
 
     const bootCommands = [
-      'BOOT_PRIORITY=NETWORK',
-      'NETWORK_BOOT_ENABLED=1',
-      'AUTO_STARTUP_SERVERS=1',
-      'CONFIG_LOAD_SOURCE=CLOUD',
-      'TIMESTAMP=' + new Date().toISOString()
+      "BOOT_PRIORITY=NETWORK",
+      "NETWORK_BOOT_ENABLED=1",
+      "AUTO_STARTUP_SERVERS=1",
+      "CONFIG_LOAD_SOURCE=CLOUD",
+      "TIMESTAMP=" + new Date().toISOString(),
     ];
 
-    const bootFile = path.join(FLASH_DRIVE_PATH, 'networkbuster-boot.cmd');
+    const bootFile = path.join(FLASH_DRIVE_PATH, "networkbuster-boot.cmd");
 
     try {
-      fs.writeFileSync(bootFile, bootCommands.join('\n'));
-      this.log(`Boot commands written to USB: ${bootFile}`, 'success');
+      fs.writeFileSync(bootFile, bootCommands.join("\n"));
+      this.log(`Boot commands written to USB: ${bootFile}`, "success");
       this.commands.push({
-        type: 'boot_injection',
+        type: "boot_injection",
         timestamp: new Date().toISOString(),
         target: bootFile,
-        commands: bootCommands
+        commands: bootCommands,
       });
     } catch (err) {
-      this.log(`Failed to write boot commands: ${err.message}`, 'error');
+      this.log(`Failed to write boot commands: ${err.message}`, "error");
     }
   }
 
   // Option 4: Server Power Management + Config Backup
-  managePower(action = 'status') {
-    this.log(`Server Power Management - Action: ${action}`, 'info');
+  managePower(action = "status") {
+    this.log(`Server Power Management - Action: ${action}`, "info");
 
     switch (action) {
-      case 'status':
+      case "status":
         this.checkServerStatus();
         break;
-      case 'start':
+      case "start":
         this.startServers();
         break;
-      case 'stop':
+      case "stop":
         this.stopServers();
         break;
-      case 'restart':
+      case "restart":
         this.restartServers();
         break;
-      case 'backup-config':
+      case "backup-config":
         this.backupConfigs();
         break;
       default:
-        this.log(`Unknown action: ${action}`, 'warn');
+        this.log(`Unknown action: ${action}`, "warn");
     }
   }
 
   checkServerStatus() {
-    this.log('Checking server status...', 'info');
+    this.log("Checking server status...", "info");
 
-    this.servers.forEach(server => {
+    this.servers.forEach((server) => {
       try {
-        const response = execSync(`curl -s http://localhost:${server.port}/api/health`, {
-          timeout: 2000,
-          encoding: 'utf8'
-        });
+        const response = execSync(
+          `curl -s http://localhost:${server.port}/api/health`,
+          {
+            timeout: 2000,
+            encoding: "utf8",
+          },
+        );
 
         const health = JSON.parse(response);
-        if (health.status === 'ok' || health.status === 'healthy') {
-          this.log(`${server.name} (${server.port}): UP`, 'success');
+        if (health.status === "ok" || health.status === "healthy") {
+          this.log(`${server.name} (${server.port}): UP`, "success");
         } else {
-          this.log(`${server.name} (${server.port}): DOWN`, 'warn');
+          this.log(`${server.name} (${server.port}): DOWN`, "warn");
         }
       } catch (err) {
-        this.log(`${server.name} (${server.port}): UNREACHABLE`, 'error');
+        this.log(`${server.name} (${server.port}): UNREACHABLE`, "error");
       }
     });
   }
 
   startServers() {
-    this.log('Starting all servers...', 'info');
+    this.log("Starting all servers...", "info");
 
     try {
-      spawn('node', ['start-servers.js'], {
+      spawn("node", ["start-servers.js"], {
         cwd: PROJECT_PATH,
-        stdio: 'inherit'
+        stdio: "inherit",
       });
 
-      this.log('All servers started', 'success');
+      this.log("All servers started", "success");
       this.commands.push({
-        type: 'server_start',
+        type: "server_start",
         timestamp: new Date().toISOString(),
-        servers: this.servers.map(s => s.name)
+        servers: this.servers.map((s) => s.name),
       });
     } catch (err) {
-      this.log(`Failed to start servers: ${err.message}`, 'error');
+      this.log(`Failed to start servers: ${err.message}`, "error");
     }
   }
 
   stopServers() {
-    this.log('Stopping all servers...', 'info');
+    this.log("Stopping all servers...", "info");
 
     try {
-      if (process.platform === 'win32') {
-        execSync('Get-Process node | Stop-Process -Force', { shell: 'powershell' });
+      if (process.platform === "win32") {
+        execSync("Get-Process node | Stop-Process -Force", {
+          shell: "powershell",
+        });
       } else {
         execSync('pkill -f "node start-servers.js"');
       }
 
-      this.log('All servers stopped', 'success');
+      this.log("All servers stopped", "success");
       this.commands.push({
-        type: 'server_stop',
-        timestamp: new Date().toISOString()
+        type: "server_stop",
+        timestamp: new Date().toISOString(),
       });
     } catch (err) {
-      this.log(`Failed to stop servers: ${err.message}`, 'warn');
+      this.log(`Failed to stop servers: ${err.message}`, "warn");
     }
   }
 
   restartServers() {
-    this.log('Restarting all servers...', 'info');
+    this.log("Restarting all servers...", "info");
     this.stopServers();
     setTimeout(() => this.startServers(), 2000);
   }
 
   backupConfigs() {
-    this.log('Backing up server configurations...', 'info');
+    this.log("Backing up server configurations...", "info");
 
     const configFiles = [
-      'package.json',
-      'docker-compose.yml',
-      '.env',
-      'auth-ui/v750/server.js',
-      'api/server-universal.js'
+      "package.json",
+      "docker-compose.yml",
+      ".env",
+      "auth-ui/v750/server.js",
+      "api/server-universal.js",
     ];
 
-    const timestamp = new Date().toISOString().split('T')[0];
+    const timestamp = new Date().toISOString().split("T")[0];
     const backupDir = path.join(BACKUP_PATH, `config-backup-${timestamp}`);
 
     try {
@@ -242,60 +258,60 @@ echo "Power listener started"
         fs.mkdirSync(backupDir, { recursive: true });
       }
 
-      configFiles.forEach(file => {
+      configFiles.forEach((file) => {
         const src = path.join(PROJECT_PATH, file);
         const dest = path.join(backupDir, path.basename(file));
 
         if (fs.existsSync(src)) {
           fs.copyFileSync(src, dest);
-          this.log(`Backed up: ${file}`, 'success');
+          this.log(`Backed up: ${file}`, "success");
         }
       });
 
       // Create manifest
       const manifest = {
         timestamp: new Date().toISOString(),
-        backup_type: 'config',
+        backup_type: "config",
         files: configFiles,
-        location: backupDir
+        location: backupDir,
       };
 
       fs.writeFileSync(
-        path.join(backupDir, 'MANIFEST.json'),
-        JSON.stringify(manifest, null, 2)
+        path.join(backupDir, "MANIFEST.json"),
+        JSON.stringify(manifest, null, 2),
       );
 
-      this.log(`Configuration backup complete: ${backupDir}`, 'success');
+      this.log(`Configuration backup complete: ${backupDir}`, "success");
       this.commands.push({
-        type: 'config_backup',
+        type: "config_backup",
         timestamp: new Date().toISOString(),
         location: backupDir,
-        files: configFiles
+        files: configFiles,
       });
     } catch (err) {
-      this.log(`Backup failed: ${err.message}`, 'error');
+      this.log(`Backup failed: ${err.message}`, "error");
     }
   }
 
   // Create USB flashdrive with boot utilities
   setupUSBFlashdrive() {
-    this.log('Setting up USB flashdrive...', 'info');
+    this.log("Setting up USB flashdrive...", "info");
 
     const usbDirs = [
-      path.join(FLASH_DRIVE_PATH, 'networkbuster'),
-      path.join(FLASH_DRIVE_PATH, 'networkbuster/boot'),
-      path.join(FLASH_DRIVE_PATH, 'networkbuster/config'),
-      path.join(FLASH_DRIVE_PATH, 'networkbuster/scripts')
+      path.join(FLASH_DRIVE_PATH, "networkbuster"),
+      path.join(FLASH_DRIVE_PATH, "networkbuster/boot"),
+      path.join(FLASH_DRIVE_PATH, "networkbuster/config"),
+      path.join(FLASH_DRIVE_PATH, "networkbuster/scripts"),
     ];
 
-    usbDirs.forEach(dir => {
+    usbDirs.forEach((dir) => {
       try {
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
-          this.log(`Created: ${dir}`, 'success');
+          this.log(`Created: ${dir}`, "success");
         }
       } catch (err) {
-        this.log(`Failed to create ${dir}: ${err.message}`, 'warn');
+        this.log(`Failed to create ${dir}: ${err.message}`, "warn");
       }
     });
 
@@ -304,43 +320,50 @@ echo "Power listener started"
   }
 
   copyBootUtils() {
-    this.log('Copying boot utilities to USB...', 'info');
+    this.log("Copying boot utilities to USB...", "info");
 
     const bootUtils = {
-      'BOOT_STARTUP.bat': 'cd /d D:\\networkbuster && node start-servers.js',
-      'SHUTDOWN_SERVERS.bat': 'taskkill /IM node.exe /F',
-      'CHECK_STATUS.bat': 'curl http://localhost:3000/api/health'
+      "BOOT_STARTUP.bat": "cd /d D:\\networkbuster && node start-servers.js",
+      "SHUTDOWN_SERVERS.bat": "taskkill /IM node.exe /F",
+      "CHECK_STATUS.bat": "curl http://localhost:3000/api/health",
     };
 
     Object.entries(bootUtils).forEach(([filename, content]) => {
-      const filePath = path.join(FLASH_DRIVE_PATH, 'networkbuster/scripts', filename);
+      const filePath = path.join(
+        FLASH_DRIVE_PATH,
+        "networkbuster/scripts",
+        filename,
+      );
       try {
         fs.writeFileSync(filePath, content);
-        this.log(`Created boot utility: ${filename}`, 'success');
+        this.log(`Created boot utility: ${filename}`, "success");
       } catch (err) {
-        this.log(`Failed to create ${filename}: ${err.message}`, 'warn');
+        this.log(`Failed to create ${filename}: ${err.message}`, "warn");
       }
     });
   }
 
   // Save command log and archive
   archiveCommands() {
-    this.log('Archiving power commands...', 'info');
+    this.log("Archiving power commands...", "info");
 
     const archive = {
       timestamp: new Date().toISOString(),
       total_commands: this.commands.length,
       commands: this.commands,
-      option: this.option
+      option: this.option,
     };
 
-    const archivePath = path.join(BACKUP_PATH, `power-commands-${Date.now()}.json`);
+    const archivePath = path.join(
+      BACKUP_PATH,
+      `power-commands-${Date.now()}.json`,
+    );
 
     try {
       fs.writeFileSync(archivePath, JSON.stringify(archive, null, 2));
-      this.log(`Commands archived: ${archivePath}`, 'success');
+      this.log(`Commands archived: ${archivePath}`, "success");
     } catch (err) {
-      this.log(`Failed to archive commands: ${err.message}`, 'error');
+      this.log(`Failed to archive commands: ${err.message}`, "error");
     }
   }
 
@@ -349,7 +372,7 @@ echo "Power listener started"
     console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║  NetworkBuster Power Management System                     ║
-║  Option ${this.option}: ${this.option === 2 ? 'Boot Commands' : 'Server Power Mgmt'}                    ║
+║  Option ${this.option}: ${this.option === 2 ? "Boot Commands" : "Server Power Mgmt"}                    ║
 ╚════════════════════════════════════════════════════════════╝
 `);
 
@@ -358,14 +381,14 @@ echo "Power listener started"
       this.injectBootCommands();
       this.setupUSBFlashdrive();
     } else if (this.option === 4) {
-      this.managePower('status');
+      this.managePower("status");
       this.backupConfigs();
       this.checkServerStatus();
     }
 
     this.archiveCommands();
 
-    this.log('Power management system ready', 'success');
+    this.log("Power management system ready", "success");
   }
 }
 

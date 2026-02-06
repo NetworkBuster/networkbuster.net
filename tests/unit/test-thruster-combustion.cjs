@@ -1,4 +1,4 @@
-// Simple unit test for thruster/combustion.js
+// Simple unit test for thruster/combustion.cjs
 const assert = require("assert");
 const {
   isGitAvailable,
@@ -6,8 +6,7 @@ const {
 } = require("../../thruster/combustion");
 
 async function runTests() {
-  console.log("Running thruster combustion tests...");
-  // isGitAvailable should return a boolean
+  console.log("Running thruster combustion tests (CJS)...");
   const gitAvail = isGitAvailable();
   assert.strictEqual(
     typeof gitAvail,
@@ -15,14 +14,13 @@ async function runTests() {
     "isGitAvailable should be boolean",
   );
 
-  // combustionStatus should resolve to a string
   const status = await combustionStatus();
   assert.ok(
     typeof status === "string",
     "combustionStatus should return a string",
   );
 
-  console.log("All thruster tests passed");
+  console.log("All thruster tests passed (CJS)");
 }
 
 runTests().catch((err) => {

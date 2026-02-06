@@ -5,11 +5,11 @@
  * Docker-based terminal flash upgrade system
  */
 
-import express from 'express';
-import fs from 'fs';
-import path from 'path';
-import { execSync, spawn } from 'child_process';
-import { fileURLToPath } from 'url';
+import express from "express";
+import fs from "fs";
+import path from "path";
+import { execSync, spawn } from "child_process";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,24 +22,29 @@ app.use(express.json());
 // State
 const state = {
   usbConnected: false,
-  usbDevice: process.env.USB_DEVICE || '/dev/sda1',
-  usbMountPath: '/mnt/usb',
-  flashMode: process.env.FLASH_MODE || 'upgrade',
+  usbDevice: process.env.USB_DEVICE || "/dev/sda1",
+  usbMountPath: "/mnt/usb",
+  flashMode: process.env.FLASH_MODE || "upgrade",
   lastUpgrade: null,
-  upgrades: []
+  upgrades: [],
 };
 
 // Detect USB devices
 function detectUSB() {
   try {
-    const devices = execSync('lsblk -J -o NAME,SIZE,TYPE,MOUNTPOINT 2>/dev/null || echo "{}"', { encoding: 'utf8' });
+    const devices = execSync(
+      'lsblk -J -o NAME,SIZE,TYPE,MOUNTPOINT 2>/dev/null || echo "{}"',
+      { encoding: "utf8" },
+    );
     const parsed = JSON.parse(devices);
     return parsed.blockdevices || [];
   } catch (err) {
-    console.log('USB detection not available (Windows mode)');
+    console.log("USB detection not available (Windows mode)");
     // Windows fallback - check D: drive
-    if (fs.existsSync('D:\\')) {
-      return [{ name: 'D:', size: 'Unknown', type: 'disk', mountpoint: 'D:\\' }];
+    if (fs.existsSync("D:\\")) {
+      return [
+        { name: "D:", size: "Unknown", type: "disk", mountpoint: "D:\\" },
+      ];
     }
     return [];
   }
@@ -53,8 +58,8 @@ function mountUSB(device) {
     return true;
   } catch (err) {
     // Windows - D: is already mounted
-    if (fs.existsSync('D:\\')) {
-      state.usbMountPath = 'D:\\';
+    if (fs.existsSync("D:\\")) {
+      state.usbMountPath = "D:\\";
       state.usbConnected = true;
       return true;
     }
@@ -66,20 +71,20 @@ function mountUSB(device) {
 function createBootCommands() {
   const bootConfig = {
     timestamp: new Date().toISOString(),
-    version: '1.0.1',
+    version: "1.0.1",
     commands: [
-      'BOOT_PRIORITY=NETWORK',
-      'NETWORK_BOOT_ENABLED=1',
-      'AUTO_STARTUP_SERVERS=1',
-      'CONFIG_LOAD_SOURCE=CLOUD',
-      'FLASH_UPGRADE_MODE=ACTIVE'
+      "BOOT_PRIORITY=NETWORK",
+      "NETWORK_BOOT_ENABLED=1",
+      "AUTO_STARTUP_SERVERS=1",
+      "CONFIG_LOAD_SOURCE=CLOUD",
+      "FLASH_UPGRADE_MODE=ACTIVE",
     ],
     autoStart: {
       webServer: { port: 3000, enabled: true },
       apiServer: { port: 3001, enabled: true },
       audioServer: { port: 3002, enabled: true },
-      authServer: { port: 3003, enabled: true }
-    }
+      authServer: { port: 3003, enabled: true },
+    },
   };
 
   return bootConfig;
@@ -88,7 +93,7 @@ function createBootCommands() {
 // Write upgrade files to USB
 function writeUpgradeFiles() {
   const usbPath = state.usbMountPath;
-  const upgradeDir = path.join(usbPath, 'networkbuster-upgrade');
+  const upgradeDir = path.join(usbPath, "networkbuster-upgrade");
 
   try {
     // Create directories
@@ -99,8 +104,8 @@ function writeUpgradeFiles() {
     // Write boot config
     const bootConfig = createBootCommands();
     fs.writeFileSync(
-      path.join(upgradeDir, 'boot-config.json'),
-      JSON.stringify(bootConfig, null, 2)
+      path.join(upgradeDir, "boot-config.json"),
+      JSON.stringify(bootConfig, null, 2),
     );
 
     // Write startup script (Windows batch)
@@ -111,7 +116,7 @@ echo Starting NetworkBuster servers...
 node start-servers.js
 pause
 `;
-    fs.writeFileSync(path.join(upgradeDir, 'startup.bat'), startupBat);
+    fs.writeFileSync(path.join(upgradeDir, "startup.bat"), startupBat);
 
     // Write startup script (Linux/Mac)
     const startupSh = `#!/bin/bash
@@ -120,7 +125,9 @@ cd "$(dirname "$0")/.."
 echo "Starting NetworkBuster servers..."
 node start-servers.js
 `;
-    fs.writeFileSync(path.join(upgradeDir, 'startup.sh'), startupSh, { mode: 0o755 });
+    fs.writeFileSync(path.join(upgradeDir, "startup.sh"), startupSh, {
+      mode: 0o755,
+    });
 
     // Write autorun.inf for Windows
     const autorun = `[autorun]
@@ -128,36 +135,36 @@ open=networkbuster-upgrade\\startup.bat
 icon=networkbuster-upgrade\\icon.ico
 label=NetworkBuster USB
 `;
-    fs.writeFileSync(path.join(usbPath, 'autorun.inf'), autorun);
+    fs.writeFileSync(path.join(usbPath, "autorun.inf"), autorun);
 
     // Write manifest
     const manifest = {
-      name: 'NetworkBuster Flash Upgrade',
-      version: '1.0.1',
+      name: "NetworkBuster Flash Upgrade",
+      version: "1.0.1",
       created: new Date().toISOString(),
       files: [
-        'boot-config.json',
-        'startup.bat',
-        'startup.sh',
-        '../autorun.inf'
+        "boot-config.json",
+        "startup.bat",
+        "startup.sh",
+        "../autorun.inf",
       ],
       servers: {
         web: 3000,
         api: 3001,
         audio: 3002,
-        auth: 3003
-      }
+        auth: 3003,
+      },
     };
     fs.writeFileSync(
-      path.join(upgradeDir, 'MANIFEST.json'),
-      JSON.stringify(manifest, null, 2)
+      path.join(upgradeDir, "MANIFEST.json"),
+      JSON.stringify(manifest, null, 2),
     );
 
     state.lastUpgrade = new Date().toISOString();
     state.upgrades.push({
       timestamp: state.lastUpgrade,
       path: upgradeDir,
-      files: manifest.files
+      files: manifest.files,
     });
 
     return { success: true, path: upgradeDir, manifest };
@@ -169,7 +176,7 @@ label=NetworkBuster USB
 // Copy project files to USB
 function copyProjectToUSB() {
   const usbPath = state.usbMountPath;
-  const projectDir = path.join(usbPath, 'networkbuster');
+  const projectDir = path.join(usbPath, "networkbuster");
 
   try {
     if (!fs.existsSync(projectDir)) {
@@ -178,12 +185,12 @@ function copyProjectToUSB() {
 
     // Key files to copy
     const filesToCopy = [
-      'package.json',
-      'server-universal.js',
-      'server-audio.js',
-      'start-servers.js',
-      'power-manager.js',
-      'build-pipeline.js'
+      "package.json",
+      "server-universal.js",
+      "server-audio.js",
+      "start-servers.js",
+      "power-manager.js",
+      "build-pipeline.js",
     ];
 
     let copied = [];
@@ -205,46 +212,46 @@ function copyProjectToUSB() {
 // API Routes
 
 // Health check
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
   res.json({
-    status: 'healthy',
-    service: 'flash-upgrade',
+    status: "healthy",
+    service: "flash-upgrade",
     port: PORT,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 // Get USB status
-app.get('/api/usb/status', (req, res) => {
+app.get("/api/usb/status", (req, res) => {
   const devices = detectUSB();
   res.json({
     connected: state.usbConnected,
     device: state.usbDevice,
     mountPath: state.usbMountPath,
     devices,
-    lastUpgrade: state.lastUpgrade
+    lastUpgrade: state.lastUpgrade,
   });
 });
 
 // Detect USB devices
-app.get('/api/usb/detect', (req, res) => {
+app.get("/api/usb/detect", (req, res) => {
   const devices = detectUSB();
   res.json({ devices, count: devices.length });
 });
 
 // Mount USB
-app.post('/api/usb/mount', (req, res) => {
+app.post("/api/usb/mount", (req, res) => {
   const { device } = req.body;
   const result = mountUSB(device || state.usbDevice);
   res.json({
     success: result,
     mounted: state.usbConnected,
-    mountPath: state.usbMountPath
+    mountPath: state.usbMountPath,
   });
 });
 
 // Create flash upgrade
-app.post('/api/flash/upgrade', (req, res) => {
+app.post("/api/flash/upgrade", (req, res) => {
   if (!state.usbConnected) {
     mountUSB(state.usbDevice);
   }
@@ -256,7 +263,7 @@ app.post('/api/flash/upgrade', (req, res) => {
       success: true,
       upgrade: upgradeResult,
       project: copyResult,
-      message: 'Flash upgrade created successfully'
+      message: "Flash upgrade created successfully",
     });
   } else {
     res.status(500).json(upgradeResult);
@@ -264,33 +271,36 @@ app.post('/api/flash/upgrade', (req, res) => {
 });
 
 // Get upgrade history
-app.get('/api/flash/history', (req, res) => {
+app.get("/api/flash/history", (req, res) => {
   res.json({
     upgrades: state.upgrades,
     count: state.upgrades.length,
-    lastUpgrade: state.lastUpgrade
+    lastUpgrade: state.lastUpgrade,
   });
 });
 
 // Create boot config only
-app.post('/api/flash/boot-config', (req, res) => {
+app.post("/api/flash/boot-config", (req, res) => {
   const bootConfig = createBootCommands();
   res.json(bootConfig);
 });
 
 // Eject USB safely
-app.post('/api/usb/eject', (req, res) => {
+app.post("/api/usb/eject", (req, res) => {
   try {
     execSync(`umount ${state.usbMountPath} 2>/dev/null || true`);
     state.usbConnected = false;
-    res.json({ success: true, message: 'USB ejected safely' });
+    res.json({ success: true, message: "USB ejected safely" });
   } catch (err) {
-    res.json({ success: true, message: 'Eject command sent (Windows: safe to remove)' });
+    res.json({
+      success: true,
+      message: "Eject command sent (Windows: safe to remove)",
+    });
   }
 });
 
 // Dashboard HTML
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.send(`<!DOCTYPE html>
 <html><head>
 <meta charset="UTF-8">
