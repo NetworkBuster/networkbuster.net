@@ -1,0 +1,51 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+      - bigtree
+  pull_request:
+    branches:
+      - main
+      - bigtree
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24.x'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build dashboard
+        run: cd dashboard && npm ci && npm run build
+      
+      - name: Build real-time overlay
+        run: cd challengerepo/real-time-overlay && npm ci && npm run build
+      
+      - name: Deploy to Vercel (main)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Deploy to Vercel (bigtree)
+        if: github.ref == 'refs/heads/bigtree' && github.event_name == 'push'
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Sync branches
+        if: github.event_name == 'push'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            git fetch origin bigtree
+            git merge origin/bigtree -m "Auto-sync: merge main to bigtree" || true
+            git push origin main || true
+          fi

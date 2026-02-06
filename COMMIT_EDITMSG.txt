@@ -1,0 +1,18 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch bigtree
+# Your branch is behind 'origin/bigtree' by 2 commits, and can be fast-forwarded.
+#   (use "git pull" to update your local branch)
+#
+# Changes to be committed:
+#	new file:   install-windows-service.ps1
+#
+# Changes not staged for commit:
+#	modified:   .gitignore
+#	modified:   vercel.json
+#
+# Untracked files:
+#	.vscode/
+#
