@@ -132,9 +132,9 @@ All routes automatically proxy to the backend server:
 
 ## Latest Commit
 ```
-Commit: 3274e41
-Message: Update server to port 3001 and add startup scripts
-Branch: DATACENTRAL
+Commit: 86d3c4b
+Message: Initial plan (#28)
+Branch: bigtree
 ```
 
 ---
