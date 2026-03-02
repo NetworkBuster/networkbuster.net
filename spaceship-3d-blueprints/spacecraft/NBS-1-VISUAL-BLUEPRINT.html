@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBS-1 "Data Voyager" — Interactive Visual Blueprint</title>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --panel: #0d1526;
+      --accent: #00d4ff;
+      --accent2: #7b4fff;
+      --text: #c8d8f0;
+      --dim: #4a6080;
+      --grid: rgba(0, 212, 255, 0.07);
+      --glow: 0 0 12px rgba(0, 212, 255, 0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Blueprint grid background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      width: 100%;
+      text-align: center;
+      padding: 28px 20px 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header h1 {
+      font-size: clamp(1.2rem, 4vw, 2rem);
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      text-shadow: var(--glow);
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: var(--dim);
+      letter-spacing: 0.1em;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .badge {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.08em;
+      text-shadow: var(--glow);
+    }
+
+    /* ── Main layout ── */
+    .layout {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 20px;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── Blueprint viewport ── */
+    .blueprint-wrap {
+      background: var(--panel);
+      border: 1px solid rgba(0, 212, 255, 0.25);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .view-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab {
+      background: transparent;
+      border: 1px solid var(--dim);
+      color: var(--dim);
+      font-family: inherit;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      padding: 5px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .tab:hover, .tab.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: var(--glow);
+    }
+
+    svg.blueprint {
+      width: 100%;
+      max-width: 480px;
+      height: auto;
+      overflow: visible;
+    }
+
+    /* ── SVG styles ── */
+    .ship-body { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+    .ship-inner { fill: rgba(0,212,255,0.05); stroke: none; }
+    .dim-line { stroke: var(--dim); stroke-width: 0.8; stroke-dasharray: 4 3; fill: none; }
+    .label {
+      fill: var(--text);
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+    }
+    .label-accent { fill: var(--accent); }
+    .dim-text { fill: var(--dim); font-size: 8px; font-family: 'Courier New', monospace; }
+    .section-box { fill: rgba(123,79,255,0.08); stroke: var(--accent2); stroke-width: 0.8; }
+    .section-label { fill: var(--accent2); font-size: 9px; font-family: 'Courier New', monospace; letter-spacing: 0.06em; }
+    .engine-nozzle { fill: rgba(0,212,255,0.1); stroke: var(--accent); stroke-width: 1; }
+    .glow-circle { fill: rgba(0,212,255,0.6); }
+    .dim-arrow { stroke: var(--dim); stroke-width: 0.7; fill: var(--dim); }
+
+    /* interactive hover highlight */
+    .section-group { cursor: pointer; transition: filter 0.2s; }
+    .section-group:hover { filter: brightness(1.6) drop-shadow(0 0 6px #00d4ff); }
+
+    /* ── Side panel ── */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .info-card {
+      background: var(--panel);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .info-card h3 {
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(0,212,255,0.15);
+      padding-bottom: 6px;
+    }
+
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      gap: 8px;
+    }
+
+    .spec-row:last-child { border-bottom: none; }
+
+    .spec-key { color: var(--dim); flex-shrink: 0; }
+    .spec-val { color: var(--text); text-align: right; }
+
+    /* animated status bar */
+    .status-bar-wrap { margin-top: 6px; }
+    .status-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--dim);
+      margin-bottom: 3px;
+    }
+
+    .bar-track {
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 7px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      animation: pulse-bar 2.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse-bar {
+      from { opacity: 0.7; }
+      to   { opacity: 1; }
+    }
+
+    /* section detail pane */
+    #detail-panel {
+      background: var(--panel);
+      border: 1px solid rgba(123,79,255,0.4);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 120px;
+      transition: border-color 0.3s;
+    }
+
+    #detail-panel h3 {
+      font-size: 0.72rem;
+      color: var(--accent2);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    #detail-panel p {
+      font-size: 0.7rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    #detail-panel ul {
+      margin: 6px 0 0 14px;
+      font-size: 0.7rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 16px;
+      font-size: 0.65rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer a { color: var(--dim); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🚀 NBS-1 "Data Voyager" — Interactive Blueprint</h1>
+  <p>NetworkBuster Aerospace Division · Project Code: NBS-1-2026 · Rev 2.1</p>
+  <div class="badge-row">
+    <span class="badge">PRODUCTION READY</span>
+    <span class="badge">FIRST FLIGHT Q4 2026</span>
+    <span class="badge">38 m · 200 kN</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ─────────────────── BLUEPRINT SVG ─────────────────── -->
+  <div class="blueprint-wrap">
+
+    <div class="view-tabs">
+      <button class="tab active" onclick="setView('side')">Side View</button>
+      <button class="tab" onclick="setView('front')">Front View</button>
+      <button class="tab" onclick="setView('top')">Top View</button>
+    </div>
+
+    <!-- SIDE VIEW (default) -->
+    <svg id="view-side" class="blueprint" viewBox="0 0 340 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NBS-1 Data Voyager side-view blueprint">
+
+      <!-- ── Dimension lines ── -->
+      <!-- total length arrow -->
+      <line class="dim-line" x1="30" y1="60" x2="30" y2="640"/>
+      <line class="dim-line" x1="25" y1="60" x2="35" y2="60"/>
+      <line class="dim-line" x1="25" y1="640" x2="35" y2="640"/>
+      <text class="dim-text" x="16" y="355" transform="rotate(-90,16,355)" text-anchor="middle">38 m TOTAL</text>
+
+      <!-- ─── ANTENNA ARRAY ─── -->
+      <g class="section-group" onclick="showDetail('antenna')" aria-label="Antenna Array">
+        <rect class="section-box" x="125" y="30" width="90" height="40" rx="4"/>
+        <line class="ship-body" x1="170" y1="30" x2="170" y2="10"/>
+        <!-- dish -->
+        <ellipse class="ship-body" cx="170" cy="10" rx="22" ry="6"/>
+        <line class="ship-body" x1="148" y1="10" x2="125" y2="18"/>
+        <line class="ship-body" x1="192" y1="10" x2="215" y2="18"/>
+        <text class="section-label" x="170" y="55" text-anchor="middle">ANTENNA ARRAY</text>
+        <text class="dim-text" x="220" y="52">2.5 m dish</text>
+      </g>
+
+      <!-- ─── COMMAND MODULE ─── -->
+      <g class="section-group" onclick="showDetail('command')" aria-label="Command Module">
+        <!-- nose cone -->
+        <path class="ship-body" d="M 130,70 Q 120,130 120,160 L 220,160 Q 220,130 210,70 Z"/>
+        <rect class="ship-inner" x="122" y="100" width="96" height="58"/>
+        <!-- viewports -->
+        <ellipse class="ship-body" cx="152" cy="120" rx="8" ry="5" fill="rgba(0,212,255,0.15)"/>
+        <ellipse class="ship-body" cx="188" cy="120" rx="8" ry="5" fill="rgba(0,212,255,0.15)"/>
+        <text class="section-label" x="170" y="148" text-anchor="middle">COMMAND MODULE</text>
+        <text class="dim-text" x="225" y="120">5 m</text>
+      </g>
+
+      <!-- ─── HABITAT SECTION ─── -->
+      <g class="section-group" onclick="showDetail('habitat')" aria-label="Habitat Section">
+        <rect class="section-box" x="120" y="162" width="100" height="120" rx="2"/>
+        <!-- interior detail lines -->
+        <line class="dim-line" x1="122" y1="202" x2="218" y2="202"/>
+        <line class="dim-line" x1="122" y1="242" x2="218" y2="242"/>
+        <text class="section-label" x="170" y="185" text-anchor="middle">HABITAT</text>
+        <text class="dim-text" x="225" y="225">8 m</text>
+        <text class="dim-text" x="60" y="202">bunks</text>
+        <text class="dim-text" x="60" y="242">galley</text>
+      </g>
+
+      <!-- ─── CARGO BAY ─── -->
+      <g class="section-group" onclick="showDetail('cargo')" aria-label="Cargo Bay">
+        <rect class="section-box" x="115" y="284" width="110" height="200" rx="2"/>
+        <!-- server rack pattern -->
+        <line class="dim-line" x1="117" y1="310" x2="223" y2="310"/>
+        <line class="dim-line" x1="117" y1="340" x2="223" y2="340"/>
+        <line class="dim-line" x1="117" y1="370" x2="223" y2="370"/>
+        <line class="dim-line" x1="117" y1="400" x2="223" y2="400"/>
+        <line class="dim-line" x1="117" y1="430" x2="223" y2="430"/>
+        <line class="dim-line" x1="117" y1="460" x2="223" y2="460"/>
+        <!-- clamshell door hinge -->
+        <circle cx="115" cy="384" r="3" class="ship-body" fill="rgba(0,212,255,0.2)"/>
+        <circle cx="225" cy="384" r="3" class="ship-body" fill="rgba(0,212,255,0.2)"/>
+        <text class="section-label" x="170" y="305" text-anchor="middle">CARGO BAY</text>
+        <text class="dim-text" x="225" y="390">15 m</text>
+        <text class="dim-text" x="38" y="380">25 000 kg</text>
+        <text class="dim-text" x="38" y="392">payload</text>
+      </g>
+
+      <!-- ─── PROPULSION MODULE ─── -->
+      <g class="section-group" onclick="showDetail('propulsion')" aria-label="Propulsion Module">
+        <rect class="section-box" x="118" y="486" width="104" height="120" rx="2"/>
+        <!-- fuel tank indicators -->
+        <rect class="dim-line" x="130" y="498" width="35" height="40" rx="3"/>
+        <rect class="dim-line" x="175" y="498" width="35" height="40" rx="3"/>
+        <text class="dim-text" x="140" y="522" text-anchor="middle">CH₄</text>
+        <text class="dim-text" x="193" y="522" text-anchor="middle">LOX</text>
+        <text class="section-label" x="170" y="575" text-anchor="middle">PROPULSION</text>
+        <text class="dim-text" x="225" y="548">10 m</text>
+      </g>
+
+      <!-- ─── ENGINE NOZZLES ─── -->
+      <g class="section-group" onclick="showDetail('engines')" aria-label="Engine Nozzles">
+        <!-- 4 nozzles -->
+        <path class="engine-nozzle" d="M 127,608 L 120,650 L 148,650 L 141,608 Z"/>
+        <path class="engine-nozzle" d="M 147,608 L 141,645 L 163,645 L 157,608 Z"/>
+        <path class="engine-nozzle" d="M 183,608 L 177,645 L 199,645 L 193,608 Z"/>
+        <path class="engine-nozzle" d="M 199,608 L 192,650 L 220,650 L 213,608 Z"/>
+        <!-- exhaust glow -->
+        <ellipse cx="134" cy="652" rx="14" ry="5" fill="rgba(0,212,255,0.12)"/>
+        <ellipse cx="152" cy="648" rx="11" ry="4" fill="rgba(0,212,255,0.12)"/>
+        <ellipse cx="188" cy="648" rx="11" ry="4" fill="rgba(0,212,255,0.12)"/>
+        <ellipse cx="206" cy="652" rx="14" ry="5" fill="rgba(0,212,255,0.12)"/>
+        <text class="section-label" x="170" y="668" text-anchor="middle">4× ME-50 ENGINES</text>
+        <text class="dim-text" x="225" y="640">200 kN</text>
+      </g>
+
+      <!-- ─── SOLAR PANEL WINGS ─── -->
+      <!-- left -->
+      <rect class="section-box" x="38" y="310" width="74" height="12" rx="2"/>
+      <rect class="section-box" x="38" y="326" width="74" height="12" rx="2"/>
+      <rect class="section-box" x="38" y="342" width="74" height="12" rx="2"/>
+      <rect class="section-box" x="38" y="358" width="74" height="12" rx="2"/>
+      <text class="dim-text" x="75" y="378" text-anchor="middle">SOLAR ARRAY</text>
+      <text class="dim-text" x="75" y="388" text-anchor="middle">8 kW / 50 m²</text>
+      <line class="dim-line" x1="112" y1="335" x2="114" y2="335"/>
+      <!-- right -->
+      <rect class="section-box" x="228" y="310" width="74" height="12" rx="2"/>
+      <rect class="section-box" x="228" y="326" width="74" height="12" rx="2"/>
+      <rect class="section-box" x="228" y="342" width="74" height="12" rx="2"/>
+      <rect class="section-box" x="228" y="358" width="74" height="12" rx="2"/>
+      <text class="dim-text" x="265" y="378" text-anchor="middle">SOLAR ARRAY</text>
+
+      <!-- ─── RCS thrusters (dots) ─── -->
+      <circle cx="120" cy="175" r="4" class="ship-body" fill="rgba(123,79,255,0.4)"/>
+      <circle cx="220" cy="175" r="4" class="ship-body" fill="rgba(123,79,255,0.4)"/>
+      <circle cx="115" cy="350" r="4" class="ship-body" fill="rgba(123,79,255,0.4)"/>
+      <circle cx="225" cy="350" r="4" class="ship-body" fill="rgba(123,79,255,0.4)"/>
+      <circle cx="118" cy="500" r="4" class="ship-body" fill="rgba(123,79,255,0.4)"/>
+      <circle cx="222" cy="500" r="4" class="ship-body" fill="rgba(123,79,255,0.4)"/>
+
+      <!-- ─── Diameter annotation ─── -->
+      <line class="dim-line" x1="115" y1="692" x2="225" y2="692"/>
+      <line class="dim-line" x1="115" y1="688" x2="115" y2="696"/>
+      <line class="dim-line" x1="225" y1="688" x2="225" y2="696"/>
+      <text class="dim-text" x="170" y="700" text-anchor="middle">6 m DIAMETER</text>
+
+    </svg><!-- /side view -->
+
+    <!-- FRONT VIEW -->
+    <svg id="view-front" class="blueprint" viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg"
+         role="img" aria-label="NBS-1 Data Voyager front-view blueprint" style="display:none">
+
+      <!-- outer hull circle -->
+      <circle class="ship-body" cx="170" cy="170" r="110"/>
+      <circle class="ship-inner" cx="170" cy="170" r="110"/>
+
+      <!-- inner pressure hull -->
+      <circle class="ship-body" cx="170" cy="170" r="85"/>
+
+      <!-- 4 engine nozzles -->
+      <circle class="engine-nozzle" cx="130" cy="130" r="22"/>
+      <circle class="engine-nozzle" cx="210" cy="130" r="22"/>
+      <circle class="engine-nozzle" cx="130" cy="210" r="22"/>
+      <circle class="engine-nozzle" cx="210" cy="210" r="22"/>
+      <text class="label-accent" x="130" y="133" text-anchor="middle" font-size="9">ME-50</text>
+      <text class="label-accent" x="210" y="133" text-anchor="middle" font-size="9">ME-50</text>
+      <text class="label-accent" x="130" y="213" text-anchor="middle" font-size="9">ME-50</text>
+      <text class="label-accent" x="210" y="213" text-anchor="middle" font-size="9">ME-50</text>
+
+      <!-- docking port (center) -->
+      <circle class="ship-body" cx="170" cy="170" r="24"/>
+      <circle cx="170" cy="170" r="6" fill="rgba(0,212,255,0.3)" stroke="#00d4ff" stroke-width="1"/>
+      <text class="dim-text" x="170" y="200" text-anchor="middle">DOCKING PORT</text>
+
+      <!-- cross-hairs -->
+      <line class="dim-line" x1="0" y1="170" x2="340" y2="170"/>
+      <line class="dim-line" x1="170" y1="0" x2="170" y2="340"/>
+
+      <!-- solar panel roots -->
+      <rect class="section-box" x="2" y="158" width="56" height="24" rx="2"/>
+      <rect class="section-box" x="282" y="158" width="56" height="24" rx="2"/>
+
+      <!-- diameter annotation -->
+      <line class="dim-line" x1="60" y1="295" x2="280" y2="295"/>
+      <line class="dim-line" x1="60" y1="290" x2="60" y2="300"/>
+      <line class="dim-line" x1="280" y1="290" x2="280" y2="300"/>
+      <text class="dim-text" x="170" y="310" text-anchor="middle">6 m DIAMETER</text>
+
+      <text class="label" x="170" y="26" text-anchor="middle">FRONT VIEW — NBS-1</text>
+    </svg><!-- /front view -->
+
+    <!-- TOP VIEW -->
+    <svg id="view-top" class="blueprint" viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg"
+         role="img" aria-label="NBS-1 Data Voyager top-view blueprint" style="display:none">
+
+      <!-- main body ellipse (foreshortened) -->
+      <ellipse class="ship-body" cx="170" cy="170" rx="50" ry="140"/>
+      <ellipse class="ship-inner" cx="170" cy="170" rx="50" ry="140"/>
+
+      <!-- nose -->
+      <ellipse class="ship-body" cx="170" cy="31" rx="20" ry="8"/>
+
+      <!-- solar wings -->
+      <rect class="section-box" x="26" y="130" width="92" height="80" rx="4"/>
+      <rect class="section-box" x="222" y="130" width="92" height="80" rx="4"/>
+      <!-- solar cell grid lines -->
+      <line class="dim-line" x1="50" y1="130" x2="50" y2="210"/>
+      <line class="dim-line" x1="74" y1="130" x2="74" y2="210"/>
+      <line class="dim-line" x1="98" y1="130" x2="98" y2="210"/>
+      <line class="dim-line" x1="26" y1="155" x2="118" y2="155"/>
+      <line class="dim-line" x1="26" y1="180" x2="118" y2="180"/>
+      <line class="dim-line" x1="26" y1="205" x2="118" y2="205"/>
+      <line class="dim-line" x1="246" y1="130" x2="246" y2="210"/>
+      <line class="dim-line" x1="270" y1="130" x2="270" y2="210"/>
+      <line class="dim-line" x1="294" y1="130" x2="294" y2="210"/>
+      <line class="dim-line" x1="222" y1="155" x2="314" y2="155"/>
+      <line class="dim-line" x1="222" y1="180" x2="314" y2="180"/>
+      <line class="dim-line" x1="222" y1="205" x2="314" y2="205"/>
+
+      <!-- antenna dish top -->
+      <ellipse class="ship-body" cx="170" cy="22" rx="22" ry="7"/>
+
+      <!-- cross-hairs -->
+      <line class="dim-line" x1="0" y1="170" x2="340" y2="170"/>
+      <line class="dim-line" x1="170" y1="0" x2="170" y2="340"/>
+
+      <!-- width annotation -->
+      <line class="dim-line" x1="26" y1="320" x2="314" y2="320"/>
+      <line class="dim-line" x1="26" y1="315" x2="26" y2="325"/>
+      <line class="dim-line" x1="314" y1="315" x2="314" y2="325"/>
+      <text class="dim-text" x="170" y="334" text-anchor="middle">~26 m WING SPAN (deployed)</text>
+
+      <text class="label" x="170" y="14" text-anchor="middle" font-size="9">TOP VIEW — NBS-1</text>
+    </svg><!-- /top view -->
+
+  </div><!-- /blueprint-wrap -->
+
+  <!-- ─────────────────── SIDE PANEL ─────────────────── -->
+  <div class="side-panel">
+
+    <!-- Key specs -->
+    <div class="info-card">
+      <h3>📐 Key Specifications</h3>
+      <div class="spec-row"><span class="spec-key">Length</span><span class="spec-val">38 m</span></div>
+      <div class="spec-row"><span class="spec-key">Diameter</span><span class="spec-val">6 m</span></div>
+      <div class="spec-row"><span class="spec-key">Mass (dry)</span><span class="spec-val">18 000 kg</span></div>
+      <div class="spec-row"><span class="spec-key">Mass (fuelled)</span><span class="spec-val">138 000 kg</span></div>
+      <div class="spec-row"><span class="spec-key">Payload (lunar)</span><span class="spec-val">25 000 kg</span></div>
+      <div class="spec-row"><span class="spec-key">Crew</span><span class="spec-val">6 + 2 pilots</span></div>
+      <div class="spec-row"><span class="spec-key">Thrust</span><span class="spec-val">4 × 50 kN</span></div>
+      <div class="spec-row"><span class="spec-key">ISP (vacuum)</span><span class="spec-val">380 s</span></div>
+      <div class="spec-row"><span class="spec-key">Delta-V</span><span class="spec-val">8 500 m/s</span></div>
+      <div class="spec-row"><span class="spec-key">Endurance</span><span class="spec-val">30 days</span></div>
+    </div>
+
+    <!-- Systems status -->
+    <div class="info-card">
+      <h3>⚡ Systems Status</h3>
+
+      <div class="status-bar-wrap">
+        <div class="status-label"><span>Propulsion</span><span>NOMINAL</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:95%"></div></div>
+      </div>
+      <div class="status-bar-wrap">
+        <div class="status-label"><span>Life Support</span><span>NOMINAL</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="status-bar-wrap">
+        <div class="status-label"><span>Avionics</span><span>NOMINAL</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="status-bar-wrap">
+        <div class="status-label"><span>Comms (Ka)</span><span>100 Mbps</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:88%"></div></div>
+      </div>
+      <div class="status-bar-wrap">
+        <div class="status-label"><span>Solar Power</span><span>8 kW</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:72%"></div></div>
+      </div>
+      <div class="status-bar-wrap">
+        <div class="status-label"><span>Cargo Bay</span><span>SECURED</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:60%"></div></div>
+      </div>
+    </div>
+
+    <!-- Section detail (interactive) -->
+    <div id="detail-panel">
+      <h3>🔍 Section Details</h3>
+      <p>Click any section on the blueprint to view details.</p>
+    </div>
+
+  </div><!-- /side-panel -->
+</div><!-- /layout -->
+
+<footer>
+  NBS-1 "Data Voyager" Visual Blueprint · NetworkBuster Aerospace Division ·
+  <a href="../INTEGRATION.md">Integration Guide</a> ·
+  Rev 2.1 · Q4 2026
+</footer>
+
+<script>
+  /* ── View switching ── */
+  function setView(v) {
+    ['side','front','top'].forEach(id => {
+      document.getElementById('view-' + id).style.display = id === v ? '' : 'none';
+    });
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', ['side','front','top'][i] === v);
+    });
+  }
+
+  /* ── Section detail content ── */
+  const details = {
+    antenna: {
+      title: '📡 Antenna Array',
+      html: `
+        <ul>
+          <li>2.5 m parabolic high-gain dish (Ka-band)</li>
+          <li>100 Mbps data rate to Earth / Moonbase</li>
+          <li>Range: 400 000 km (Earth–Moon)</li>
+          <li>S-band omni backup (1 Mbps)</li>
+          <li>Sun-tracking gimbal ±90°</li>
+        </ul>`
+    },
+    command: {
+      title: '🖥️ Command Module (5 m)',
+      html: `
+        <ul>
+          <li>2 pilot seats, full flight controls</li>
+          <li>5× 4K touchscreen displays</li>
+          <li>4 electrochromic viewports</li>
+          <li>ISS-compatible docking port</li>
+          <li>Triple-redundant ARM64 flight computer</li>
+        </ul>`
+    },
+    habitat: {
+      title: '🏠 Habitat Section (8 m)',
+      html: `
+        <ul>
+          <li>6 sleeping compartments (private)</li>
+          <li>Galley: food prep, water dispenser</li>
+          <li>Hygiene: toilet + shower (95 % recycling)</li>
+          <li>Exercise: treadmill + resistance bands</li>
+          <li>20–24 °C · 101.3 kPa · 78 % N₂ / 21 % O₂</li>
+        </ul>`
+    },
+    cargo: {
+      title: '📦 Cargo Bay (15 m)',
+      html: `
+        <ul>
+          <li>Dimensions: 15 m × 5 m dia · 295 m³</li>
+          <li>Payload: 25 000 kg to lunar orbit</li>
+          <li>Clamshell doors (hydraulic actuators)</li>
+          <li>2× robotic arms (5-DOF) for orbital ops</li>
+          <li>Carries: server racks, O₂, water, spares</li>
+        </ul>`
+    },
+    propulsion: {
+      title: '🔥 Propulsion Module (10 m)',
+      html: `
+        <ul>
+          <li>Methalox propulsion (CH₄ / LOX)</li>
+          <li>Main tank: 80 000 kg methane</li>
+          <li>Oxidizer: 40 000 kg liquid oxygen</li>
+          <li>Carbon-fiber composite cryo tanks (3.5 MPa)</li>
+          <li>24× 500 N RCS thrusters (nitrogen)</li>
+        </ul>`
+    },
+    engines: {
+      title: '⚙️ 4× NetworkBuster ME-50 Engines',
+      html: `
+        <ul>
+          <li>Thrust: 50 kN each · 200 kN total</li>
+          <li>Throttle range: 40 – 100 %</li>
+          <li>Gimbal: ±15° for attitude control</li>
+          <li>ISP: 380 s vacuum / 330 s sea-level</li>
+          <li>Unlimited restart in space</li>
+        </ul>`
+    }
+  };
+
+  function showDetail(key) {
+    const d = details[key];
+    if (!d) return;
+    const panel = document.getElementById('detail-panel');
+    panel.innerHTML = `<h3>${d.title}</h3>${d.html}`;
+    panel.style.borderColor = 'rgba(0,212,255,0.6)';
+    setTimeout(() => { panel.style.borderColor = 'rgba(123,79,255,0.4)'; }, 800);
+  }
+</script>
+
+</body>
+</html>
