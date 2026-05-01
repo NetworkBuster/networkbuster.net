@@ -1,0 +1,402 @@
+{
+  "metadata": {
+    "generatedAt": "2025-12-25T02:17:42.139Z",
+    "repository": "networkbuster.net",
+    "version": "1.0.0"
+  },
+  "categories": {
+    "server": {
+      "description": "Server implementations and variants",
+      "count": 9,
+      "files": [
+        "api\\server-optimized.js",
+        "api\\server-universal.js",
+        "api\\server.js",
+        "auth-ui\\v750\\server.js",
+        "server-audio.js",
+        "server-enhanced.js",
+        "server-optimized.js",
+        "server-universal.js",
+        "server.js"
+      ]
+    },
+    "docs": {
+      "description": "Documentation files",
+      "count": 104,
+      "files": [
+        ".azure\\DEPLOYMENT.md",
+        ".azure\\documentation\\00-index.md",
+        ".azure\\documentation\\01-executive-summary.md",
+        ".azure\\documentation\\02-hidden-tools.md",
+        ".azure\\documentation\\03-exposed-secrets.md",
+        ".azure\\documentation\\04-azure-infrastructure.md",
+        ".azure\\documentation\\05-cicd-pipelines.md",
+        ".azure\\documentation\\06-docker-config.md",
+        ".azure\\documentation\\07-git-hooks.md",
+        ".azure\\documentation\\08-api-server.md",
+        ".azure\\documentation\\09-frontend-apps.md",
+        ".azure\\documentation\\10-deployment-status.md",
+        ".azure\\documentation\\11-security-audit.md",
+        ".azure\\documentation\\12-quick-reference.md",
+        ".azure\\QUICKSTART.md",
+        ".azure\\README.md",
+        ".github\\README.md",
+        "AEROSPACE_GALAXY_NAVIGATION.md",
+        "AI_TRAINING_PIPELINE_SETUP.md",
+        "android\\antigravity\\README.md",
+        "AUDIO-STREAMING-GUIDE.md",
+        "auth-ui\\v750\\README.md",
+        "AZURE_STORAGE_READY_cleanskiier27.md",
+        "AZURE_STORAGE_SETUP_cleanskiier27.md",
+        "BIOS-OPTIMIZATION-GUIDE.md",
+        "BUDGET_AND_DETAILS.md",
+        "BUILD-REPORT.md",
+        "CHANGELOG.md",
+        "COMPLETION-ACKNOWLEDGMENT.md",
+        "contrib\\Cleanskiier27-final\\CONTRIBUTORS.md",
+        "contrib\\Cleanskiier27-final\\docs\\NETWORK-BOOST.md",
+        "contrib\\Cleanskiier27-final\\PR_NOTE.md",
+        "contrib\\Cleanskiier27-final\\README.md",
+        "CUSTOM-DOMAIN-SETUP.md",
+        "DATACENTRA-STATUS.md",
+        "DATA_STORAGE_AND_VISITOR_TRACKING.md",
+        "DEPENDENCIES.md",
+        "DEPLOYMENT-REFERENCE-CARD.md",
+        "DEPLOYMENT_DASHBOARD.md",
+        "DEPLOYMENT_READINESS_MANIFEST.md",
+        "DEVICE_REGISTRATION_GOAL.md",
+        "DEV_ENVIRONMENT.md",
+        "DISPLAY_FIXES_SUMMARY.md",
+        "DNS-A-RECORD-SETUP.md",
+        "DOCKER-TROUBLESHOOTING.md",
+        "docs\\AI_TRAINING_AND_DATA_PERSONALIZATION.md",
+        "docs\\environmental-data\\lunar-conditions.md",
+        "docs\\IMPLEMENTATION_GUIDE.md",
+        "docs\\KEEPALIVE.md",
+        "docs\\NETWORK-BOOST.md",
+        "docs\\operational-protocols\\standard-operation.md",
+        "docs\\README-DEVELOPER.md",
+        "docs\\RECYCLING-AI.md",
+        "docs\\research\\bibliography.md",
+        "docs\\STERILIZATION.md",
+        "docs\\STERILIZATION_CHECKLIST.md",
+        "docs\\technical-specs\\material-processing.md",
+        "docs\\technical-specs\\system-architecture.md",
+        "DOMAIN-CONFIGURATION-STATUS.md",
+        "DOMAIN-SETUP-SUMMARY.md",
+        "D_DRIVE_BACKUP_SUMMARY.md",
+        "FLASH-COMMANDS-GUIDE.md",
+        "GALAXY_INTEGRATION_GUIDE.md",
+        "GALAXY_NAVIGATION_COMPLETE.md",
+        "HYPERV-LINUX-SETUP.md",
+        "HYPERV-QUICK-START.md",
+        "IMMERSIVE_READER_INTEGRATION.md",
+        "IMPLEMENTATION-SUMMARY.md",
+        "KQL_ANALYTICS_QUERIES.md",
+        "luna-recycle\\README.md",
+        "MASTER_INDEX.md",
+        "MATERIALS.md",
+        "NETWORK_PROXY_GUIDE.md",
+        "NETWORK_PROXY_STATUS.md",
+        "OPTIMIZATION_COMPLETE.md",
+        "os\\lfs\\README.md",
+        "packages\\README.md",
+        "PHASE_12_COMPLETION_REPORT.md",
+        "PROJECT-SUMMARY.md",
+        "PROXY_SETUP_COMPLETE.md",
+        "PR_NOTE.md",
+        "PUBLIC-VISIBILITY.md",
+        "PUSH-DATACENTRA.md",
+        "README-ANNOUNCEMENT.md",
+        "README-DATACENTRA.md",
+        "README-SECURITY-TIMELINE.md",
+        "README.md",
+        "RELEASE-v1.0.1.md",
+        "scripts\\installer\\branding\\README.md",
+        "scripts\\README-nbapp.md",
+        "scripts\\README.md",
+        "SECURE_FILES_NOT_TRACKED.md",
+        "SECURITY-TIMELINE-SUMMARY.md",
+        "SERVER_STARTUP.md",
+        "SETUP_COMPLETE_STATUS.md",
+        "SOURCE_LOG_CLEANED.md",
+        "SSH_KEY_SETUP.md",
+        "SSH_SETUP_GUIDE.md",
+        "templates\\sterilization-form.md",
+        "TOOLS_INSTALLATION_SUMMARY.md",
+        "UNIVERSAL-CODE-IMPLEMENTATION.md",
+        "UNIVERSAL-SERVER-GUIDE.md",
+        "VERCEL-DOMAIN-SETUP-GUIDE.md",
+        "WORKSPACE_GUIDE.md"
+      ]
+    },
+    "config": {
+      "description": "Configuration files",
+      "count": 44,
+      "files": [
+        ".azure\\azure.yaml",
+        ".github\\cspell\\cspell.json",
+        ".github\\deployment.config.json",
+        ".github\\workflows\\ci.yml",
+        ".github\\workflows\\deploy-azure.yml",
+        ".github\\workflows\\deploy.yml",
+        ".github\\workflows\\integration-device-registration.yml",
+        ".github\\workflows\\lfs-build.yml",
+        ".github\\workflows\\lfs-cache-validate.yml",
+        ".github\\workflows\\network-boost-ci.yml",
+        ".github\\workflows\\push-datacentra.yml",
+        ".github\\workflows\\recycle-ai-demo.yml",
+        ".github\\workflows\\release.yml",
+        ".github\\workflows\\render-diagrams.yml",
+        ".github\\workflows\\smoke-e2e-openai.yml",
+        ".github\\workflows\\sterilization-docs.yml",
+        ".github\\workflows\\sync-branches.yml",
+        ".github\\workflows\\test-ai-robot.yml",
+        ".github\\workflows\\test-openai-secret.yml",
+        ".vscode\\launch.json",
+        ".vscode\\tasks.json",
+        "android\\antigravity\\.github\\workflows\\build-apk.yml",
+        "api\\package-lock.json",
+        "api\\package.json",
+        "api\\schema\\device-registration.json",
+        "api\\vercel.json",
+        "challengerepo\\real-time-overlay\\package-lock.json",
+        "challengerepo\\real-time-overlay\\package.json",
+        "dashboard\\package-lock.json",
+        "dashboard\\package.json",
+        "data\\system-specifications.json",
+        "dev-config.json",
+        "docker-compose-flash.yml",
+        "docker-compose.yml",
+        "infra\\parameters.json",
+        "instances\\test-auto-ms.json",
+        "package-lock.json",
+        "package.json",
+        "packages\\docker\\config.json",
+        "packages\\flatpak\\net.networkbuster.Server.json",
+        "packages\\snap\\snapcraft.yaml",
+        "packages\\winget\\NetworkBuster.NetworkBuster.yaml",
+        "reports\\networkbuster-firewall.json",
+        "vercel.json"
+      ]
+    },
+    "powershell": {
+      "description": "PowerShell automation scripts",
+      "count": 56,
+      "files": [
+        "ANDREW.ps1",
+        "android\\antigravity\\scripts\\build-and-install.ps1",
+        "boot-to-bios.ps1",
+        "build-all.ps1",
+        "cloud-storage-manager.ps1",
+        "configure-custom-domain.ps1",
+        "contrib\\Cleanskiier27-final\\scripts\\network-boost.ps1",
+        "deploy-ai-training.ps1",
+        "deploy-azure.ps1",
+        "deploy-docker-to-acr.ps1",
+        "deploy-galaxy-navigation.ps1",
+        "deploy-storage-azure.ps1",
+        "dev-server.ps1",
+        "os\\lfs\\validate-cache.ps1",
+        "packages\\chocolatey\\tools\\chocolateyInstall.ps1",
+        "packages\\chocolatey\\tools\\chocolateyUninstall.ps1",
+        "run-elevated.ps1",
+        "scripts\\apply-sterilization.ps1",
+        "scripts\\apply-to-upstream.ps1",
+        "scripts\\build-nsis.ps1",
+        "scripts\\compare-with-luna.ps1",
+        "scripts\\copy-to-drive.ps1",
+        "scripts\\create-shortcut.ps1",
+        "scripts\\detect-dotnet-projects.ps1",
+        "scripts\\generate-icons.ps1",
+        "scripts\\generate-project-index.ps1",
+        "scripts\\install-datacentra.ps1",
+        "scripts\\install-nbapp-service.ps1",
+        "scripts\\install-node-msi.ps1",
+        "scripts\\install-nvm.ps1",
+        "scripts\\install-service-nssm.ps1",
+        "scripts\\install-watchdog-task.ps1",
+        "scripts\\installer\\convert-icon.ps1",
+        "scripts\\network-boost.ps1",
+        "scripts\\render-local.ps1",
+        "scripts\\render-mermaid.ps1",
+        "scripts\\set-openai-key.ps1",
+        "scripts\\start-test-instance.ps1",
+        "scripts\\sync-drives.ps1",
+        "scripts\\test-ai-robot.ps1",
+        "scripts\\test-crash.ps1",
+        "scripts\\test-local-build.ps1",
+        "scripts\\test-recycle-api.ps1",
+        "scripts\\transform-ai-training.ps1",
+        "scripts\\transform-recycling-data.ps1",
+        "scripts\\update-materials-and-push.ps1",
+        "scripts\\update-wsl.ps1",
+        "scripts\\watchdog.ps1",
+        "setup-admin.ps1",
+        "setup-ssh-agent.ps1",
+        "start-all-services.ps1",
+        "start-local-dev.ps1",
+        "start-security-timeline.ps1",
+        "Start-Server.ps1",
+        "tools\\robot-analyzer.ps1",
+        "verify-admin.ps1"
+      ]
+    },
+    "docker": {
+      "description": "Docker containerization configs",
+      "count": 5,
+      "files": [
+        "auth-ui\\v750\\Dockerfile",
+        "challengerepo\\real-time-overlay\\Dockerfile",
+        "Dockerfile",
+        "Dockerfile.flash",
+        "os\\lfs\\Dockerfile"
+      ]
+    }
+  },
+  "fileRelationships": [],
+  "patterns": {
+    "naming": [
+      {
+        "style": "kebabCase",
+        "count": 213,
+        "examples": [
+          "00-index.md",
+          "01-executive-summary.md",
+          "02-hidden-tools.md",
+          "03-exposed-secrets.md",
+          "04-azure-infrastructure.md"
+        ]
+      },
+      {
+        "style": "camelCase",
+        "count": 20,
+        "examples": [
+          "AndroidManifest.xml",
+          "MainActivity.kt",
+          "AvatarWorld.jsx",
+          "CameraFeed.jsx",
+          "ConnectionGraph.jsx"
+        ]
+      },
+      {
+        "style": "uppercase",
+        "count": 58,
+        "examples": [
+          "AZURE_DEVOPS_DASHBOARD.html",
+          "CONSOLIDATED_INDEX.html",
+          "DEPLOYMENT.md",
+          "DOCUMENTATION_PORTAL.html",
+          "QUICKSTART.md"
+        ]
+      },
+      {
+        "style": "lowercaseWithDots",
+        "count": 7,
+        "examples": [
+          "deployment.config.json",
+          "postcss.config.js",
+          "tailwind.config.js",
+          "vite.config.js",
+          "vite.config.js"
+        ]
+      }
+    ],
+    "structure": [],
+    "dependencies": []
+  },
+  "serverVariants": {
+    "files": [
+      "server-audio.js",
+      "server-enhanced.js",
+      "server-optimized.js",
+      "server-universal.js",
+      "server.js"
+    ],
+    "purposes": {
+      "server-audio.js": {
+        "summary": "Audio streaming server",
+        "features": [
+          "audio-streaming",
+          "media-handling"
+        ],
+        "ports": [],
+        "dependencies": [
+          "express",
+          "path",
+          "url"
+        ]
+      },
+      "server-enhanced.js": {
+        "summary": "Enhanced server with additional features",
+        "features": [],
+        "ports": [],
+        "dependencies": [
+          "express",
+          "path",
+          "url",
+          "os"
+        ]
+      },
+      "server-optimized.js": {
+        "summary": "Performance-optimized server",
+        "features": [
+          "compression",
+          "caching"
+        ],
+        "ports": [],
+        "dependencies": [
+          "express",
+          "path",
+          "url",
+          "os",
+          "compression",
+          "helmet"
+        ]
+      },
+      "server-universal.js": {
+        "summary": "Universal server with all features",
+        "features": [
+          "multi-purpose",
+          "comprehensive"
+        ],
+        "ports": [],
+        "dependencies": [
+          "express",
+          "path",
+          "url",
+          "os"
+        ]
+      },
+      "server.js": {
+        "summary": "Main production server",
+        "features": [
+          "core",
+          "production"
+        ],
+        "ports": [],
+        "dependencies": [
+          "express",
+          "path",
+          "url",
+          "os",
+          "./api/recycle.js",
+          "./api/devices.js"
+        ]
+      }
+    },
+    "consolidationOpportunities": [
+      {
+        "recommendation": "Consider using a single server.js with feature flags",
+        "variants": [
+          "server-audio.js",
+          "server-enhanced.js",
+          "server-optimized.js",
+          "server-universal.js",
+          "server.js"
+        ],
+        "approach": "Use environment variables to enable/disable features"
+      }
+    ]
+  }
+}

@@ -2,6 +2,7 @@
 
 param(
     [string]$Domain = "networkbuster.net",
+    [string]$BrandSuffix = ' — AI style',
     [string]$ResourceGroup = "networkbuster-rg",
     [string]$KeyVaultName = "networkbuster-kv",
     [string]$ContainerAppName = "networkbuster-server",
@@ -41,12 +42,12 @@ Write-Host "`nStep 3: Required DNS Records" -ForegroundColor Yellow
 Write-Host "============================`n" -ForegroundColor Yellow
 
 Write-Host "For Vercel (Main App):" -ForegroundColor Cyan
-Write-Host "  Root domain: $Domain"
+Write-Host "  Root domain: $($Domain)$BrandSuffix"
 Write-Host "  Type: A Record (Primary)"
 Write-Host "  Values: 76.76.19.21 and 76.76.20.21"
 Write-Host "  OR CNAME: cname.vercel-dns.com`n"
 
-Write-Host "  Subdomain: www.$Domain"
+Write-Host "  Subdomain: www.$Domain$BrandSuffix"
 Write-Host "  Type: CNAME"
 Write-Host "  Value: cname.vercel-dns.com`n"
 
@@ -64,7 +65,7 @@ Write-Host "==================================`n" -ForegroundColor Yellow
 Write-Host "FOR VERCEL:" -ForegroundColor Cyan
 Write-Host "  1. Go to vercel.com > Projects > NetworkBuster"
 Write-Host "  2. Settings > Domains"
-Write-Host "  3. Add domain: $Domain"
+Write-Host "  3. Add domain: $($Domain)$BrandSuffix"
 Write-Host "  4. Configure DNS records (see above)"
 Write-Host "  5. Wait 24-48 hours for propagation"
 Write-Host "  6. Vercel will auto-provision SSL certificate`n"
@@ -115,8 +116,8 @@ Write-Host "Step 7: Summary" -ForegroundColor Yellow
 Write-Host "===============`n" -ForegroundColor Yellow
 
 $summary = @{
-    "Primary Domain" = $Domain
-    "API Domain" = "api.$Domain"
+    "Primary Domain" = "$($Domain)$BrandSuffix"
+    "API Domain" = "api.$Domain$BrandSuffix"
     "Key Vault" = $KeyVaultName
     "Container App" = $ContainerAppName
     "Resource Group" = $ResourceGroup

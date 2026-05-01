@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="240" viewBox="0 0 480 240">
+  <style>
+    .emoji { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; font-size: 64px; }
+    .caption { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #555; }
+  </style>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="50%" y="30%" text-anchor="middle" class="emoji">♻️</text>
+  <text x="50%" y="52%" text-anchor="middle" class="emoji">🥤</text>
+  <text x="50%" y="74%" text-anchor="middle" class="emoji">🧴</text>
+  <text x="50%" y="96%" text-anchor="middle" class="emoji">📦</text>
+  <text x="8" y="18" class="caption">Emoji stack (render) — visual quick-reference for recycle items</text>
+</svg>

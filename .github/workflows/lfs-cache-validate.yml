@@ -1,0 +1,63 @@
+name: Validate LFS kernel cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      kernel_version:
+        description: 'Kernel version to validate (e.g., 6.8.13)'
+        required: false
+        default: '6.8.13'
+
+jobs:
+  build-and-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore cache (initial)
+        uses: actions/cache@v4
+        with:
+          path: .cache/linux-${{ github.event.inputs.kernel_version }}
+          key: linux-kernel-${{ github.event.inputs.kernel_version }}-${{ runner.os }}-v1
+
+      - name: Build container image
+        run: docker build -t lfs-build -f os/lfs/Dockerfile .
+
+      - name: Run build to populate cache
+        run: |
+          mkdir -p .cache/linux-${{ github.event.inputs.kernel_version }}
+          docker run --rm -e SKIP_KERNEL=false -e KERNEL_VERSION="${{ github.event.inputs.kernel_version }}" -e KERNEL_CACHE_DIR=/workspace/kernel-cache -v "$PWD/.cache/linux-${{ github.event.inputs.kernel_version }}:/workspace/kernel-cache" -v "$PWD/os/lfs/output:/workspace/output" lfs-build || true
+
+  verify-cache:
+    runs-on: ubuntu-latest
+    needs: build-and-cache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore cache (verify)
+        uses: actions/cache@v4
+        with:
+          path: .cache/linux-${{ github.event.inputs.kernel_version }}
+          key: linux-kernel-${{ github.event.inputs.kernel_version }}-${{ runner.os }}-v1
+
+      - name: Check cached vmlinuz exists
+        run: |
+          if [ -f .cache/linux-${{ github.event.inputs.kernel_version }}/vmlinuz-${{ github.event.inputs.kernel_version }} ]; then
+            echo "Cached kernel found"
+          else
+            echo "Cached kernel missing" >&2
+            exit 1
+          fi
+
+      - name: Run build and check logs for cache usage
+        run: |
+          mkdir -p os/lfs/output
+          docker run --rm -e SKIP_KERNEL=false -e KERNEL_VERSION="${{ github.event.inputs.kernel_version }}" -e KERNEL_CACHE_DIR=/workspace/kernel-cache -v "$PWD/.cache/linux-${{ github.event.inputs.kernel_version }}:/workspace/kernel-cache" -v "$PWD/os/lfs/output:/workspace/output" lfs-build | tee build.log || true
+          if grep -q "Using cached kernel tarball" build.log || grep -q "Using cached built kernel" build.log; then
+            echo "Cache used during build"
+          else
+            echo "Cache not used (check output)" >&2
+            exit 1
+          fi

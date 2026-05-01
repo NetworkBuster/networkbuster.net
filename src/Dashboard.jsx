@@ -25,7 +25,8 @@ function Dashboard() {
     { name: 'Cache Layer', status: 'healthy', uptime: 99.98, latency: 5 },
     { name: 'Message Queue', status: 'healthy', uptime: 99.92, latency: 18 },
     { name: 'Auth Service', status: 'healthy', uptime: 100, latency: 8 },
-    { name: 'Search Engine', status: 'warning', uptime: 99.87, latency: 156 }
+    { name: 'Search Engine', status: 'warning', uptime: 99.87, latency: 156 },
+    { name: 'luna.eu External', status: 'healthy', uptime: 99.99, latency: 42 }
   ])
 
   useEffect(() => {
@@ -150,7 +151,7 @@ function Dashboard() {
                 </div>
                 <div className="col-uptime">
                   <div className="uptime-bar">
-                    <div className="uptime-fill" style={{width: `${service.uptime}%`}}></div>
+                    <div className="uptime-fill" style={{ width: `${service.uptime}%` }}></div>
                   </div>
                   <span>{service.uptime}%</span>
                 </div>

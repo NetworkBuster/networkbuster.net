@@ -12,6 +12,7 @@ function App() {
           <li>Environment: <strong>Production</strong></li>
           <li>Status: <strong>Online</strong></li>
           <li>Last Deploy: <strong>Just now</strong></li>
+          <li>External Link: <a href="https://github.com/Cleanskiier27/luna.eu" target="_blank">luna.eu</a></li>
         </ul>
       </div>
     </div>

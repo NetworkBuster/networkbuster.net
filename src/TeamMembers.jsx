@@ -49,6 +49,14 @@ function TeamMembers() {
       expertise: 'Testing & Quality Assurance',
       avatar: '👩‍🔬',
       bio: 'Ensuring excellence through comprehensive testing'
+    },
+    {
+      id: 7,
+      name: 'Donna Middleton',
+      role: 'Security Specialist',
+      expertise: 'Truth Verification & Integrity',
+      avatar: '👮‍♀️',
+      bio: 'Expert in detecting anomalies and ensuring system integrity'
     }
   ]
 
@@ -84,7 +92,7 @@ function TeamMembers() {
 
       <section className="team-stats">
         <div className="stat">
-          <h3>6+</h3>
+          <h3>7+</h3>
           <p>Team Members</p>
         </div>
         <div className="stat">

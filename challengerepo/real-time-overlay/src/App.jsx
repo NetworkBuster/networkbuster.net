@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import AvatarWorld from './components/AvatarWorld'
 import SatelliteMap from './components/SatelliteMap'
+import SatGPU from './components/SatGPU'
 import CameraFeed from './components/CameraFeed'
 import ConnectionGraph from './components/ConnectionGraph'
 import ImmersiveReader from './components/ImmersiveReader'
@@ -32,7 +33,7 @@ function App() {
                 {/* Main Content Grid */}
                 <main className="flex-1 grid grid-cols-12 gap-6 pointer-events-auto">
 
-                    {/* Left Column: Camera Feeds */}
+                    {/* Left Column: Camera Feeds + GPU Stats */}
                     <div className="col-span-3 flex flex-col gap-4">
                         <div className="glass-panel p-2 flex-1 flex flex-col gap-4">
                             <div className="flex items-center gap-2 border-b border-white/10 pb-2 mb-2">
@@ -44,10 +45,11 @@ function App() {
                                 <CameraFeed id="01" fps={30} quality="SD" />
                                 <CameraFeed id="02" fps={60} quality="HD" />
                             </div>
-                            <div className="grid grid-rows-2 gap-4 flex-1">
-                                <CameraFeed id="03" fps={30} quality="IR" />
-                                <CameraFeed id="04" fps={60} quality="HD-AUX" />
-                            </div>
+                        </div>
+
+                        {/* SatGPU - Linux GPU Monitoring */}
+                        <div className="glass-panel p-1 h-64">
+                            <SatGPU endpoint="/api/gpu/stats" refreshInterval={2000} />
                         </div>
                     </div>
 
@@ -92,28 +94,26 @@ function App() {
                                     <span className="text-gray-400">LATENCY</span>
                                     <span className="text-[#00ff00]">12 MS</span>
                                 </div>
-                                
+
                                 {/* Immersive Reader Toggle */}
                                 <button
                                     onClick={() => setActiveTab(activeTab === 'immersive' ? 'dashboard' : 'immersive')}
-                                    className={`w-full mt-2 p-2 rounded flex items-center justify-center gap-2 transition ${
-                                        activeTab === 'immersive'
-                                            ? 'bg-[#667eea] text-white'
-                                            : 'bg-white/5 text-[#00f0ff] hover:bg-white/10'
-                                    }`}
+                                    className={`w-full mt-2 p-2 rounded flex items-center justify-center gap-2 transition ${activeTab === 'immersive'
+                                        ? 'bg-[#667eea] text-white'
+                                        : 'bg-white/5 text-[#00f0ff] hover:bg-white/10'
+                                        }`}
                                 >
                                     <Eye size={14} />
                                     <span className="text-xs font-bold">IMMERSIVE READER</span>
                                 </button>
-                                
+
                                 {/* AI Training Toggle */}
                                 <button
                                     onClick={() => setAiTrainingEnabled(!aiTrainingEnabled)}
-                                    className={`w-full mt-1 p-2 rounded flex items-center justify-center gap-2 transition ${
-                                        aiTrainingEnabled
-                                            ? 'bg-[#764ba2] text-white'
-                                            : 'bg-white/5 text-[#ff003c] hover:bg-white/10'
-                                    }`}
+                                    className={`w-full mt-1 p-2 rounded flex items-center justify-center gap-2 transition ${aiTrainingEnabled
+                                        ? 'bg-[#764ba2] text-white'
+                                        : 'bg-white/5 text-[#ff003c] hover:bg-white/10'
+                                        }`}
                                 >
                                     <Brain size={14} />
                                     <span className="text-xs font-bold">{aiTrainingEnabled ? 'AI ON' : 'AI OFF'}</span>
@@ -123,7 +123,7 @@ function App() {
                     </div>
 
                 </main>
-                
+
                 {/* Immersive Reader Panel */}
                 {activeTab === 'immersive' && (
                     <div className="fixed inset-4 z-50 pointer-events-auto overflow-auto">
@@ -140,7 +140,7 @@ function App() {
                                     ✕
                                 </button>
                             </div>
-                            <ImmersiveReader 
+                            <ImmersiveReader
                                 overlayContext={{ activeTab }}
                                 aiMode={aiTrainingEnabled}
                             />

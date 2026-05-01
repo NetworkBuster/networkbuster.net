@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant UI as Web UI
+  participant Server as API Server
+  participant Profile as Profile Store
+  participant AI as AI Client
+  participant LLM as LLM Provider
+
+  UI->>Server: POST /api/recycle/recommend { items, userId? }
+  Server->>Profile: loadProfile(userId)
+  Profile-->>Server: profile (prefs)
+  Server->>AI: getRecommendations(items, context, prefs)
+  AI->>LLM: prompt + context (if OPENAI_API_KEY)
+  alt LLM returns JSON
+    LLM-->>AI: JSON recommendations
+    AI-->>Server: recommendations (source: llm)
+  else LLM fails or no key
+    AI-->>Server: heuristic recommendations (source: heuristic)
+  end
+  Server-->>UI: { recommendations, source }

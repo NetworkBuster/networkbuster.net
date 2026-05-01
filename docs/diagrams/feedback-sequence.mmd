@@ -1,0 +1,11 @@
+sequenceDiagram
+  participant UI as Web UI
+  participant Server as API Server
+  participant Store as Feedback Store
+  participant Analyst as Data Analyst
+
+  UI->>Server: POST /api/recycle/feedback { userId, item, action, rating }
+  Server->>Store: appendFeedback(feedback)
+  Store-->>Server: file path
+  Server-->>UI: { ok: true }
+  Note over Store,Analyst: Feedback files aggregate in data/feedback for later review/training

@@ -1,0 +1,40 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET: Attach to Process",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}",
+      "justMyCode": true
+    },
+    {
+      "name": ".NET: Launch (console)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      # Replace the program path below with your project's output DLL if applicable
+      "program": "${workspaceFolder}/bin/Debug/net7.0/YourApp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Website: Launch preciseliens.com",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/bin/Debug/net7.0/Preciseliens.Web.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ASPNETCORE_URLS": "https://preciseliens.com;http://localhost:5000"
+      },
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

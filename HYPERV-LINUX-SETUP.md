@@ -82,6 +82,15 @@ Or search "Hyper-V Manager" in Windows Start menu
 
 8. **Summary:** Click "Finish"
 
+### Step 3.1: GPU Partitioning (Pro Upgrade)
+For optimal AI Gateway performance, allow the VM to access your host GPU (GPU-PV).
+
+Run this in PowerShell (Admin) after creating the VM:
+```powershell
+# Assign GPU to VM
+.\scripts\provision-hyperv-vm.ps1 -VMName "NetworkBuster-Linux" -EnableGPU -EnableNetworkAcceleration
+```
+
 ---
 
 ## Step 4: Start VM and Install Ubuntu
@@ -119,12 +128,12 @@ Start-VM -Name "NetworkBuster-Linux"
 # Update system
 sudo apt update && sudo apt upgrade -y
 
-# Install Node.js 24.x
+# Install Node.js 24.x (LTS)
 curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
 sudo apt install -y nodejs
 
-# Install Git
-sudo apt install -y git
+# Install Git & Optimization Tools
+sudo apt install -y git net-tools ethtool
 
 # Verify installations
 node --version  # v24.x
@@ -350,15 +359,19 @@ ssh -i C:\path\to\key ubuntu@192.168.x.x
 
 ---
 
-## Performance Tips
+## Performance Tuning (Pro)
 
-- **Allocate enough resources:** 4GB RAM, 2+ CPU cores
-- **Use SSD storage:** VM performance depends on disk
-- **Enable nested virtualization:** For Docker-in-Hyper-V
-- **Snapshots:** Before major changes
-  ```powershell
-  Checkpoint-VM -Name "NetworkBuster-Linux" -SnapshotName "Working-State"
-  ```
+### Enable SR-IOV
+Single Root I/O Virtualization (SR-IOV) significantly reduces network latency.
+1. In Hyper-V Manager → Virtual Switch Manager.
+2. Select your switch → Check "Enable SR-IOV".
+3. In VM Settings → Network Adapter → Hardware Acceleration → Check "Enable SR-IOV".
+
+### Nested Virtualization (For Docker)
+If you plan to run Docker *inside* your Linux VM:
+```powershell
+Set-VMProcessor -VMName "NetworkBuster-Linux" -ExposeVirtualizationExtensions $true
+```
 
 ---
 
@@ -367,10 +380,10 @@ ssh -i C:\path\to\key ubuntu@192.168.x.x
 1. ✅ Enable Hyper-V (restart required)
 2. ✅ Download Ubuntu ISO
 3. ✅ Create VM in Hyper-V Manager
-4. ✅ Install Ubuntu
-5. ✅ Install Node.js & dependencies
-6. ✅ Clone project
-7. ✅ Test servers
-8. ✅ (Optional) Set up Docker
+4. ✅ Run `provision-hyperv-vm.ps1` for GPU/Performance
+5. ✅ Install Ubuntu
+6. ✅ Install Node.js & dependencies
+7. ✅ Clone project
+8. ✅ Test servers
 
-**You'll be able to test NetworkBuster on Windows AND Linux!**
+**You now have a high-performance AI-ready Linux testing environment!**

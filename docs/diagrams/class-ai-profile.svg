@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="180" viewBox="0 0 720 180">
+  <style>.box{fill:#eef2ff;stroke:#1f2937;stroke-width:1.5}.title{font:13px sans-serif;fill:#0f172a}.item{font:12px monospace;fill:#0f172a}</style>
+  <rect x="20" y="20" width="220" height="120" rx="6" class="box" />
+  <text x="130" y="40" text-anchor="middle" class="title">AIClient</text>
+  <text x="40" y="60" class="item">+ getRecommendations(items, context, prefs)</text>
+  <text x="40" y="80" class="item">- callOpenAI(prompt)</text>
+  <text x="40" y="100" class="item">- heuristicRecommendations(items)</text>
+
+  <rect x="260" y="20" width="220" height="120" rx="6" class="box" />
+  <text x="370" y="40" text-anchor="middle" class="title">ProfileStore</text>
+  <text x="280" y="60" class="item">+ getProfile(userId)</text>
+  <text x="280" y="80" class="item">+ saveProfile(userId, profile)</text>
+  <text x="280" y="100" class="item">+ appendFeedback(feedback)</text>
+
+  <rect x="500" y="20" width="200" height="120" rx="6" class="box" />
+  <text x="600" y="40" text-anchor="middle" class="title">RecycleAPI</text>
+  <text x="520" y="60" class="item">+ POST /recommend</text>
+  <text x="520" y="80" class="item">+ POST /feedback</text>
+
+  <path d="M240 80 L260 80" stroke="#374151" stroke-width="1.5" marker-end="url(#m)" />
+  <defs><marker id="m" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#374151"/></marker></defs>
+  <text x="270" y="74" class="item">used by</text>
+
+</svg>

@@ -1,0 +1,23 @@
+name: Recycle AI demo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm ci
+      - name: Run simple recycle API test
+        run: |
+          node server.js &
+          sleep 2
+          curl -sS -X POST http://localhost:3001/api/recycle/recommend -H 'Content-Type: application/json' -d '{"items":[{"name":"plastic bottle"}],"location":"94107"}' | jq '.' || true

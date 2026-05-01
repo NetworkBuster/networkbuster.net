@@ -4,6 +4,7 @@ import TeamMembers from './TeamMembers'
 import Overlay from './Overlay'
 import Dashboard from './Dashboard'
 import Secrets from './Secrets'
+import LieDetector from './LieDetector'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -78,6 +79,7 @@ function App() {
           <li><a href="/overlay" onClick={(e) => handleNavigation(e, 'overlay')}>Overlay</a></li>
           <li><a href="/dashboard" onClick={(e) => handleNavigation(e, 'dashboard')}>Dashboard</a></li>
           <li><a href="/secrets" onClick={(e) => handleNavigation(e, 'secrets')}>Secrets</a></li>
+          <li><a href="/lie-detector" onClick={(e) => handleNavigation(e, 'lie-detector')}>Lie Detector</a></li>
           <li><a href="/team" onClick={(e) => handleNavigation(e, 'team')}>Team</a></li>
           <li><a href="http://localhost:3001/home" target="_blank">Backend Home</a></li>
         </ul>
@@ -87,6 +89,7 @@ function App() {
         {currentPage === 'overlay' && <Overlay videoSize={videoSize} />}
         {currentPage === 'dashboard' && <Dashboard />}
         {currentPage === 'secrets' && <Secrets />}
+        {currentPage === 'lie-detector' && <LieDetector />}
         {currentPage === 'team' && <TeamMembers />}
       </main>
 
