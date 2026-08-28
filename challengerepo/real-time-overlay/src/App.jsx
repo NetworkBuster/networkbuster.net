@@ -4,6 +4,7 @@ import SatelliteMap from './components/SatelliteMap'
 import CameraFeed from './components/CameraFeed'
 import ConnectionGraph from './components/ConnectionGraph'
 import ImmersiveReader from './components/ImmersiveReader'
+import SatGpuSweep from './components/SatGpuSweep'
 import { Monitor, Cpu, Map as MapIcon, Video, Eye, Brain } from 'lucide-react'
 
 function App() {
@@ -92,6 +93,8 @@ function App() {
                                     <span className="text-gray-400">LATENCY</span>
                                     <span className="text-[#00ff00]">12 MS</span>
                                 </div>
+
+                                <SatGpuSweep />
                                 
                                 {/* Immersive Reader Toggle */}
                                 <button
