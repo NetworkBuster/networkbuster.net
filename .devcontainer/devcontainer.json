@@ -1,0 +1,17 @@
+{
+  "name": "networkbuster.net",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm",
+  "forwardPorts": [3001, 5173],
+  "portsAttributes": {
+    "3001": {
+      "label": "Express/backend service",
+      "protocol": "http",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Vite frontend service",
+      "protocol": "http",
+      "onAutoForward": "openPreview"
+    }
+  }
+}
