@@ -3,7 +3,7 @@
 ## Overview
 
 The unified development environment integrates:
-- **Backend:** Express.js server (port 3000)
+- **Backend:** Express.js server (port 3001)
 - **Frontend:** Vite development server (port 5173)
 - **API Proxy:** Automatic routing from frontend to backend
 - **Hot Module Replacement:** Live updates during development
@@ -37,8 +37,8 @@ npm run dev:frontend
 ## Server Details
 
 ### Backend (Express.js)
-- **URL:** http://localhost:3000
-- **Port:** 3000
+- **URL:** http://localhost:3001
+- **Port:** 3001
 - **Framework:** Express 5.2.1
 - **Runtime:** Node.js 24.12.0
 
@@ -94,7 +94,7 @@ This allows frontend to call backend APIs without CORS issues during development
    - Navigate to http://localhost:5173
 
 3. **Frontend requests proxied to:**
-   - Backend at http://localhost:3000
+   - Backend at http://localhost:3001
 
 4. **Hot Reload:**
    - Save frontend files → Auto-reload in browser
@@ -160,15 +160,15 @@ networkbuster.net/
 
 ### Port Already in Use
 ```bash
-# Find process using port 3000
-netstat -ano | findstr :3000
+# Find process using port 3001
+netstat -ano | findstr :3001
 
 # Kill process
 taskkill /PID <PID> /F
 ```
 
 ### Proxy Not Working
-1. Verify backend is running on port 3000
+1. Verify backend is running on port 3001
 2. Check vite.config.js proxy configuration
 3. Restart Vite server
 4. Clear browser cache
@@ -206,7 +206,7 @@ taskkill /PID <PID> /F
 Create `.env.local` in project root:
 
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:3001
 VITE_APP_TITLE=NetworkBuster Dev
 NODE_ENV=development
 ```
