@@ -2,7 +2,7 @@
 
 /**
  * NetworkBuster Server Startup Script
- * Manages backend (port 8080) and frontend dev server (port 5173)
+ * Starts the backend helper on port 8080
  */
 
 import { spawn } from 'child_process';

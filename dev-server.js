@@ -14,6 +14,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const projectRoot = path.dirname(__filename);
 const viteBin = path.join(projectRoot, 'node_modules', 'vite', 'bin', 'vite.js');
+const backendPort = '3001';
 
 const colors = {
   reset: '\x1b[0m',
@@ -38,6 +39,7 @@ function startServer() {
   // Start Express backend
   const backendProcess = spawn(process.execPath, [path.join(projectRoot, 'server.js')], {
     cwd: projectRoot,
+    env: { ...process.env, PORT: backendPort },
     stdio: 'inherit'
   });
 
@@ -77,7 +79,7 @@ function startServer() {
 
 // Display setup info
 log('\n📝 Development Setup:', 'bright');
-log('  Backend (Express):  http://localhost:3001', 'green');
+log(`  Backend (Express):  http://localhost:${backendPort}`, 'green');
 log('  Frontend (Vite):    http://localhost:5173', 'blue');
 log('  API Proxy:          Configured', 'green');
 log('  Hot Reload:         Enabled', 'green');
