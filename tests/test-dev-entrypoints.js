@@ -16,7 +16,7 @@ function waitForOutput(child, scriptName, readyPattern) {
     const timeout = setTimeout(() => {
       child.kill('SIGINT');
       reject(new Error(`${scriptName} did not become ready.\n${output}`));
-    }, 30000);
+    }, 15000);
 
     const onData = (chunk) => {
       output += chunk.toString();
@@ -66,7 +66,7 @@ function waitForExit(child, scriptName) {
 async function waitForHttpReady(url, label) {
   const startedAt = Date.now();
 
-  while (Date.now() - startedAt < 30000) {
+  while (Date.now() - startedAt < 15000) {
     try {
       const response = await fetch(url, { signal: AbortSignal.timeout(2000) });
       if (response.ok) {
@@ -106,10 +106,8 @@ async function assertEntrypointStarts(scriptName, readyPattern) {
 }
 
 async function run() {
-  await Promise.all([
-    assertEntrypointStarts('dev-server.js', /(Local:\s+http:\/\/localhost:5173|ready in \d+ ms|Starting Vite frontend development server)/),
-    assertEntrypointStarts('start-server.js', /(✅ Backend running on http:\/\/localhost:8080|API running at http:\/\/localhost:8080|Server running at http:\/\/localhost:8080)/)
-  ]);
+  await assertEntrypointStarts('dev-server.js', /(Local:\s+http:\/\/localhost:5173|ready in \d+ ms|Starting Vite frontend development server)/);
+  await assertEntrypointStarts('start-server.js', /(✅ Backend running on http:\/\/localhost:8080|API running at http:\/\/localhost:8080|Server running at http:\/\/localhost:8080)/);
   console.log('✓ Development entrypoints start without ESM import failures.');
 }
 
