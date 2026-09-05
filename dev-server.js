@@ -6,8 +6,14 @@
  * with hot module replacement support
  */
 
-const { spawn } = require('child_process');
-const path = require('path');
+import { spawn } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const projectRoot = path.dirname(__filename);
+const viteBin = path.join(projectRoot, 'node_modules', 'vite', 'bin', 'vite.js');
 
 const colors = {
   reset: '\x1b[0m',
@@ -15,7 +21,8 @@ const colors = {
   cyan: '\x1b[36m',
   green: '\x1b[32m',
   yellow: '\x1b[33m',
-  blue: '\x1b[34m'
+  blue: '\x1b[34m',
+  red: '\x1b[31m'
 };
 
 function log(message, color = 'reset') {
@@ -29,21 +36,25 @@ function startServer() {
   log('\n🚀 Starting development servers...\n', 'bright');
 
   // Start Express backend
-  const backendProcess = spawn('node', ['server.js'], {
-    cwd: process.cwd(),
-    stdio: 'inherit',
-    shell: true
+  const backendProcess = spawn(process.execPath, [path.join(projectRoot, 'server.js')], {
+    cwd: projectRoot,
+    stdio: 'inherit'
   });
 
   // Wait 2 seconds for backend to start, then start Vite
   setTimeout(() => {
     log('\n📦 Starting Vite frontend development server...\n', 'bright');
     
-    const viteProcess = spawn('vite', [], {
-      cwd: process.cwd(),
-      stdio: 'inherit',
-      shell: true
-    });
+    const viteProcess = fs.existsSync(viteBin)
+      ? spawn(process.execPath, [viteBin], {
+          cwd: projectRoot,
+          stdio: 'inherit'
+        })
+      : spawn('npx', ['vite'], {
+          cwd: projectRoot,
+          stdio: 'inherit',
+          shell: true
+        });
 
     // Handle process termination
     const cleanup = () => {
@@ -66,7 +77,7 @@ function startServer() {
 
 // Display setup info
 log('\n📝 Development Setup:', 'bright');
-log('  Backend (Express):  http://localhost:3000', 'green');
+log('  Backend (Express):  http://localhost:3001', 'green');
 log('  Frontend (Vite):    http://localhost:5173', 'blue');
 log('  API Proxy:          Configured', 'green');
 log('  Hot Reload:         Enabled', 'green');

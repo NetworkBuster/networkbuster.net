@@ -5,9 +5,9 @@
  * Manages backend (port 8080) and frontend dev server (port 5173)
  */
 
-const { spawn } = require('child_process');
-const path = require('path');
-const os = require('os');
+import { spawn } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const colors = {
   reset: '\x1b[0m',
@@ -20,13 +20,14 @@ const colors = {
 console.log(`\n${colors.blue}🚀 NetworkBuster Development Environment${colors.reset}`);
 console.log(`${colors.blue}==========================================${colors.reset}\n`);
 
-const projectRoot = __dirname;
+const __filename = fileURLToPath(import.meta.url);
+const projectRoot = path.dirname(__filename);
 process.chdir(projectRoot);
 
 // Backend server process
 console.log(`${colors.yellow}Starting backend server on port 8080...${colors.reset}`);
 const backendEnv = { ...process.env, PORT: '8080' };
-const backend = spawn('node', ['server.js'], {
+const backend = spawn(process.execPath, [path.join(projectRoot, 'server.js')], {
   cwd: projectRoot,
   env: backendEnv,
   stdio: 'inherit'
