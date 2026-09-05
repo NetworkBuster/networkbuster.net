@@ -6,6 +6,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(__filename), '..');
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function waitForOutput(child, scriptName, readyPattern) {
   return new Promise((resolve, reject) => {
     let output = '';
@@ -59,6 +63,25 @@ function waitForExit(child, scriptName) {
   });
 }
 
+async function waitForHttpReady(url, label) {
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < 30000) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(2000) });
+      if (response.ok) {
+        return;
+      }
+    } catch {
+      // Retry until the endpoint is available or the timeout expires.
+    }
+
+    await sleep(250);
+  }
+
+  throw new Error(`${label} did not become ready at ${url}`);
+}
+
 async function assertEntrypointStarts(scriptName, readyPattern) {
   const child = spawn(process.execPath, [scriptName], {
     cwd: repoRoot,
@@ -67,6 +90,12 @@ async function assertEntrypointStarts(scriptName, readyPattern) {
   });
 
   const output = await waitForOutput(child, scriptName, readyPattern);
+  if (scriptName === 'dev-server.js') {
+    await waitForHttpReady('http://127.0.0.1:3001/api/health', 'Backend health endpoint');
+    await waitForHttpReady('http://127.0.0.1:5173', 'Vite development server');
+  } else if (scriptName === 'start-server.js') {
+    await waitForHttpReady('http://127.0.0.1:8080/api/health', 'Alternate backend health endpoint');
+  }
   assert.doesNotMatch(output, /require is not defined in ES module scope/);
   if (process.platform === 'win32') {
     child.kill('SIGINT');
