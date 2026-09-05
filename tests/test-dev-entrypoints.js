@@ -106,8 +106,10 @@ async function assertEntrypointStarts(scriptName, readyPattern) {
 }
 
 async function run() {
-  await assertEntrypointStarts('dev-server.js', /(Local:\s+http:\/\/localhost:5173|ready in \d+ ms|Starting Vite frontend development server)/);
-  await assertEntrypointStarts('start-server.js', /(✅ Backend running on http:\/\/localhost:8080|API running at http:\/\/localhost:8080|Server running at http:\/\/localhost:8080)/);
+  await Promise.all([
+    assertEntrypointStarts('dev-server.js', /(Local:\s+http:\/\/localhost:5173|ready in \d+ ms|Starting Vite frontend development server)/),
+    assertEntrypointStarts('start-server.js', /(✅ Backend running on http:\/\/localhost:8080|API running at http:\/\/localhost:8080|Server running at http:\/\/localhost:8080)/)
+  ]);
   console.log('✓ Development entrypoints start without ESM import failures.');
 }
 
