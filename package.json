@@ -31,7 +31,7 @@
     "build": "npm install",
     "apply:network-boost": "powershell -ExecutionPolicy Bypass -File scripts/network-boost.ps1 -Apply -Confirm:$false",
     "show:network-boost": "powershell -ExecutionPolicy Bypass -File scripts/network-boost.ps1",
-    "test": "echo No-tests-specified",
+    "test": "node tests/unit/test-device-status-transitions.js",
     "test:devices": "node tests/test-device-registration.js",
     "test:integration:devices": "node tests/integration/test-e2e-device-registration.js",
     "test:unit:devices": "node tests/unit/test-device-status-transitions.js",
