@@ -148,9 +148,9 @@ if (-not $SkipChromiumDownload) {
   Write-Output 'Installing puppeteer (this will download Chromium). This can take several minutes.'
   $success = $false
   for ($try=1; $try -le $pptInstallRetries; $try++) {
-    Write-Output "Attempt $try of $($pptInstallRetries): npm install puppeteer --no-audit --no-fund"
+    Write-Output "Attempt $try of $($pptInstallRetries): npm install puppeteer@24.37.5 --no-audit --no-fund"
     try {
-      npm install puppeteer --no-audit --no-fund
+      npm install puppeteer@24.37.5 --no-audit --no-fund
       if ($LASTEXITCODE -eq 0) { $success = $true; break }
       Write-Warning "npm exited with code $LASTEXITCODE"
     } catch {

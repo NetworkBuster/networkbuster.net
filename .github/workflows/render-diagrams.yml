@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Install Puppeteer for rendering
-        run: npm install puppeteer --no-save
+        run: npm install puppeteer@24.37.5 --no-save
 
       - name: Render Mermaid to SVG
         run: npx -y @mermaid-js/mermaid-cli -i "docs/diagrams/*.mmd" -o docs/diagrams -f svg
