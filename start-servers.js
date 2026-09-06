@@ -40,29 +40,27 @@ const servers = [
 
 const processes = [];
 
-// Start each server
+// Start all servers in parallel instead of sequentially
 servers.forEach((server, index) => {
-  setTimeout(() => {
-    console.log(`\n[${index + 1}/3] Starting ${server.name} on port ${server.port}...`);
-    
-    const proc = spawn('node', [server.file], {
-      stdio: 'inherit',
-      cwd: process.cwd()
-    });
+  console.log(`\n[${index + 1}/3] Starting ${server.name} on port ${server.port}...`);
+  
+  const proc = spawn('node', [server.file], {
+    stdio: 'inherit',
+    cwd: process.cwd()
+  });
 
-    processes.push(proc);
+  processes.push(proc);
 
-    proc.on('error', (err) => {
-      console.error(`ERROR starting ${server.name}:`, err.message);
-    });
+  proc.on('error', (err) => {
+    console.error(`ERROR starting ${server.name}:`, err.message);
+  });
 
-    proc.on('exit', (code) => {
-      console.log(`\n[${server.name}] Process exited with code ${code}`);
-    });
-  }, index * 2000);
+  proc.on('exit', (code) => {
+    console.log(`\n[${server.name}] Process exited with code ${code}`);
+  });
 });
 
-// Display info after all servers start
+// Display info after servers have had a moment to start
 setTimeout(() => {
   console.log(`
 ╔════════════════════════════════════════════════════════════╗
@@ -88,7 +86,7 @@ Quick Commands:
 
 Press Ctrl+C to stop all servers.
 `);
-}, 8000);
+}, 2000);
 
 // Handle shutdown
 process.on('SIGINT', () => {

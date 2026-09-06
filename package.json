@@ -35,6 +35,7 @@
     "test:devices": "node tests/test-device-registration.js",
     "test:integration:devices": "node tests/integration/test-e2e-device-registration.js",
     "test:unit:devices": "node tests/unit/test-device-status-transitions.js",
+    "test:performance": "node tests/performance/test-async-improvements.js",
     "worker:device-consumer": "node workers/deviceConsumer.js",
     "docker:build": "docker build -t networkbuster:latest .",
     "docker:run": "docker run -p 3000:3000 networkbuster:latest",

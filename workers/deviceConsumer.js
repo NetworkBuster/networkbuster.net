@@ -18,7 +18,7 @@ async function processMessage(msg, retryCount = 0) {
 
   try {
     // Mark as processing
-    transitionStatus(deviceId, 'processing', { processingStartedAt: new Date().toISOString() });
+    await transitionStatus(deviceId, 'processing', { processingStartedAt: new Date().toISOString() });
 
     // Forward to ingestion endpoint
     const res = await fetch(INGESTION_ENDPOINT, {
@@ -31,7 +31,7 @@ async function processMessage(msg, retryCount = 0) {
 
     if (res.ok && result.status === 'acknowledged') {
       // Success
-      transitionStatus(deviceId, 'acknowledged', {
+      await transitionStatus(deviceId, 'acknowledged', {
         acknowledgedAt: new Date().toISOString(),
         ingestionResult: result,
         processingAttempts: retryCount + 1
@@ -53,7 +53,7 @@ async function processMessage(msg, retryCount = 0) {
       return processMessage(msg, retryCount + 1);
     } else {
       // Max retries exceeded
-      transitionStatus(deviceId, 'failed', {
+      await transitionStatus(deviceId, 'failed', {
         failedAt: new Date().toISOString(),
         error: err.message,
         processingAttempts: retryCount + 1

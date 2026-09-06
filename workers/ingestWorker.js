@@ -14,12 +14,12 @@ async function processNext() {
     await new Promise(r => setTimeout(r, 500));
 
     // Update status to processed/acknowledged
-    transitionStatus(msg.payload.deviceId, 'acknowledged', { processedAt: new Date().toISOString(), processedBy: 'ingestWorker' });
+    await transitionStatus(msg.payload.deviceId, 'acknowledged', { processedAt: new Date().toISOString(), processedBy: 'ingestWorker' });
     console.log(`Message ${msg.id} processed for ${msg.payload.deviceId}`);
     return true;
   } catch (err) {
     console.error('Processing failed for', msg.id, err);
-    transitionStatus(msg.payload.deviceId, 'failed', { error: String(err), failedAt: new Date().toISOString() });
+    await transitionStatus(msg.payload.deviceId, 'failed', { error: String(err), failedAt: new Date().toISOString() });
     return false;
   }
 }

@@ -10,6 +10,9 @@ build/
 .DS_Store
 .vercel
 
+# Test and runtime data
+data/
+
 # Android: google-services and local.properties
 android/antigravity/app/google-services.json
 android/antigravity/local.properties
