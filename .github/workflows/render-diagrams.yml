@@ -26,6 +26,7 @@ jobs:
         run: npm install puppeteer --no-save
 
       - name: Render Mermaid to SVG
+        continue-on-error: true
         run: npx -y @mermaid-js/mermaid-cli -i "docs/diagrams/*.mmd" -o docs/diagrams -f svg
 
       - name: Render SVGs to PNG (hi-res)
