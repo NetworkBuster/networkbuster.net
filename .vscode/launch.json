@@ -2,6 +2,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Attach to Kubernetes Pod (NodeJS)",
+      "type": "cloudcode.kubernetes",
+      "request": "attach",
+      "language": "Node",
+      "debugPort": 9229,
+      "podSelector": {
+        "app": "deployment-name"
+      },
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "Path to the Remote Directory Containing the Program"
+    },
+    {
       "name": ".NET: Attach to Process",
       "type": "coreclr",
       "request": "attach",
@@ -13,7 +25,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      # Replace the program path below with your project's output DLL if applicable
+      // Replace the program path below with your project's output DLL if applicable
       "program": "${workspaceFolder}/bin/Debug/net7.0/YourApp.dll",
       "args": [],
       "cwd": "${workspaceFolder}",
