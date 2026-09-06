@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBS-1 "Data Voyager" — 3D Blueprint Visual</title>
+  <style>
+    /* ===== Blueprint design system ===== */
+    :root {
+      --bp-bg:      #0a1628;
+      --bp-grid:    #1a3a6e;
+      --bp-line:    #4da8ff;
+      --bp-accent:  #00d4ff;
+      --bp-white:   #c8e4ff;
+      --bp-dim:     #5a8ab5;
+      --bp-label:   #7ec8ff;
+      --bp-orange:  #ff9f40;
+      --bp-red:     #ff5a5a;
+      --bp-green:   #4dff91;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bp-bg);
+      color: var(--bp-white);
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== Blueprint grid background ===== */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--bp-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bp-grid) 1px, transparent 1px),
+        linear-gradient(rgba(26,58,110,0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,58,110,0.3) 1px, transparent 1px);
+      background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* ===== Header ===== */
+    .bp-header {
+      border: 2px solid var(--bp-line);
+      padding: 20px 30px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .bp-header::before,
+    .bp-header::after {
+      content: '✦';
+      position: absolute;
+      color: var(--bp-accent);
+      font-size: 18px;
+    }
+    .bp-header::before { top: -12px; left: 20px; background: var(--bp-bg); padding: 0 8px; }
+    .bp-header::after  { bottom: -12px; right: 20px; background: var(--bp-bg); padding: 0 8px; }
+
+    .bp-header h1 {
+      font-size: clamp(20px, 4vw, 36px);
+      color: var(--bp-accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(0,212,255,0.5);
+    }
+    .bp-header p {
+      color: var(--bp-dim);
+      margin-top: 6px;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .bp-header .meta {
+      margin-top: 12px;
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    .meta-item { font-size: 12px; color: var(--bp-label); }
+    .meta-item span { color: var(--bp-white); }
+
+    /* ===== View tabs ===== */
+    .view-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--bp-line);
+      color: var(--bp-label);
+      padding: 8px 20px;
+      font-family: inherit;
+      font-size: 12px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover  { background: rgba(77,168,255,0.1); color: var(--bp-accent); }
+    .tab-btn.active { background: rgba(0,212,255,0.15); color: var(--bp-accent); border-color: var(--bp-accent); }
+
+    /* ===== Blueprint panels ===== */
+    .views-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 700px) { .views-grid { grid-template-columns: 1fr; } }
+
+    .bp-panel {
+      border: 1px solid var(--bp-line);
+      padding: 16px;
+      position: relative;
+      background: rgba(10,22,40,0.6);
+    }
+    .bp-panel.full-width { grid-column: 1 / -1; }
+    .panel-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--bp-label);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--bp-grid);
+    }
+    .panel-title::before { content: '▶ '; color: var(--bp-accent); }
+
+    /* ===== SVG blueprints ===== */
+    svg { width: 100%; height: auto; display: block; }
+
+    /* ===== 3D perspective view ===== */
+    .perspective-wrap {
+      perspective: 800px;
+      perspective-origin: 50% 40%;
+      padding: 20px;
+    }
+    .spacecraft-3d {
+      transform-style: preserve-3d;
+      animation: slowRotate 20s linear infinite;
+      position: relative;
+      width: 220px;
+      height: 380px;
+      margin: 0 auto;
+    }
+    @keyframes slowRotate {
+      0%   { transform: rotateY(-30deg) rotateX(15deg); }
+      50%  { transform: rotateY(30deg)  rotateX(15deg); }
+      100% { transform: rotateY(-30deg) rotateX(15deg); }
+    }
+    .spacecraft-3d:hover { animation-play-state: paused; }
+
+    /* ===== Specs table ===== */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .spec-card {
+      border: 1px solid var(--bp-grid);
+      padding: 14px;
+      background: rgba(10,22,40,0.5);
+    }
+    .spec-card h3 {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--bp-label);
+      margin-bottom: 8px;
+    }
+    .spec-card .value {
+      font-size: 22px;
+      color: var(--bp-accent);
+      text-shadow: 0 0 10px rgba(0,212,255,0.4);
+    }
+    .spec-card .unit { font-size: 12px; color: var(--bp-dim); }
+
+    /* ===== Mission timeline ===== */
+    .timeline {
+      border-left: 2px solid var(--bp-line);
+      padding-left: 20px;
+      margin-left: 10px;
+    }
+    .tl-item {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 6px;
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--bp-accent);
+      background: var(--bp-bg);
+      border-radius: 50%;
+    }
+    .tl-item .phase { font-size: 11px; color: var(--bp-accent); letter-spacing: 1px; }
+    .tl-item .desc  { font-size: 12px; color: var(--bp-dim); margin-top: 2px; }
+
+    /* ===== Component callouts ===== */
+    .callout-line {
+      stroke: var(--bp-accent);
+      stroke-width: 1;
+      stroke-dasharray: 4 3;
+      opacity: 0.7;
+    }
+    .callout-dot {
+      fill: var(--bp-accent);
+    }
+    .callout-text {
+      fill: var(--bp-label);
+      font-size: 10px;
+      font-family: 'Courier New', monospace;
+    }
+    .dim-line   { stroke: var(--bp-dim);   stroke-width: 0.5; }
+    .center-line {
+      stroke: rgba(255,90,90,0.5);
+      stroke-width: 1;
+      stroke-dasharray: 8 4;
+    }
+
+    /* ===== Footer ===== */
+    .bp-footer {
+      border: 1px solid var(--bp-grid);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--bp-dim);
+      letter-spacing: 1px;
+    }
+
+    /* ===== Animated glow pulse on blueprint lines ===== */
+    @keyframes glowPulse {
+      0%, 100% { filter: drop-shadow(0 0 2px rgba(0,212,255,0.4)); }
+      50%       { filter: drop-shadow(0 0 8px rgba(0,212,255,0.9)); }
+    }
+    .glow-svg { animation: glowPulse 3s ease-in-out infinite; }
+
+    /* ===== Propulsion flame animation ===== */
+    @keyframes flamePulse {
+      0%, 100% { opacity: 0.7; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(1.15); }
+    }
+    .engine-flame { animation: flamePulse 1.2s ease-in-out infinite; transform-origin: center top; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ===== Header ===== -->
+  <div class="bp-header">
+    <h1>🚀 NBS-1 "Data Voyager" — 3D Blueprint</h1>
+    <p>NetworkBuster Aerospace Division · Technical Visual Reference</p>
+    <div class="meta">
+      <div class="meta-item">DOCUMENT: <span>NBS-1-2026-VIZ-R2.1</span></div>
+      <div class="meta-item">CLASSIFICATION: <span>Technical Specifications</span></div>
+      <div class="meta-item">STATUS: <span>Production Ready</span></div>
+      <div class="meta-item">FIRST FLIGHT: <span>Q4 2026</span></div>
+    </div>
+  </div>
+
+  <!-- ===== Quick-stat cards ===== -->
+  <div class="specs-grid">
+    <div class="spec-card">
+      <h3>Total Length</h3>
+      <div class="value">38 <span class="unit">m</span></div>
+    </div>
+    <div class="spec-card">
+      <h3>Payload Capacity</h3>
+      <div class="value">25,000 <span class="unit">kg</span></div>
+    </div>
+    <div class="spec-card">
+      <h3>Total Thrust</h3>
+      <div class="value">200 <span class="unit">kN</span></div>
+    </div>
+    <div class="spec-card">
+      <h3>Crew</h3>
+      <div class="value">6+2 <span class="unit">pilots</span></div>
+    </div>
+    <div class="spec-card">
+      <h3>Delta-V</h3>
+      <div class="value">8,500 <span class="unit">m/s</span></div>
+    </div>
+    <div class="spec-card">
+      <h3>Mission Cost</h3>
+      <div class="value">$20.5 <span class="unit">M</span></div>
+    </div>
+  </div>
+
+  <!-- ===== Main blueprint views ===== -->
+  <div class="views-grid">
+
+    <!-- Side Profile Blueprint -->
+    <div class="bp-panel">
+      <div class="panel-title">Side Profile — Annotated Blueprint</div>
+      <svg viewBox="0 0 340 520" class="glow-svg" aria-label="NBS-1 spacecraft side-profile blueprint">
+
+        <!-- center-line -->
+        <line x1="170" y1="10" x2="170" y2="510" class="center-line"/>
+
+        <!-- ===== Antenna Array ===== -->
+        <g transform="translate(170,30)">
+          <rect x="-18" y="0" width="36" height="6" fill="none" stroke="var(--bp-line)" stroke-width="1.5"/>
+          <!-- dish struts -->
+          <line x1="0" y1="0" x2="-30" y2="-20" stroke="var(--bp-line)" stroke-width="1"/>
+          <line x1="0" y1="0" x2="30"  y2="-20" stroke="var(--bp-line)" stroke-width="1"/>
+          <ellipse cx="0" cy="-20" rx="30" ry="8" fill="none" stroke="var(--bp-accent)" stroke-width="1.5"/>
+          <line x1="0" y1="6" x2="0" y2="20" stroke="var(--bp-line)" stroke-width="1.5"/>
+        </g>
+
+        <!-- ===== Command Module ===== -->
+        <g transform="translate(170,60)">
+          <!-- nose cone -->
+          <path d="M0,-10 L-38,0 L-42,50 L42,50 L38,0 Z"
+                fill="none" stroke="var(--bp-line)" stroke-width="2"/>
+          <!-- cockpit windows -->
+          <ellipse cx="-20" cy="18" rx="7" ry="4" fill="rgba(0,212,255,0.15)" stroke="var(--bp-accent)" stroke-width="1"/>
+          <ellipse cx="20"  cy="18" rx="7" ry="4" fill="rgba(0,212,255,0.15)" stroke="var(--bp-accent)" stroke-width="1"/>
+          <!-- hatch -->
+          <rect x="-8" y="35" width="16" height="10" rx="2" fill="rgba(0,212,255,0.1)" stroke="var(--bp-label)" stroke-width="1" stroke-dasharray="3 2"/>
+          <!-- docking ring -->
+          <rect x="-6" y="46" width="12" height="5" fill="none" stroke="var(--bp-accent)" stroke-width="1.5"/>
+          <!-- dimension line -->
+          <line x1="50" y1="0" x2="50" y2="50" class="dim-line"/>
+          <line x1="45" y1="0" x2="55" y2="0" class="dim-line"/>
+          <line x1="45" y1="50" x2="55" y2="50" class="dim-line"/>
+          <text x="58" y="30" class="callout-text">5 m</text>
+        </g>
+
+        <!-- callout: Command Module -->
+        <line x1="128" y1="90" x2="60" y2="90" class="callout-line"/>
+        <circle cx="128" cy="90" r="2" class="callout-dot"/>
+        <text x="4" y="93" class="callout-text">COMMAND MODULE</text>
+        <text x="4" y="104" class="callout-text">6 crew + 2 pilots</text>
+
+        <!-- ===== Habitat Section ===== -->
+        <g transform="translate(170,112)">
+          <rect x="-42" y="0" width="84" height="80" fill="none" stroke="var(--bp-line)" stroke-width="2"/>
+          <!-- internal dividers -->
+          <line x1="-42" y1="25" x2="42" y2="25" stroke="var(--bp-grid)" stroke-width="1"/>
+          <line x1="-42" y1="50" x2="42" y2="50" stroke="var(--bp-grid)" stroke-width="1"/>
+          <!-- bunk symbols -->
+          <rect x="-36" y="4"  width="18" height="18" rx="1" fill="rgba(77,168,255,0.1)" stroke="var(--bp-dim)" stroke-width="0.8"/>
+          <rect x="-14" y="4"  width="18" height="18" rx="1" fill="rgba(77,168,255,0.1)" stroke="var(--bp-dim)" stroke-width="0.8"/>
+          <rect x="8"   y="4"  width="18" height="18" rx="1" fill="rgba(77,168,255,0.1)" stroke="var(--bp-dim)" stroke-width="0.8"/>
+          <rect x="-36" y="28" width="18" height="18" rx="1" fill="rgba(77,168,255,0.1)" stroke="var(--bp-dim)" stroke-width="0.8"/>
+          <rect x="-14" y="28" width="18" height="18" rx="1" fill="rgba(77,168,255,0.1)" stroke="var(--bp-dim)" stroke-width="0.8"/>
+          <rect x="8"   y="28" width="18" height="18" rx="1" fill="rgba(77,168,255,0.1)" stroke="var(--bp-dim)" stroke-width="0.8"/>
+          <!-- galley -->
+          <rect x="-36" y="53" width="72" height="24" rx="1" fill="rgba(77,168,255,0.05)" stroke="var(--bp-dim)" stroke-width="0.8"/>
+          <text x="-14" y="68" class="callout-text" fill="var(--bp-dim)">GALLEY / EX</text>
+          <!-- dimension -->
+          <line x1="50" y1="0" x2="50" y2="80" class="dim-line"/>
+          <line x1="45" y1="0" x2="55" y2="0" class="dim-line"/>
+          <line x1="45" y1="80" x2="55" y2="80" class="dim-line"/>
+          <text x="58" y="44" class="callout-text">8 m</text>
+        </g>
+
+        <!-- callout: Habitat -->
+        <line x1="212" y1="152" x2="280" y2="152" class="callout-line"/>
+        <circle cx="212" cy="152" r="2" class="callout-dot"/>
+        <text x="284" y="148" class="callout-text">HABITAT SECTION</text>
+        <text x="284" y="159" class="callout-text">Bunks · Galley · Exercise</text>
+
+        <!-- ===== Cargo Bay ===== -->
+        <g transform="translate(170,194)">
+          <rect x="-42" y="0" width="84" height="150" fill="none" stroke="var(--bp-line)" stroke-width="2"/>
+          <!-- cargo floor/ceiling stripes -->
+          <line x1="-42" y1="30"  x2="42" y2="30"  stroke="var(--bp-grid)" stroke-width="0.8"/>
+          <line x1="-42" y1="60"  x2="42" y2="60"  stroke="var(--bp-grid)" stroke-width="0.8"/>
+          <line x1="-42" y1="90"  x2="42" y2="90"  stroke="var(--bp-grid)" stroke-width="0.8"/>
+          <line x1="-42" y1="120" x2="42" y2="120" stroke="var(--bp-grid)" stroke-width="0.8"/>
+          <!-- server racks -->
+          <rect x="-38" y="5"   width="16" height="24" rx="1" fill="rgba(0,212,255,0.1)" stroke="var(--bp-accent)" stroke-width="0.8"/>
+          <rect x="-18" y="5"   width="16" height="24" rx="1" fill="rgba(0,212,255,0.1)" stroke="var(--bp-accent)" stroke-width="0.8"/>
+          <rect x="2"   y="5"   width="16" height="24" rx="1" fill="rgba(0,212,255,0.1)" stroke="var(--bp-accent)" stroke-width="0.8"/>
+          <rect x="22"  y="5"   width="16" height="24" rx="1" fill="rgba(0,212,255,0.1)" stroke="var(--bp-accent)" stroke-width="0.8"/>
+          <!-- label -->
+          <text x="-14" y="47" class="callout-text" fill="var(--bp-label)">SERVER RACKS · 42U</text>
+          <!-- cargo blocks -->
+          <rect x="-38" y="65"  width="76" height="20" rx="1" fill="rgba(77,168,255,0.08)" stroke="var(--bp-dim)" stroke-width="0.8"/>
+          <rect x="-38" y="93"  width="76" height="20" rx="1" fill="rgba(77,168,255,0.08)" stroke="var(--bp-dim)" stroke-width="0.8"/>
+          <text x="-14" y="79" class="callout-text" fill="var(--bp-dim)">SUPPLY CONTAINERS</text>
+          <text x="-14" y="107" class="callout-text" fill="var(--bp-dim)">CONSTRUCTION MODULES</text>
+          <!-- clamshell door hinge indicators -->
+          <line x1="-42" y1="135" x2="-42" y2="150" stroke="var(--bp-orange)" stroke-width="2"/>
+          <line x1="42"  y1="135" x2="42"  y2="150" stroke="var(--bp-orange)" stroke-width="2"/>
+          <!-- dimension -->
+          <line x1="50" y1="0" x2="50" y2="150" class="dim-line"/>
+          <line x1="45" y1="0" x2="55" y2="0" class="dim-line"/>
+          <line x1="45" y1="150" x2="55" y2="150" class="dim-line"/>
+          <text x="58" y="79" class="callout-text">15 m</text>
+        </g>
+
+        <!-- callout: Cargo Bay -->
+        <line x1="128" y1="280" x2="60" y2="280" class="callout-line"/>
+        <circle cx="128" cy="280" r="2" class="callout-dot"/>
+        <text x="4" y="276" class="callout-text">CARGO BAY</text>
+        <text x="4" y="287" class="callout-text">295 m³ · 25,000 kg</text>
+        <line x1="128" y1="330" x2="60" y2="330" class="callout-line"/>
+        <circle cx="128" cy="330" r="2" class="callout-dot"/>
+        <text x="4" y="326" class="callout-text">CLAMSHELL DOOR</text>
+        <text x="4" y="337" class="callout-text">Hydraulic actuators</text>
+
+        <!-- ===== Solar Panels ===== -->
+        <!-- Left panel -->
+        <rect x="60" y="250" width="60" height="18" fill="rgba(77,168,255,0.15)" stroke="var(--bp-accent)" stroke-width="1.2"/>
+        <line x1="80"  y1="250" x2="80"  y2="268" stroke="var(--bp-grid)" stroke-width="0.6"/>
+        <line x1="100" y1="250" x2="100" y2="268" stroke="var(--bp-grid)" stroke-width="0.6"/>
+        <line x1="60"  y1="259" x2="120" y2="259" stroke="var(--bp-grid)" stroke-width="0.6"/>
+        <!-- Right panel -->
+        <rect x="220" y="250" width="60" height="18" fill="rgba(77,168,255,0.15)" stroke="var(--bp-accent)" stroke-width="1.2"/>
+        <line x1="240" y1="250" x2="240" y2="268" stroke="var(--bp-grid)" stroke-width="0.6"/>
+        <line x1="260" y1="250" x2="260" y2="268" stroke="var(--bp-grid)" stroke-width="0.6"/>
+        <line x1="220" y1="259" x2="280" y2="259" stroke="var(--bp-grid)" stroke-width="0.6"/>
+        <!-- connection struts -->
+        <line x1="120" y1="259" x2="128" y2="259" stroke="var(--bp-line)" stroke-width="1.5"/>
+        <line x1="212" y1="259" x2="220" y2="259" stroke="var(--bp-line)" stroke-width="1.5"/>
+
+        <!-- callout: Solar Panels -->
+        <line x1="150" y1="259" x2="150" y2="245" class="callout-line"/>
+        <text x="100" y="238" class="callout-text">SOLAR ARRAYS · 8 kW</text>
+
+        <!-- ===== Propulsion Module ===== -->
+        <g transform="translate(170,346)">
+          <path d="M-42,0 L-38,100 L38,100 L42,0 Z"
+                fill="none" stroke="var(--bp-line)" stroke-width="2"/>
+          <!-- fuel tanks (schematic cross-section) -->
+          <ellipse cx="-18" cy="45" rx="14" ry="40" fill="rgba(77,168,255,0.1)" stroke="var(--bp-dim)" stroke-width="1" stroke-dasharray="4 2"/>
+          <ellipse cx="18"  cy="45" rx="14" ry="40" fill="rgba(255,159,64,0.1)" stroke="var(--bp-orange)" stroke-width="1" stroke-dasharray="4 2"/>
+          <text x="-26" y="30" class="callout-text" fill="var(--bp-dim)">CH₄</text>
+          <text x="10"  y="30" class="callout-text" fill="var(--bp-orange)">LOX</text>
+          <!-- dimension -->
+          <line x1="50" y1="0" x2="50" y2="100" class="dim-line"/>
+          <line x1="45" y1="0" x2="55" y2="0" class="dim-line"/>
+          <line x1="45" y1="100" x2="55" y2="100" class="dim-line"/>
+          <text x="58" y="54" class="callout-text">10 m</text>
+        </g>
+
+        <!-- callout: Propulsion -->
+        <line x1="212" y1="390" x2="280" y2="390" class="callout-line"/>
+        <circle cx="212" cy="390" r="2" class="callout-dot"/>
+        <text x="284" y="386" class="callout-text">PROPULSION MODULE</text>
+        <text x="284" y="397" class="callout-text">Methalox · 200 kN</text>
+
+        <!-- ===== Engine nozzles + flame ===== -->
+        <g transform="translate(170,446)">
+          <!-- nozzle skirts -->
+          <path d="M-42,0 L-55,25 L55,25 L42,0 Z" fill="none" stroke="var(--bp-line)" stroke-width="2"/>
+          <line x1="-20" y1="0" x2="-20" y2="25" stroke="var(--bp-grid)" stroke-width="1"/>
+          <line x1="0"   y1="0" x2="0"   y2="25" stroke="var(--bp-grid)" stroke-width="1"/>
+          <line x1="20"  y1="0" x2="20"  y2="25" stroke="var(--bp-grid)" stroke-width="1"/>
+          <!-- engine flame (animated) -->
+          <g class="engine-flame">
+            <ellipse cx="-37" cy="35" rx="8"  ry="18" fill="rgba(255,160,30,0.25)" stroke="rgba(255,160,30,0.6)" stroke-width="0.8"/>
+            <ellipse cx="-13" cy="35" rx="8"  ry="20" fill="rgba(255,100,10,0.25)" stroke="rgba(255,100,10,0.6)" stroke-width="0.8"/>
+            <ellipse cx="13"  cy="35" rx="8"  ry="20" fill="rgba(255,100,10,0.25)" stroke="rgba(255,100,10,0.6)" stroke-width="0.8"/>
+            <ellipse cx="37"  cy="35" rx="8"  ry="18" fill="rgba(255,160,30,0.25)" stroke="rgba(255,160,30,0.6)" stroke-width="0.8"/>
+          </g>
+        </g>
+
+        <!-- ===== Overall dimension: 38m ===== -->
+        <line x1="20" y1="50" x2="20" y2="496" class="dim-line"/>
+        <line x1="10" y1="50"  x2="30" y2="50"  class="dim-line"/>
+        <line x1="10" y1="496" x2="30" y2="496" class="dim-line"/>
+        <text x="2"  y="278" class="callout-text" fill="var(--bp-accent)" transform="rotate(-90,2,278)">38 METRES TOTAL</text>
+      </svg>
+    </div>
+
+    <!-- Cross-section + 3D isometric view -->
+    <div class="bp-panel" style="display:flex;flex-direction:column;gap:16px;">
+
+      <!-- Cross-section view -->
+      <div>
+        <div class="panel-title">Fuselage Cross-Section — Station 18</div>
+        <svg viewBox="0 0 260 200" aria-label="Circular fuselage cross-section">
+          <!-- outer hull -->
+          <circle cx="130" cy="100" r="85" fill="none" stroke="var(--bp-line)" stroke-width="2.5"/>
+          <!-- inner pressure vessel -->
+          <circle cx="130" cy="100" r="72" fill="rgba(10,22,40,0.8)" stroke="var(--bp-accent)" stroke-width="1" stroke-dasharray="5 3"/>
+          <!-- insulation layer label -->
+          <text x="190" y="60" class="callout-text">INSULATION</text>
+          <line x1="188" y1="62" x2="175" y2="72" class="callout-line"/>
+
+          <!-- internal compartments (cargo cross-section) -->
+          <rect x="70"  y="55"  width="36" height="36" rx="3" fill="rgba(0,212,255,0.12)" stroke="var(--bp-accent)" stroke-width="1"/>
+          <rect x="114" y="55"  width="36" height="36" rx="3" fill="rgba(0,212,255,0.12)" stroke="var(--bp-accent)" stroke-width="1"/>
+          <rect x="70"  y="101" width="36" height="36" rx="3" fill="rgba(255,159,64,0.12)" stroke="var(--bp-orange)" stroke-width="1"/>
+          <rect x="114" y="101" width="36" height="36" rx="3" fill="rgba(255,159,64,0.12)" stroke="var(--bp-orange)" stroke-width="1"/>
+          <text x="75"  y="78" class="callout-text" fill="var(--bp-accent)">CH₄</text>
+          <text x="119" y="78" class="callout-text" fill="var(--bp-accent)">LOX</text>
+          <text x="75"  y="124" class="callout-text" fill="var(--bp-orange)">ELEC</text>
+          <text x="119" y="124" class="callout-text" fill="var(--bp-orange)">LIFE</text>
+
+          <!-- avionics spine -->
+          <rect x="118" y="83" width="24" height="14" rx="2" fill="rgba(77,255,145,0.15)" stroke="var(--bp-green)" stroke-width="1"/>
+          <text x="112" y="92" class="callout-text" fill="var(--bp-green)">AVI</text>
+
+          <!-- diameter dimensions -->
+          <line x1="45" y1="100" x2="215" y2="100" stroke="var(--bp-dim)" stroke-width="0.5" stroke-dasharray="4 2"/>
+          <text x="105" y="13" class="callout-text" fill="var(--bp-label)">⌀ 6 m</text>
+
+          <!-- center cross-hairs -->
+          <line x1="130" y1="40"  x2="130" y2="160" class="center-line" opacity="0.4"/>
+          <line x1="70"  y1="100" x2="190" y2="100" class="center-line" opacity="0.4"/>
+        </svg>
+      </div>
+
+      <!-- Isometric 3D schematic -->
+      <div>
+        <div class="panel-title">Isometric View — 3D Schematic (hover to pause)</div>
+        <div class="perspective-wrap">
+          <svg viewBox="0 0 220 380" class="spacecraft-3d" aria-label="NBS-1 isometric 3D schematic">
+            <!-- Antenna mast -->
+            <rect x="97" y="2"  width="26" height="8" rx="1" fill="none" stroke="var(--bp-accent)" stroke-width="1.5"/>
+            <ellipse cx="110" cy="0" rx="28" ry="7" fill="rgba(0,212,255,0.08)" stroke="var(--bp-accent)" stroke-width="1.2"/>
+            <line x1="110" y1="10" x2="110" y2="25" stroke="var(--bp-line)" stroke-width="1.5"/>
+
+            <!-- Command module cone -->
+            <path d="M110,25 L70,55 L70,95 L150,95 L150,55 Z"
+                  fill="rgba(77,168,255,0.08)" stroke="var(--bp-line)" stroke-width="1.8"/>
+            <!-- Top face -->
+            <path d="M110,25 L74,45 L74,55 L70,55 L110,25 L150,55 L146,55 L146,45 Z"
+                  fill="rgba(0,212,255,0.12)" stroke="var(--bp-accent)" stroke-width="1"/>
+            <!-- windows -->
+            <ellipse cx="88"  cy="68" rx="7" ry="4" fill="rgba(0,212,255,0.25)" stroke="var(--bp-accent)" stroke-width="1"/>
+            <ellipse cx="132" cy="68" rx="7" ry="4" fill="rgba(0,212,255,0.25)" stroke="var(--bp-accent)" stroke-width="1"/>
+
+            <!-- Habitat box -->
+            <rect x="70" y="95" width="80" height="70" fill="rgba(77,168,255,0.06)" stroke="var(--bp-line)" stroke-width="1.8"/>
+            <rect x="70" y="95" width="80" height="10" fill="rgba(0,212,255,0.1)" stroke="var(--bp-accent)" stroke-width="0.8"/>
+
+            <!-- Cargo Bay -->
+            <rect x="70" y="165" width="80" height="130" fill="rgba(77,168,255,0.06)" stroke="var(--bp-line)" stroke-width="2"/>
+            <!-- cargo bay clamshell hint -->
+            <line x1="70"  y1="275" x2="70"  y2="295" stroke="var(--bp-orange)" stroke-width="2"/>
+            <line x1="150" y1="275" x2="150" y2="295" stroke="var(--bp-orange)" stroke-width="2"/>
+            <!-- server rack indicators -->
+            <line x1="90"  y1="170" x2="90"  y2="200" stroke="var(--bp-accent)" stroke-width="0.8"/>
+            <line x1="110" y1="170" x2="110" y2="200" stroke="var(--bp-accent)" stroke-width="0.8"/>
+            <line x1="130" y1="170" x2="130" y2="200" stroke="var(--bp-accent)" stroke-width="0.8"/>
+
+            <!-- Solar panels left & right -->
+            <rect x="12"  y="205" width="56" height="14" fill="rgba(77,168,255,0.2)" stroke="var(--bp-accent)" stroke-width="1.2"/>
+            <rect x="152" y="205" width="56" height="14" fill="rgba(77,168,255,0.2)" stroke="var(--bp-accent)" stroke-width="1.2"/>
+            <line x1="30"  y1="205" x2="30"  y2="219" stroke="var(--bp-grid)" stroke-width="0.6"/>
+            <line x1="50"  y1="205" x2="50"  y2="219" stroke="var(--bp-grid)" stroke-width="0.6"/>
+            <line x1="170" y1="205" x2="170" y2="219" stroke="var(--bp-grid)" stroke-width="0.6"/>
+            <line x1="190" y1="205" x2="190" y2="219" stroke="var(--bp-grid)" stroke-width="0.6"/>
+            <line x1="68"  y1="212" x2="70"  y2="212" stroke="var(--bp-line)" stroke-width="1.5"/>
+            <line x1="150" y1="212" x2="152" y2="212" stroke="var(--bp-line)" stroke-width="1.5"/>
+
+            <!-- Propulsion tapered section -->
+            <path d="M70,295 L80,340 L140,340 L150,295 Z"
+                  fill="rgba(77,168,255,0.06)" stroke="var(--bp-line)" stroke-width="1.8"/>
+            <!-- fuel tank ellipses -->
+            <ellipse cx="98"  cy="318" rx="14" ry="16" fill="rgba(77,168,255,0.08)" stroke="var(--bp-dim)" stroke-width="0.8" stroke-dasharray="3 2"/>
+            <ellipse cx="122" cy="318" rx="14" ry="16" fill="rgba(255,159,64,0.08)" stroke="var(--bp-orange)" stroke-width="0.8" stroke-dasharray="3 2"/>
+
+            <!-- Engine nozzles -->
+            <path d="M80,340 L70,365 L150,365 L140,340 Z" fill="none" stroke="var(--bp-line)" stroke-width="1.5"/>
+            <line x1="95"  y1="340" x2="93"  y2="365" stroke="var(--bp-grid)" stroke-width="0.8"/>
+            <line x1="110" y1="340" x2="110" y2="365" stroke="var(--bp-grid)" stroke-width="0.8"/>
+            <line x1="125" y1="340" x2="127" y2="365" stroke="var(--bp-grid)" stroke-width="0.8"/>
+
+            <!-- Exhaust plume (animated) -->
+            <g class="engine-flame">
+              <ellipse cx="85"  cy="375" rx="6"  ry="14" fill="rgba(255,160,30,0.2)" stroke="rgba(255,160,30,0.5)" stroke-width="0.8"/>
+              <ellipse cx="110" cy="377" rx="7"  ry="16" fill="rgba(255,80,10,0.2)"  stroke="rgba(255,80,10,0.5)"  stroke-width="0.8"/>
+              <ellipse cx="135" cy="375" rx="6"  ry="14" fill="rgba(255,160,30,0.2)" stroke="rgba(255,160,30,0.5)" stroke-width="0.8"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Propulsion schematic -->
+    <div class="bp-panel">
+      <div class="panel-title">Propulsion System — ME-50 Engine Schematic</div>
+      <svg viewBox="0 0 340 200" aria-label="Methalox engine schematic">
+        <!-- turbopump assembly -->
+        <rect x="20" y="40" width="80" height="50" rx="4" fill="rgba(77,168,255,0.08)" stroke="var(--bp-line)" stroke-width="1.5"/>
+        <text x="38" y="62" class="callout-text" fill="var(--bp-label)">TURBO-</text>
+        <text x="38" y="74" class="callout-text" fill="var(--bp-label)">PUMP</text>
+        <!-- CH4 feed line -->
+        <path d="M20,55 Q10,55 10,30 Q10,10 60,10 L180,10" fill="none" stroke="var(--bp-accent)" stroke-width="2"/>
+        <text x="80" y="8" class="callout-text" fill="var(--bp-accent)">CH₄ FEED</text>
+        <!-- LOX feed line -->
+        <path d="M20,70 Q5,70 5,180 L180,180" fill="none" stroke="var(--bp-orange)" stroke-width="2"/>
+        <text x="80" y="195" class="callout-text" fill="var(--bp-orange)">LOX FEED</text>
+        <!-- combustion chamber -->
+        <rect x="140" y="30" width="60" height="120" rx="6" fill="rgba(255,100,30,0.08)" stroke="var(--bp-orange)" stroke-width="2"/>
+        <text x="148" y="92" class="callout-text" fill="var(--bp-orange)">COMB.</text>
+        <text x="148" y="104" class="callout-text" fill="var(--bp-orange)">CHAMBER</text>
+        <!-- nozzle -->
+        <path d="M200,40 L230,20 L240,160 L200,150 Z" fill="rgba(77,168,255,0.06)" stroke="var(--bp-line)" stroke-width="1.5"/>
+        <!-- throat -->
+        <line x1="200" y1="87" x2="230" y2="88" stroke="var(--bp-red)" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <text x="234" y="92" class="callout-text" fill="var(--bp-red)">THROAT</text>
+        <!-- gimbal ring -->
+        <ellipse cx="170" cy="90" rx="4" ry="60" fill="none" stroke="var(--bp-label)" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="112" y="88" class="callout-text">GIMBAL ±15°</text>
+        <!-- feed lines from pump to chamber -->
+        <line x1="100" y1="55" x2="140" y2="55" stroke="var(--bp-accent)" stroke-width="1.5"/>
+        <line x1="100" y1="70" x2="140" y2="70" stroke="var(--bp-orange)" stroke-width="1.5"/>
+        <!-- igniter -->
+        <circle cx="170" cy="55" r="5" fill="rgba(255,90,90,0.3)" stroke="var(--bp-red)" stroke-width="1.2"/>
+        <text x="158" y="48" class="callout-text" fill="var(--bp-red)">IGN.</text>
+        <!-- specs -->
+        <text x="248" y="60" class="callout-text">50 kN THRUST</text>
+        <text x="248" y="74" class="callout-text">ISP 380s</text>
+        <text x="248" y="88" class="callout-text">THROTTLE</text>
+        <text x="248" y="100" class="callout-text">40-100%</text>
+        <!-- exhaust plume -->
+        <g class="engine-flame">
+          <path d="M230,88 Q255,88 260,120 Q256,150 240,160 L230,150" fill="rgba(255,140,20,0.15)" stroke="rgba(255,140,20,0.5)" stroke-width="1"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Avionics & Network diagram -->
+    <div class="bp-panel">
+      <div class="panel-title">Avionics &amp; Network Architecture</div>
+      <svg viewBox="0 0 340 200" aria-label="Avionics and network block diagram">
+        <!-- Flight computer stack -->
+        <rect x="10"  y="20" width="70" height="30" rx="3" fill="rgba(0,212,255,0.1)" stroke="var(--bp-accent)" stroke-width="1.5"/>
+        <rect x="10"  y="55" width="70" height="30" rx="3" fill="rgba(0,212,255,0.1)" stroke="var(--bp-accent)" stroke-width="1.5"/>
+        <rect x="10"  y="90" width="70" height="30" rx="3" fill="rgba(0,212,255,0.1)" stroke="var(--bp-accent)" stroke-width="1.5"/>
+        <text x="28" y="39" class="callout-text" fill="var(--bp-accent)">FC-A</text>
+        <text x="28" y="74" class="callout-text" fill="var(--bp-accent)">FC-B</text>
+        <text x="28" y="109" class="callout-text" fill="var(--bp-accent)">FC-C</text>
+        <text x="14" y="136" class="callout-text">TRIPLE REDUNDANT</text>
+
+        <!-- voting bus -->
+        <rect x="90" y="40" width="20" height="80" rx="2" fill="rgba(77,255,145,0.1)" stroke="var(--bp-green)" stroke-width="1.2"/>
+        <text x="90" y="38" class="callout-text" fill="var(--bp-green)">VOTE</text>
+        <line x1="80" y1="35"  x2="90" y2="55" stroke="var(--bp-accent)" stroke-width="1"/>
+        <line x1="80" y1="70"  x2="90" y2="80" stroke="var(--bp-accent)" stroke-width="1"/>
+        <line x1="80" y1="105" x2="90" y2="105" stroke="var(--bp-accent)" stroke-width="1"/>
+
+        <!-- main data bus -->
+        <rect x="120" y="70" width="100" height="20" rx="2" fill="rgba(77,168,255,0.08)" stroke="var(--bp-line)" stroke-width="1.2"/>
+        <text x="128" y="83" class="callout-text">10G FIBRE DATA BUS</text>
+        <line x1="110" y1="80" x2="120" y2="80" stroke="var(--bp-green)" stroke-width="1.5"/>
+
+        <!-- subsystems -->
+        <rect x="230" y="20"  width="60" height="22" rx="2" fill="rgba(77,168,255,0.08)" stroke="var(--bp-dim)" stroke-width="1"/>
+        <rect x="230" y="48"  width="60" height="22" rx="2" fill="rgba(77,168,255,0.08)" stroke="var(--bp-dim)" stroke-width="1"/>
+        <rect x="230" y="76"  width="60" height="22" rx="2" fill="rgba(77,168,255,0.08)" stroke="var(--bp-dim)" stroke-width="1"/>
+        <rect x="230" y="104" width="60" height="22" rx="2" fill="rgba(77,168,255,0.08)" stroke="var(--bp-dim)" stroke-width="1"/>
+        <rect x="230" y="132" width="60" height="22" rx="2" fill="rgba(77,168,255,0.08)" stroke="var(--bp-dim)" stroke-width="1"/>
+        <text x="234" y="34"  class="callout-text">PROPULSION</text>
+        <text x="234" y="62"  class="callout-text">NAVIGATION</text>
+        <text x="234" y="90"  class="callout-text">LIFE SUPPORT</text>
+        <text x="234" y="118" class="callout-text">COMMS/ANTENNA</text>
+        <text x="234" y="146" class="callout-text">NB SERVERS</text>
+
+        <!-- connections from bus to subsystems -->
+        <line x1="220" y1="75" x2="230" y2="31"  stroke="var(--bp-dim)" stroke-width="0.8"/>
+        <line x1="220" y1="78" x2="230" y2="59"  stroke="var(--bp-dim)" stroke-width="0.8"/>
+        <line x1="220" y1="80" x2="230" y2="87"  stroke="var(--bp-dim)" stroke-width="0.8"/>
+        <line x1="220" y1="82" x2="230" y2="115" stroke="var(--bp-dim)" stroke-width="0.8"/>
+        <line x1="220" y1="85" x2="230" y2="143" stroke="var(--bp-accent)" stroke-width="1.2"/>
+
+        <!-- Ka-band antenna -->
+        <ellipse cx="60" cy="175" rx="22" ry="6" fill="rgba(0,212,255,0.1)" stroke="var(--bp-accent)" stroke-width="1.2"/>
+        <line x1="60" y1="169" x2="60" y2="145" stroke="var(--bp-line)" stroke-width="1.2"/>
+        <rect x="45" y="140" width="30" height="12" rx="2" fill="rgba(0,212,255,0.08)" stroke="var(--bp-label)" stroke-width="1"/>
+        <text x="35" y="188" class="callout-text">Ka-BAND 100Mbps</text>
+
+        <!-- Earth/Moon link -->
+        <line x1="82" y1="175" x2="130" y2="175" stroke="var(--bp-accent)" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="138" y="178" class="callout-text">↔ EARTH / MOONBASE</text>
+      </svg>
+    </div>
+
+  </div><!-- end views-grid -->
+
+  <!-- ===== Mission Timeline ===== -->
+  <div class="bp-panel full-width" style="margin-bottom:24px;">
+    <div class="panel-title">Earth → Moonbase Alpha — Mission Timeline</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0;">
+      <div style="padding:12px;border-right:1px solid var(--bp-grid);">
+        <div style="font-size:10px;color:var(--bp-orange);letter-spacing:1px;margin-bottom:4px;">DAY 0 — LAUNCH</div>
+        <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;">
+          <path d="M50,55 L40,10 L50,0 L60,10 Z" fill="rgba(255,100,30,0.2)" stroke="var(--bp-orange)" stroke-width="1.5"/>
+          <g class="engine-flame"><ellipse cx="50" cy="58" rx="6" ry="10" fill="rgba(255,140,30,0.4)" stroke="rgba(255,140,30,0.6)" stroke-width="0.8"/></g>
+          <text x="22" y="55" class="callout-text" style="font-size:8px">KSC LAUNCH</text>
+        </svg>
+        <div style="font-size:11px;color:var(--bp-dim);">T+0:08:30 orbital insert</div>
+      </div>
+      <div style="padding:12px;border-right:1px solid var(--bp-grid);">
+        <div style="font-size:10px;color:var(--bp-label);letter-spacing:1px;margin-bottom:4px;">DAY 1 — TLI BURN</div>
+        <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;">
+          <circle cx="50" cy="30" r="22" fill="none" stroke="var(--bp-grid)" stroke-width="1" stroke-dasharray="4 2"/>
+          <path d="M72,30 A22,22 0 0 1 28,30" fill="none" stroke="var(--bp-accent)" stroke-width="2"/>
+          <polygon points="72,30 78,24 78,36" fill="var(--bp-accent)"/>
+          <text x="18" y="55" class="callout-text" style="font-size:8px">Δv 3,150 m/s</text>
+        </svg>
+        <div style="font-size:11px;color:var(--bp-dim);">3-day coast to Moon</div>
+      </div>
+      <div style="padding:12px;border-right:1px solid var(--bp-grid);">
+        <div style="font-size:10px;color:var(--bp-accent);letter-spacing:1px;margin-bottom:4px;">DAY 4 — LUNAR ORBIT</div>
+        <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;">
+          <circle cx="50" cy="30" r="14" fill="rgba(200,228,255,0.1)" stroke="var(--bp-dim)" stroke-width="1.5"/>
+          <circle cx="50" cy="30" r="24" fill="none" stroke="var(--bp-line)" stroke-width="1" stroke-dasharray="3 2"/>
+          <circle cx="74" cy="30" r="4"  fill="rgba(0,212,255,0.3)"  stroke="var(--bp-accent)" stroke-width="1.2"/>
+          <text x="10" y="55" class="callout-text" style="font-size:8px">100km polar orbit</text>
+        </svg>
+        <div style="font-size:11px;color:var(--bp-dim);">Lunar orbit insertion</div>
+      </div>
+      <div style="padding:12px;border-right:1px solid var(--bp-grid);">
+        <div style="font-size:10px;color:var(--bp-green);letter-spacing:1px;margin-bottom:4px;">DAY 5 — LANDING</div>
+        <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;">
+          <line x1="10" y1="50" x2="90" y2="50" stroke="var(--bp-dim)" stroke-width="2"/>
+          <path d="M50,10 L40,30 L50,35 L60,30 Z" fill="rgba(77,168,255,0.2)" stroke="var(--bp-line)" stroke-width="1.5"/>
+          <line x1="40" y1="35" x2="36" y2="50" stroke="var(--bp-line)" stroke-width="1.2"/>
+          <line x1="60" y1="35" x2="64" y2="50" stroke="var(--bp-line)" stroke-width="1.2"/>
+          <text x="8" y="60" class="callout-text" style="font-size:8px">Shackleton Crater</text>
+        </svg>
+        <div style="font-size:11px;color:var(--bp-dim);">Powered descent 12 min</div>
+      </div>
+      <div style="padding:12px;border-right:1px solid var(--bp-grid);">
+        <div style="font-size:10px;color:var(--bp-label);letter-spacing:1px;margin-bottom:4px;">DAYS 5-10 — OPS</div>
+        <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;">
+          <rect x="20" y="20" width="60" height="30" rx="3" fill="rgba(77,168,255,0.1)" stroke="var(--bp-line)" stroke-width="1.5"/>
+          <rect x="30" y="25" width="10" height="20" rx="1" fill="rgba(0,212,255,0.2)" stroke="var(--bp-accent)" stroke-width="0.8"/>
+          <rect x="45" y="25" width="10" height="20" rx="1" fill="rgba(0,212,255,0.2)" stroke="var(--bp-accent)" stroke-width="0.8"/>
+          <rect x="60" y="25" width="10" height="20" rx="1" fill="rgba(0,212,255,0.2)" stroke="var(--bp-accent)" stroke-width="0.8"/>
+          <text x="10" y="58" class="callout-text" style="font-size:8px">SERVER UNLOAD</text>
+        </svg>
+        <div style="font-size:11px;color:var(--bp-dim);">Cargo + crew rotation</div>
+      </div>
+      <div style="padding:12px;">
+        <div style="font-size:10px;color:var(--bp-orange);letter-spacing:1px;margin-bottom:4px;">DAY 14 — RETURN</div>
+        <svg viewBox="0 0 100 60" style="width:100%;max-width:120px;">
+          <ellipse cx="50" cy="45" rx="30" ry="8" fill="rgba(77,168,255,0.15)" stroke="var(--bp-line)" stroke-width="1"/>
+          <path d="M50,10 L40,40 L50,44 L60,40 Z" fill="rgba(255,100,30,0.2)" stroke="var(--bp-orange)" stroke-width="1.5"/>
+          <text x="14" y="60" class="callout-text" style="font-size:8px">PACIFIC SPLASHDOWN</text>
+        </svg>
+        <div style="font-size:11px;color:var(--bp-dim);">Reentry + recovery</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <div class="bp-footer">
+    <span>NBS-1-2026-VIZ-R2.1 · NetworkBuster Aerospace Division</span>
+    <span>Revision 2.1 · Production Ready</span>
+    <span>© 2026 NetworkBuster Space Division</span>
+  </div>
+
+</div><!-- end container -->
+</body>
+</html>
