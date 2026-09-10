@@ -117,12 +117,22 @@
 
         function renderFunctions() {
             const list = document.getElementById('functionList');
-            list.innerHTML = functions.map(fn => `
-                <div class="link-card">
-                    <a href="${fn.path}">${fn.name}</a>
-                    <small>${fn.desc}</small>
-                </div>
-            `).join('');
+            list.replaceChildren();
+
+            functions.forEach(fn => {
+                const card = document.createElement('div');
+                card.className = 'link-card';
+
+                const link = document.createElement('a');
+                link.href = fn.path;
+                link.textContent = fn.name;
+
+                const description = document.createElement('small');
+                description.textContent = fn.desc;
+
+                card.append(link, description);
+                list.appendChild(card);
+            });
         }
 
         async function pingEndpoint(check) {
@@ -144,16 +154,36 @@
 
         function renderStatus(results) {
             const container = document.getElementById('statusRows');
-            container.innerHTML = results.map(r => `
-                <div class="status-row">
-                    <div>
-                        <strong>${r.label}</strong>
-                        <span class="latency">${r.latency} ms</span>
-                        ${r.message ? `<div class="subtle">${r.message}</div>` : ''}
-                    </div>
-                    <span class="chip ${r.status === 'ok' ? 'ok' : 'err'}">${r.status === 'ok' ? 'ONLINE' : 'ISSUE'}</span>
-                </div>
-            `).join('');
+            container.replaceChildren();
+
+            results.forEach(r => {
+                const row = document.createElement('div');
+                row.className = 'status-row';
+
+                const info = document.createElement('div');
+                const label = document.createElement('strong');
+                label.textContent = r.label;
+
+                const latency = document.createElement('span');
+                latency.className = 'latency';
+                latency.textContent = `${r.latency} ms`;
+
+                info.append(label, latency);
+
+                if (r.message) {
+                    const message = document.createElement('div');
+                    message.className = 'subtle';
+                    message.textContent = r.message;
+                    info.appendChild(message);
+                }
+
+                const chip = document.createElement('span');
+                chip.className = `chip ${r.status === 'ok' ? 'ok' : 'err'}`;
+                chip.textContent = r.status === 'ok' ? 'ONLINE' : 'ISSUE';
+
+                row.append(info, chip);
+                container.appendChild(row);
+            });
         }
 
         async function runChecks() {

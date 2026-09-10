@@ -339,18 +339,29 @@
                 const data = await response.json();
 
                 const alertsList = document.getElementById('alertsList');
+                alertsList.replaceChildren();
                 
                 if (data.alerts.length === 0) {
-                    alertsList.innerHTML = '<p>No amber alerts. System is secure. ✅</p>';
+                    const message = document.createElement('p');
+                    message.textContent = 'No amber alerts. System is secure. ✅';
+                    alertsList.appendChild(message);
                 } else {
-                    alertsList.innerHTML = data.alerts.slice(0, 10).map(alert => `
-                        <div class="alert-item ${alert.level === 'CRITICAL' ? 'critical' : ''}">
-                            ${alert.status} <strong>${alert.type}</strong><br>
-                            Source: ${alert.source.ip || 'Unknown'}<br>
-                            Time: ${new Date(alert.timestamp).toLocaleString()}<br>
-                            Action: ${alert.action}
-                        </div>
-                    `).join('');
+                    data.alerts.slice(0, 10).forEach(alert => {
+                        const item = document.createElement('div');
+                        item.className = `alert-item ${alert.level === 'CRITICAL' ? 'critical' : ''}`.trim();
+
+                        item.append(document.createTextNode(`${alert.status || 'Unknown'} `));
+
+                        const type = document.createElement('strong');
+                        type.textContent = alert.type || 'Unknown';
+                        item.append(type, document.createElement('br'));
+
+                        item.append(document.createTextNode(`Source: ${alert.source?.ip || 'Unknown'}`), document.createElement('br'));
+                        item.append(document.createTextNode(`Time: ${new Date(alert.timestamp).toLocaleString()}`), document.createElement('br'));
+                        item.append(document.createTextNode(`Action: ${alert.action || 'None'}`));
+
+                        alertsList.appendChild(item);
+                    });
                 }
             } catch (error) {
                 console.error('Alerts API error:', error);
@@ -367,19 +378,34 @@
                 document.getElementById('timelineStatus').textContent = `${data.total} Events Recorded`;
 
                 const timelineList = document.getElementById('timelineList');
+                timelineList.replaceChildren();
                 
                 if (data.events.length === 0) {
-                    timelineList.innerHTML = '<p>No timeline events yet.</p>';
+                    const message = document.createElement('p');
+                    message.textContent = 'No timeline events yet.';
+                    timelineList.appendChild(message);
                 } else {
-                    timelineList.innerHTML = data.events.map(event => `
-                        <div class="timeline-item">
-                            <div class="timeline-time">${new Date(event.timestamp).toLocaleString()}</div>
-                            <div class="timeline-content">
-                                <strong>${event.type}</strong><br>
-                                ${JSON.stringify(event.data).substring(0, 100)}...
-                            </div>
-                        </div>
-                    `).join('');
+                    data.events.forEach(event => {
+                        const item = document.createElement('div');
+                        item.className = 'timeline-item';
+
+                        const time = document.createElement('div');
+                        time.className = 'timeline-time';
+                        time.textContent = new Date(event.timestamp).toLocaleString();
+
+                        const content = document.createElement('div');
+                        content.className = 'timeline-content';
+
+                        const type = document.createElement('strong');
+                        type.textContent = event.type || 'Unknown';
+                        content.append(type, document.createElement('br'));
+
+                        const details = JSON.stringify(event.data ?? {}).substring(0, 100);
+                        content.appendChild(document.createTextNode(`${details}...`));
+
+                        item.append(time, content);
+                        timelineList.appendChild(item);
+                    });
                 }
             } catch (error) {
                 console.error('Timeline API error:', error);
@@ -393,17 +419,24 @@
                 const data = await response.json();
 
                 const predictions = document.getElementById('predictions');
+                predictions.replaceChildren();
                 
                 if (data.predictions.length === 0) {
-                    predictions.innerHTML = '<p>No predictions available. System operating normally.</p>';
+                    const message = document.createElement('p');
+                    message.textContent = 'No predictions available. System operating normally.';
+                    predictions.appendChild(message);
                 } else {
-                    predictions.innerHTML = data.predictions.map(pred => `
-                        <p>
-                            <strong>${pred.type}</strong> (Confidence: ${(pred.confidence * 100).toFixed(0)}%)<br>
-                            Expected: ${new Date(pred.timestamp).toLocaleString()}<br>
-                            ${pred.description || pred.reasoning}
-                        </p>
-                    `).join('');
+                    data.predictions.forEach(pred => {
+                        const item = document.createElement('p');
+                        const type = document.createElement('strong');
+                        type.textContent = pred.type || 'Unknown';
+
+                        item.append(type, document.createTextNode(` (Confidence: ${(pred.confidence * 100).toFixed(0)}%)`), document.createElement('br'));
+                        item.append(document.createTextNode(`Expected: ${new Date(pred.timestamp).toLocaleString()}`), document.createElement('br'));
+                        item.append(document.createTextNode(pred.description || pred.reasoning || ''));
+
+                        predictions.appendChild(item);
+                    });
                 }
             } catch (error) {
                 console.error('Predictions API error:', error);

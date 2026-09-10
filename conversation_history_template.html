@@ -323,8 +323,8 @@
             listContainer.innerHTML = filteredConversations.map((conv, index) => `
                 <div class="conversation-item">
                     <div class="conversation-header">
-                        <span class="timestamp">🕐 ${new Date(conv.timestamp).toLocaleString()}</span>
-                        <span class="session-badge">📅 ${conv.session}</span>
+                        <span class="timestamp">🕐 ${escapeHtml(new Date(conv.timestamp).toLocaleString())}</span>
+                        <span class="session-badge">📅 ${escapeHtml(conv.session)}</span>
                     </div>
                     <div class="question">
                         <div class="question-label">
@@ -336,7 +336,7 @@
                         <div class="answer-label">
                             <span>🤖 NetworkBuster AI responded:</span>
                         </div>
-                        <div class="answer-content">${conv.ai_response}</div>
+                        <div class="answer-content">${escapeHtml(conv.ai_response)}</div>
                     </div>
                 </div>
             `).join('');

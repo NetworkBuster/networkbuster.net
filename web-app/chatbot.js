@@ -194,6 +194,49 @@ const SENTIMENT_WORDS = {
 };
 
 class NetworkBusterChatbot {
+      createFormattedContent(text) {
+        const container = document.createElement('div');
+        const lines = String(text).split('\n');
+
+        lines.forEach((line, index) => {
+          if (index > 0) container.appendChild(document.createElement('br'));
+          this.appendInlineFormatting(container, line);
+        });
+
+        return container;
+      }
+
+      appendInlineFormatting(container, text) {
+        const pattern = /(\*\*.*?\*\*|•)/g;
+        let lastIndex = 0;
+
+        for (const match of text.matchAll(pattern)) {
+          const [token] = match;
+          const index = match.index ?? 0;
+
+          if (index > lastIndex) {
+            container.appendChild(document.createTextNode(text.slice(lastIndex, index)));
+          }
+
+          if (token === '•') {
+            const bullet = document.createElement('span');
+            bullet.className = 'bullet';
+            bullet.textContent = token;
+            container.appendChild(bullet);
+          } else {
+            const strong = document.createElement('strong');
+            strong.textContent = token.slice(2, -2);
+            container.appendChild(strong);
+          }
+
+          lastIndex = index + token.length;
+        }
+
+        if (lastIndex < text.length) {
+          container.appendChild(document.createTextNode(text.slice(lastIndex)));
+        }
+      }
+
       // Enhanced: Suggest commands if relevant
       addCommandSuggestions(userInput) {
         const matches = searchCommandIndex(userInput);
@@ -202,8 +245,27 @@ class NetworkBusterChatbot {
         if (!messagesContainer) return;
         const suggestionDiv = document.createElement('div');
         suggestionDiv.className = 'chatbot-message bot-message';
-        suggestionDiv.innerHTML = '<b>Relevant Commands:</b><ul style="margin:8px 0 0 16px;">' +
-          matches.map(cmd => `<li><b>${cmd.name}:</b> <code>${cmd.command}</code><br><span style='font-size:0.95em;color:#8b949e;'>${cmd.description}</span></li>`).join('') + '</ul>';
+        const title = document.createElement('b');
+        title.textContent = 'Relevant Commands:';
+        const list = document.createElement('ul');
+        list.style.margin = '8px 0 0 16px';
+
+        matches.forEach(cmd => {
+          const item = document.createElement('li');
+          const name = document.createElement('b');
+          name.textContent = `${cmd.name}:`;
+          const code = document.createElement('code');
+          code.textContent = cmd.command;
+          const description = document.createElement('span');
+          description.style.fontSize = '0.95em';
+          description.style.color = '#8b949e';
+          description.textContent = cmd.description;
+
+          item.append(name, ' ', code, document.createElement('br'), description);
+          list.appendChild(item);
+        });
+
+        suggestionDiv.append(title, list);
         messagesContainer.appendChild(suggestionDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
@@ -392,24 +454,26 @@ class NetworkBusterChatbot {
     messageEl.className = `chatbot-message ${sender}-message`;
     
     const avatar = sender === 'bot' ? CHATBOT_CONFIG.avatar : '👤';
-    messageEl.innerHTML = `
-      <span class="message-avatar">${avatar}</span>
-      <div class="message-content">
-        <div class="message-text">${this.formatMessage(text)}</div>
-        <div class="message-time">${this.getTimeString()}</div>
-      </div>
-    `;
+    const avatarEl = document.createElement('span');
+    avatarEl.className = 'message-avatar';
+    avatarEl.textContent = avatar;
+
+    const contentEl = document.createElement('div');
+    contentEl.className = 'message-content';
+
+    const textEl = document.createElement('div');
+    textEl.className = 'message-text';
+    textEl.appendChild(this.createFormattedContent(text));
+
+    const timeEl = document.createElement('div');
+    timeEl.className = 'message-time';
+    timeEl.textContent = this.getTimeString();
+
+    contentEl.append(textEl, timeEl);
+    messageEl.append(avatarEl, contentEl);
     
     messagesContainer.appendChild(messageEl);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }
-
-  formatMessage(text) {
-    // Convert newlines to <br> and preserve formatting
-    return text
-      .replace(/\n/g, '<br>')
-      .replace(/•/g, '<span class="bullet">•</span>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   }
 
   getTimeString() {
