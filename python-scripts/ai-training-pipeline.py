@@ -1,6 +1,13 @@
 # AI Training Pipeline - Configuration & Setup
 # NetworkBuster AI Model Training System
 # Integrates with Azure Storage for dataset management and model deployment
+"""
+Required Dependencies:
+    pip install azure-storage-blob==12.19.0
+    pip install azure-storage-queue==12.9.0
+    pip install tensorflow==2.15.0
+    pip install scikit-learn==1.4.0
+"""
 
 import os
 import json
@@ -15,6 +22,16 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Azure Storage SDK imports
+try:
+    from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+    from azure.storage.queue import QueueServiceClient, QueueClient
+    from azure.core.exceptions import ResourceNotFoundError, ResourceExistsError, AzureError
+    AZURE_SDK_AVAILABLE = True
+except ImportError:
+    logger.warning("⚠️ Azure SDK not installed. Install with: pip install azure-storage-blob azure-storage-queue")
+    AZURE_SDK_AVAILABLE = False
 
 class AITrainingPipelineConfig:
     """Configuration for NetworkBuster AI Training Pipeline"""
@@ -71,6 +88,14 @@ class AITrainingPipelineConfig:
         'environment': 'production',
         'organization': 'NetworkBuster'
     }
+    
+    @classmethod
+    def validate_config(cls) -> bool:
+        """Validate configuration without exposing secrets"""
+        if not cls.CONNECTION_STRING or 'xxx' in cls.CONNECTION_STRING:
+            logger.error("❌ Invalid Azure Storage connection string")
+            return False
+        return True
 
 
 class TrainingDatasetManager:
@@ -101,24 +126,101 @@ class TrainingDatasetManager:
             'records': 'TBD'
         }
     
+    async def ensure_containers_exist(self) -> bool:
+        """Ensure required Azure containers exist"""
+        if not AZURE_SDK_AVAILABLE:
+            return False
+        
+        try:
+            blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
+            
+            # Create datasets container
+            try:
+                blob_service_client.create_container(AITrainingPipelineConfig.DATASETS_CONTAINER)
+                logger.info(f"✅ Created container: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
+            except ResourceExistsError:
+                logger.info(f"Container already exists: {AITrainingPipelineConfig.DATASETS_CONTAINER}")
+            except AzureError as e:
+                logger.warning(f"⚠️ Container creation issue: {e}")
+            except Exception as e:
+                logger.warning(f"⚠️ Unexpected error creating container: {e}")
+            
+            # Create models container
+            try:
+                blob_service_client.create_container(AITrainingPipelineConfig.MODELS_CONTAINER)
+                logger.info(f"✅ Created container: {AITrainingPipelineConfig.MODELS_CONTAINER}")
+            except ResourceExistsError:
+                logger.info(f"Container already exists: {AITrainingPipelineConfig.MODELS_CONTAINER}")
+            except AzureError as e:
+                logger.warning(f"⚠️ Container creation issue: {e}")
+            except Exception as e:
+                logger.warning(f"⚠️ Unexpected error creating container: {e}")
+            
+            return True
+        except Exception as e:
+            logger.error(f"❌ Failed to create containers: {e}")
+            return False
+    
     async def upload_dataset(self, local_path: str, blob_name: str) -> bool:
         """Upload dataset to Azure Blob Storage"""
+        if not AZURE_SDK_AVAILABLE:
+            logger.error("Azure SDK not available")
+            return False
+        
         logger.info(f"Uploading dataset from {local_path} to {blob_name}")
         try:
-            # TODO: Implement Azure SDK upload
+            blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
+            blob_client = blob_service_client.get_blob_client(
+                container=AITrainingPipelineConfig.DATASETS_CONTAINER, 
+                blob=blob_name
+            )
+            
+            with open(local_path, "rb") as data:
+                blob_client.upload_blob(data, overwrite=True)
+            
             logger.info(f"✅ Dataset uploaded: {blob_name}")
             return True
+        except FileNotFoundError:
+            logger.error(f"❌ File not found: {local_path}")
+            return False
+        except AzureError as e:
+            logger.error(f"❌ Azure upload failed: {e}")
+            return False
         except Exception as e:
             logger.error(f"❌ Upload failed: {e}")
             return False
     
     async def download_dataset(self, blob_name: str, local_path: str) -> bool:
         """Download dataset from Azure Blob Storage"""
+        if not AZURE_SDK_AVAILABLE:
+            logger.error("Azure SDK not available")
+            return False
+        
         logger.info(f"Downloading dataset {blob_name} to {local_path}")
         try:
-            # TODO: Implement Azure SDK download
+            # Ensure directory exists
+            dir_path = os.path.dirname(local_path)
+            if dir_path:  # Only create directory if path has a directory component
+                os.makedirs(dir_path, exist_ok=True)
+            
+            blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
+            blob_client = blob_service_client.get_blob_client(
+                container=AITrainingPipelineConfig.DATASETS_CONTAINER, 
+                blob=blob_name
+            )
+            
+            with open(local_path, "wb") as download_file:
+                download_stream = blob_client.download_blob()
+                download_file.write(download_stream.readall())
+            
             logger.info(f"✅ Dataset downloaded: {blob_name}")
             return True
+        except ResourceNotFoundError:
+            logger.error(f"❌ Blob not found: {blob_name}")
+            return False
+        except AzureError as e:
+            logger.error(f"❌ Azure download failed: {e}")
+            return False
         except Exception as e:
             logger.error(f"❌ Download failed: {e}")
             return False
@@ -230,16 +332,43 @@ class TrainingOrchestrator:
         """Process training jobs from Azure Storage Queue"""
         logger.info("🔄 Processing training queue...")
         
-        try:
-            # TODO: Implement Azure Queue integration
+        if not AZURE_SDK_AVAILABLE:
+            logger.warning("Azure SDK not available, using local config")
             training_configs = AITrainingPipelineConfig.TRAINING_CONFIGS
-            
-            for config_key, config in training_configs.items():
+            for config_key in training_configs.keys():
                 logger.info(f"📥 Job received: {config_key}")
                 await self.execute_training_job(config_key)
+            return
         
+        try:
+            queue_service_client = QueueServiceClient.from_connection_string(self.connection_string)
+            queue_client = queue_service_client.get_queue_client(
+                AITrainingPipelineConfig.TRAINING_QUEUE_NAME
+            )
+            
+            # Receive messages from queue
+            messages = queue_client.receive_messages(messages_per_page=10, visibility_timeout=300)
+            
+            for message in messages:
+                try:
+                    job_data = json.loads(message.content)
+                    config_key = job_data.get('config_key')
+                    
+                    logger.info(f"📥 Job received: {config_key}")
+                    await self.execute_training_job(config_key)
+                    
+                    # Delete message after successful processing
+                    queue_client.delete_message(message)
+                    
+                except json.JSONDecodeError:
+                    logger.error(f"❌ Invalid message format: {message.content}")
+                except Exception as e:
+                    logger.error(f"❌ Failed to process message: {e}")
+        
+        except AzureError as e:
+            logger.error(f"❌ Azure Queue operation failed: {e}")
         except Exception as e:
-            logger.error(f"❌ Queue processing failed: {e}")
+            logger.error(f"❌ Unexpected queue processing error: {e}")
     
     async def execute_training_job(self, config_key: str) -> Dict:
         """Execute a single training job"""
@@ -251,6 +380,16 @@ class TrainingOrchestrator:
             # 1. Download dataset
             logger.info(f"📥 Downloading dataset: {config['dataset']}")
             dataset_path = f"./datasets/{config['dataset']}"
+            
+            # Actually download the dataset
+            download_success = await self.dataset_manager.download_dataset(
+                blob_name=config['dataset'],
+                local_path=dataset_path
+            )
+            
+            if not download_success:
+                logger.error(f"❌ Failed to download dataset for {config_key}")
+                return {'job_id': config_key, 'status': 'failed', 'error': 'Dataset download failed'}
             
             # 2. Train model
             trainer = ModelTrainer(config_key)
@@ -309,7 +448,15 @@ async def initialize_pipeline(connection_string: str) -> TrainingOrchestrator:
     """Initialize the AI training pipeline"""
     logger.info("🔧 Initializing AI Training Pipeline")
     
+    # Validate configuration
+    if not AITrainingPipelineConfig.validate_config():
+        logger.error("❌ Invalid configuration")
+        return None
+    
     orchestrator = TrainingOrchestrator(connection_string)
+    
+    # Ensure containers exist
+    await orchestrator.dataset_manager.ensure_containers_exist()
     
     logger.info("✅ Pipeline initialization complete")
     return orchestrator

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetworkBuster | Quick Access</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #111;
+            --accent: #00f2ff;
+            --text: #eee;
+            --text-dim: #888;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 90%;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        p {
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid #222;
+            padding: 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: left;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #444;
+            background: #181818;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Glassmorphism background effect */
+        .blur-bg {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 242, 255, 0.05) 0%, transparent 70%);
+            z-index: -1;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="blur-bg"></div>
+    <div class="container">
+        <h1>NetworkBuster</h1>
+        <p>Local Development Control Center</p>
+
+        <div class="grid">
+            <a href="http://localhost:3000" class="card" target="_blank">
+                <span class="card-icon">🌐</span>
+                <span class="card-title">Main App</span>
+                <span class="card-desc">Production dashboard and web interface</span>
+            </a>
+
+            <a href="http://localhost:3000/overlay" class="card" target="_blank">
+                <span class="card-icon">📡</span>
+                <span class="card-title">3D Overlay</span>
+                <span class="card-desc">Real-time Three.js visualization</span>
+            </a>
+
+            <a href="http://localhost:3002/audio-lab" class="card" target="_blank">
+                <span class="card-icon">🎵</span>
+                <span class="card-title">Audio Lab</span>
+                <span class="card-desc">Frequency analysis and signal synthesis</span>
+            </a>
+
+            <a href="http://localhost:3001/api/health" class="card" target="_blank">
+                <span class="card-icon">⚙️</span>
+                <span class="card-title">API Server</span>
+                <span class="card-desc">System health and metadata endpoints</span>
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>
