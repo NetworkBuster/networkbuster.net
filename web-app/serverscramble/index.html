@@ -396,7 +396,14 @@
             const line = document.createElement('div');
             line.className = `line ${type}`;
             const time = new Date().toLocaleTimeString([], { hour12: false });
-            line.innerHTML = `<span style="color: #666">[${time}]</span> ${message}`;
+            const timeEl = document.createElement('span');
+            timeEl.style.color = '#666';
+            timeEl.textContent = `[${time}] `;
+
+            const messageEl = document.createElement('span');
+            messageEl.textContent = message;
+
+            line.append(timeEl, messageEl);
             consoleEl.appendChild(line);
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
@@ -415,7 +422,7 @@
         function generateRandomMac() {
             const newMac = generateMac();
             macEl.textContent = newMac;
-            log(`New MAC generated: <span class="info">${newMac}</span>`, 'success');
+            log(`New MAC generated: ${newMac}`, 'success');
         }
 
         function clearConsole() {
@@ -427,7 +434,7 @@
             isScrambling = true;
 
             const target = document.getElementById('serverSelect').value;
-            log(`Starting 5G WiFi Scramble sequence for target: <span class="info">${target}</span>`, "warn");
+            log(`Starting 5G WiFi Scramble sequence for target: ${target}`, "warn");
 
             const steps = [
                 "Scanning for local 5G access points...",
