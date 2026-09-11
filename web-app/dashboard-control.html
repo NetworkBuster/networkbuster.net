@@ -498,24 +498,59 @@
         // Render connections
         function renderConnections() {
             const list = document.getElementById('connectionList');
+            list.replaceChildren();
+
             if (connections.length === 0) {
-                list.innerHTML = '<p style="color: #718096; text-align: center; padding: 20px;">No connections yet</p>';
+                const empty = document.createElement('p');
+                empty.style.color = '#718096';
+                empty.style.textAlign = 'center';
+                empty.style.padding = '20px';
+                empty.textContent = 'No connections yet';
+                list.appendChild(empty);
                 return;
             }
 
-            list.innerHTML = connections.map(conn => `
-                <div class="connection-item ${conn.status}">
-                    <div class="connection-info">
-                        <div class="connection-name">${conn.name}</div>
-                        <div class="connection-url">${conn.url}</div>
-                    </div>
-                    <div class="connection-status">
-                        <div class="status-indicator ${conn.status}"></div>
-                        <button class="btn btn-info" style="padding: 6px 12px; font-size: 0.85em;" onclick="testConnection(${conn.id})">Test</button>
-                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.85em;" onclick="removeConnection(${conn.id})">Remove</button>
-                    </div>
-                </div>
-            `).join('');
+            connections.forEach(conn => {
+                const item = document.createElement('div');
+                item.className = `connection-item ${conn.status}`;
+
+                const info = document.createElement('div');
+                info.className = 'connection-info';
+
+                const name = document.createElement('div');
+                name.className = 'connection-name';
+                name.textContent = conn.name;
+
+                const url = document.createElement('div');
+                url.className = 'connection-url';
+                url.textContent = conn.url;
+
+                info.append(name, url);
+
+                const status = document.createElement('div');
+                status.className = 'connection-status';
+
+                const indicator = document.createElement('div');
+                indicator.className = `status-indicator ${conn.status}`;
+
+                const testButton = document.createElement('button');
+                testButton.className = 'btn btn-info';
+                testButton.style.padding = '6px 12px';
+                testButton.style.fontSize = '0.85em';
+                testButton.textContent = 'Test';
+                testButton.addEventListener('click', () => testConnection(conn.id));
+
+                const removeButton = document.createElement('button');
+                removeButton.className = 'btn btn-danger';
+                removeButton.style.padding = '6px 12px';
+                removeButton.style.fontSize = '0.85em';
+                removeButton.textContent = 'Remove';
+                removeButton.addEventListener('click', () => removeConnection(conn.id));
+
+                status.append(indicator, testButton, removeButton);
+                item.append(info, status);
+                list.appendChild(item);
+            });
         }
 
         // Update statistics
@@ -667,12 +702,22 @@
             if (activityLogs.length > 50) activityLogs.pop();
 
             const logEl = document.getElementById('activityLog');
-            logEl.innerHTML = activityLogs.map(log => `
-                <div class="log-entry ${log.type}">
-                    <span class="log-time">${log.time}</span>
-                    <span>${log.message}</span>
-                </div>
-            `).join('');
+            logEl.replaceChildren();
+
+            activityLogs.forEach(log => {
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${log.type}`;
+
+                const timeEl = document.createElement('span');
+                timeEl.className = 'log-time';
+                timeEl.textContent = log.time;
+
+                const messageEl = document.createElement('span');
+                messageEl.textContent = log.message;
+
+                entry.append(timeEl, messageEl);
+                logEl.appendChild(entry);
+            });
         }
 
         // Update uptime

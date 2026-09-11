@@ -251,15 +251,15 @@ async function updateServerUI(serverKey, result) {
         statusEl.textContent = 'ONLINE';
 
         // Add live data if available
-        let extraInfo = '';
+        let extraInfo = null;
         if (serverKey === 'api' && result.data.systemInfo) {
             const mem = (result.data.systemInfo.memoryUsage.heapUsed / (1024 * 1024)).toFixed(1); // Convert bytes to MB
-            extraInfo = `<div style="font-size:0.75rem; color:var(--text-dim); margin-top:5px;">RAM: ${mem}MB</div>`;
+            extraInfo = `RAM: ${mem}MB`;
         } else if (serverKey === 'timeline' && result.data.snapshot) {
             const branch = result.data.snapshot.git.branch || 'N/A';
-            extraInfo = `<div style="font-size:0.75rem; color:var(--text-dim); margin-top:5px;">Branch: ${branch}</div>`;
+            extraInfo = `Branch: ${branch}`;
         } else if (serverKey === 'bot' && result.data.status) {
-            extraInfo = `<div style="font-size:0.75rem; color:var(--text-dim); margin-top:5px;">State: ${result.data.status}</div>`;
+            extraInfo = `State: ${result.data.status}`;
         }
 
         // Clear old info and add new
@@ -269,7 +269,10 @@ async function updateServerUI(serverKey, result) {
         if (extraInfo) {
             const infoDiv = document.createElement('div');
             infoDiv.className = 'pulse-extra';
-            infoDiv.innerHTML = extraInfo;
+            infoDiv.style.fontSize = '0.75rem';
+            infoDiv.style.color = 'var(--text-dim)';
+            infoDiv.style.marginTop = '5px';
+            infoDiv.textContent = extraInfo;
             card.appendChild(infoDiv);
         }
     } else {
